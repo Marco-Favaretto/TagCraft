@@ -333,3 +333,9 @@ The main unresolved dependency is `yt-dlp`, which may remain a system requiremen
     * Dropping an image directly onto the artwork preview.
     * Replacing existing artwork through drag and drop.
 2. Reordering tracks in list using drag and drop feature and visual indication of the drop position.
+
+## 6.3 Sync with mp3
+Add data in model to keep track of which mp3 file is in the mp3. 
+
+## 6.4 Dark mode
+Possibility to change with a toggle between light and dark mode, maybe using current system mode as default
