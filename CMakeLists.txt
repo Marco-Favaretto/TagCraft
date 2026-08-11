@@ -11,16 +11,19 @@ set(CMAKE_AUTOUIC_SEARCH_PATHS
 )
 
 qt_add_executable(TagCraft
-    WIN32 MACOSX_BUNDLE
-    main.cpp
-    src/sources/mainwindow.cpp
-    src/headers/mainwindow.h
+    WIN32
+    MACOSX_BUNDLE
+
+    src/main.cpp
+
+    src/ui/mainwindow.cpp
+    src/ui/mainwindow.h
     src/ui/mainwindow.ui
 )
 
 target_include_directories(TagCraft
     PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/headers
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 target_link_libraries(TagCraft
