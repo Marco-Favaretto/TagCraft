@@ -1,0 +1,48 @@
+Table Artist {
+  id integer [pk, increment]
+  name text [not null, unique]
+}
+
+Table Album {
+  id integer [pk, increment]
+  title text [not null]
+  artist_id integer [not null, default: 1]
+  cover_cache_hash text [note: 'Nome/Hash della thumbnail in cache, es. a1b2c3d4.jpg']
+
+  indexes {
+    (title, artist_id) [unique]
+  }
+}
+
+Table Genre {
+  id integer [pk, increment]
+  name text [not null, unique]
+}
+
+Table Track {
+  id integer [pk, increment]
+  title text [not null]
+  artist_id integer [not null, default: 1]
+  album_id integer [not null, default: 1]
+  genre_id integer [default: 1]
+  year integer
+  track_number integer
+  duration_seconds integer
+
+  relative_path text [not null, unique, note: 'Percorso relativo sul supporto esterno']
+  file_mtime integer [not null, note: 'Unix timestamp dell ultima modifica']
+  file_size integer [not null, note: 'Dimensione del file in byte']
+  track_cover_hash text [note: 'NULL se usa la cover dell album/default']
+
+  indexes {
+    relative_path [name: 'idx_track_path']
+    album_id [name: 'idx_track_album']
+    artist_id [name: 'idx_track_artist']
+  }
+}
+
+Ref: Album.artist_id > Artist.id [delete: restrict]
+
+Ref: Track.artist_id > Artist.id [delete: restrict]
+Ref: Track.album_id > Album.id [delete: restrict]
+Ref: Track.genre_id > Genre.id [delete: restrict]
