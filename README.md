@@ -9,4 +9,4 @@ Try to keep the project organized with GitHub Actions, Issues and Project.
 ## AI Usage in the Project (mostly Claude and Gemini)
 * Assistance with problem-solving, reasoning, and identifying potential issues.
 * Documentation, planning, and workflow organization.
-* UI baseline and initial design and implementtions, although they will still follow my requirements described in docs/requirements.md — because even the most confusing Picasso painting looks more organized than my best UI.
+* UI implementation and visual refinement, based on the baseline defined in `docs/requirements.md`. — because even the most confusing Picasso painting looks more organized than my best UI.
