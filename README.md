@@ -6,6 +6,45 @@ The application allows users to catalog their music library, view and edit metad
 ### Side Goal
 Try to keep the project organized with GitHub Actions, Issues and Project.
 
+---
+
+# Installation Guide (Linux only right now)
+
+## Option 1: Downloading Pre-built Binaries (Release)
+
+1. Go to the [Releases](../../releases) page and download the latest archive (`TagCraft-vX.Y.Z-linux-x64.tar.gz`).
+2. Ensure you have the required runtime dependencies installed:
+   * `qt6-base` 
+   * `taglib`
+3. Extract the archive and run the application:
+   ```bash
+   tar -xzf TagCraft-v*.tar.gz
+   cd package  # or the directory where it was extracted
+   ./bin/TagCraft
+   ```
+
+## Option 2: Building from Source
+### Prerequisites:
+- C++20 compatible compiler (GCC 10+, Clang 11+)
+- CMake 3.19+
+- Qt 6.5+ (Core, Gui, Sql, Widgets)
+- TagLib
+### Build Steps
+```bash
+# 1. Clone the repository
+git clone [https://github.com/YOUR_USERNAME/TagCraft.git](https://github.com/YOUR_USERNAME/TagCraft.git)
+cd TagCraft
+# 2. Configure the project
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+# 3. Build the executable
+cmake --build build --config Release
+# 4. Run the application
+./build/TagCraft
+```
+
+
+---
+
 ## AI Usage in the Project (mostly Claude and Gemini)
 * Assistance with problem-solving, reasoning, and identifying potential issues.
 * Documentation, planning, and workflow organization.

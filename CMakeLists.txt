@@ -2,7 +2,16 @@ cmake_minimum_required(VERSION 3.19)
 
 project(TagCraft LANGUAGES CXX)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Widgets)
+# Impostazione standard C++ (C++17 o C++20)
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Dipendenze Qt6 (Aggiunti Sql e Gui)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Gui Sql Widgets)
+
+# Gestione TagLib (su Arch Linux la configurazione CMake/PkgConfig è nativa)
+find_package(TagLib REQUIRED)
 
 qt_standard_project_setup()
 
@@ -24,12 +33,17 @@ qt_add_executable(TagCraft
 target_include_directories(TagCraft
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src
+        ${TagLib_INCLUDE_DIRS}
 )
 
+# Link delle librerie Qt e TagLib
 target_link_libraries(TagCraft
     PRIVATE
         Qt6::Core
+        Qt6::Gui
+        Qt6::Sql
         Qt6::Widgets
+        TagLib::TagLib
 )
 
 install(TARGETS TagCraft
