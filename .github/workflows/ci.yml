@@ -5,7 +5,6 @@ on:
     branches:
       - dev
       - main
-
   pull_request:
     branches:
       - dev
@@ -26,7 +25,7 @@ jobs:
       - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libtag1-dev
+          sudo apt-get install -y pkg-config libtag1-dev
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
@@ -36,8 +35,7 @@ jobs:
 
       - name: Configure CMake
         run: |
-          cmake -S . -B build \
-            -DCMAKE_BUILD_TYPE=Release
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
         run: |
@@ -46,8 +44,6 @@ jobs:
   release:
     name: Release
     needs: build
-
-    # La release parte solo da un push su main e se il commit contiene [release:patch], [release:minor] o [release:major]
     if: >
       github.event_name == 'push' &&
       github.ref == 'refs/heads/main' &&
@@ -56,7 +52,6 @@ jobs:
         contains(github.event.head_commit.message, '[release:minor]') ||
         contains(github.event.head_commit.message, '[release:major]')
       )
-
     runs-on: ubuntu-latest
 
     steps:
@@ -92,7 +87,6 @@ jobs:
           echo "Latest version: $LATEST_TAG"
 
           VERSION="${LATEST_TAG#v}"
-
           IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
 
           case "${{ steps.release_type.outputs.type }}" in
@@ -111,9 +105,7 @@ jobs:
           esac
 
           NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
-
           echo "New version: $NEW_VERSION"
-
           echo "tag=$NEW_VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Create Git tag
@@ -127,7 +119,7 @@ jobs:
       - name: Install System Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libtag1-dev
+          sudo apt-get install -y pkg-config libtag1-dev
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
@@ -137,8 +129,7 @@ jobs:
 
       - name: Configure CMake
         run: |
-          cmake -S . -B build \
-            -DCMAKE_BUILD_TYPE=Release
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 
       - name: Build release
         run: |
