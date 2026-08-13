@@ -11,7 +11,18 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Gui Sql Widgets)
 
 # Gestione TagLib (su Arch Linux la configurazione CMake/PkgConfig è nativa)
-find_package(TagLib REQUIRED)
+find_package(TagLib NO_MODULE QUIET)
+
+if(NOT TagLib_FOUND)
+    # Fallback su PkgConfig per distribuzioni come Ubuntu/Debian
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(TagLib REQUIRED IMPORTED_TARGET taglib)
+    
+    # Crea il target ALIAS TagLib::TagLib se non esiste già
+    if(NOT TARGET TagLib::TagLib)
+        add_library(TagLib::TagLib ALIAS PkgConfig::TagLib)
+    endif()
+endif()
 
 qt_standard_project_setup()
 
