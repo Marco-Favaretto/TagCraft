@@ -2,12 +2,10 @@ cmake_minimum_required(VERSION 3.19)
 
 project(TagCraft LANGUAGES CXX)
 
-# Impostazione standard C++ (C++17 o C++20)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Dipendenze Qt6 (Aggiunti Sql e Gui)
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Gui Sql Widgets)
 
 # Gestione TagLib (su Arch Linux la configurazione CMake/PkgConfig è nativa)
@@ -34,8 +32,10 @@ qt_add_executable(TagCraft
     WIN32
     MACOSX_BUNDLE
 
+    resources.qrc
+
     src/main.cpp
-    
+
     src/model/artist.h
     src/model/artist.cpp
     src/model/album.h
@@ -48,6 +48,8 @@ qt_add_executable(TagCraft
     src/ui/mainwindow.cpp
     src/ui/mainwindow.h
     src/ui/mainwindow.ui
+    src/db/databasemanager.h
+    src/db/databasemanager.cpp
 )
 
 target_include_directories(TagCraft
