@@ -35,6 +35,15 @@ qt_add_executable(TagCraft
     MACOSX_BUNDLE
 
     src/main.cpp
+    
+    src/model/artist.h
+    src/model/artist.cpp
+    src/model/album.h
+    src/model/album.cpp
+    src/model/genre.h
+    src/model/genre.cpp
+    src/model/track.h
+    src/model/track.cpp
 
     src/ui/mainwindow.cpp
     src/ui/mainwindow.h
