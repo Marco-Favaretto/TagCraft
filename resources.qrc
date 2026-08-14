@@ -1,7 +1,8 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
     <qresource prefix="/sql">
-        <file>src/sql/schema.sql</file>
-        <file>src/sql/startValues.sql</file>
+        <file alias="schema.sql">src/sql/schema.sql</file>
+        <file alias="startvalues.sql">src/sql/startvalues.sql</file>
+        <file alias="track.sql">src/sql/track.sql</file>
     </qresource>
 </RCC>

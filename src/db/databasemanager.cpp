@@ -1,4 +1,5 @@
 #include "databasemanager.h"
+#include "utils/sqlparser.h"
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QDebug>
@@ -40,59 +41,33 @@ void DatabaseManager::closeDatabase() {
 }
 
 bool DatabaseManager::initSchema() {
-    QSqlQuery query;
-    
-    QString createTrackTable = R"(
-        CREATE TABLE IF NOT EXISTS Track (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT NOT NULL,
-            artist_id INTEGER NOT NULL DEFAULT 1,
-            album_id INTEGER NOT NULL DEFAULT 1,
-            genre_id INTEGER DEFAULT 1,
-            year INTEGER,
-            track_number INTEGER,
-            duration_seconds INTEGER,
-            relative_path TEXT NOT NULL UNIQUE,
-            file_mtime INTEGER NOT NULL,
-            file_size INTEGER NOT NULL,
-            track_cover_hash TEXT
-        );
-    )";
-
-    if (!query.exec(createTrackTable)) {
-        qDebug() << "Errore creazione tabella Track:" << query.lastError().text();
+    if (!executeSqlScript(":/sql/schema.sql")) {
         return false;
     }
 
+    if (!executeSqlScript(":/sql/startvalues.sql")) {
+        return false;
+    }
+
+    qDebug() << "Schema e dati iniziali caricati con successo";
     return true;
 }
 
 bool DatabaseManager::executeSqlScript(const QString& resourcePath) {
-    //file risorse Qt (prefisso :)
-    QFile file(resourcePath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug() << "Impossibile aprire il file SQL:" << resourcePath;
+    const QStringList statements = SqlParser::parseStatements(resourcePath);
+
+    if (statements.isEmpty()) {
+        qWarning() << "Nessun comando valido trovato nello script:" << resourcePath;
         return false;
     }
 
-    QTextStream in(&file);
-    QString script = in.readAll();
-    file.close();
-
-    QStringList statements = script.split(';', Qt::SkipEmptyParts);
-
     QSqlQuery query;
-    for (QString statement : statements) {
-        statement = statement.trimmed();
-        
-        if (statement.isEmpty() || statement.startsWith("--")) {
-            continue;
-        }
-
+    for (const QString &statement : statements) {
+        qDebug() << "Preparazione esecuzione query statement: " << statement;
         if (!query.exec(statement)) {
-            qDebug() << "Errore esecuzione query nello script:" << resourcePath;
-            qDebug() << "Query fallita:" << statement;
-            qDebug() << "Errore SQL:" << query.lastError().text();
+            qCritical() << "Errore esecuzione query nello script:" << resourcePath;
+            qCritical() << "Query fallita:" << statement;
+            qCritical() << "Errore SQL:" << query.lastError().text();
             return false;
         }
     }

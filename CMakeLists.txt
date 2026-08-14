@@ -5,6 +5,7 @@ project(TagCraft LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_AUTORCC ON)
 
 find_package(Qt6 6.5 REQUIRED COMPONENTS Core Gui Sql Widgets)
 
@@ -50,6 +51,13 @@ qt_add_executable(TagCraft
     src/ui/mainwindow.ui
     src/db/databasemanager.h
     src/db/databasemanager.cpp
+    src/db/trackdao.h
+    src/db/trackdao.cpp
+    src/utils/dbutils.h
+    src/utils/sqlparser.h
+    src/utils/sqlparser.cpp
+    src/utils/entitymapper.h
+    src/utils/entitymapper.cpp
 )
 
 target_include_directories(TagCraft
