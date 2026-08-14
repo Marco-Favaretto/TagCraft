@@ -23,3 +23,9 @@ void Artist::setId(int id) {
 void Artist::setName(const QString& name) {
     m_name = name;
 }
+
+QString Artist::toString() const {
+    return QString("Artist{id=%1, name='%2'}")
+        .arg(m_id)
+        .arg(m_name);
+}

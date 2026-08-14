@@ -26,6 +26,8 @@ public:
     void setArtistId(int artistId);
     void setCoverCacheHash(const std::optional<QString>& coverCacheHash);
 
+    QString toString() const;
+
 private:
     int m_id;
     QString m_title;

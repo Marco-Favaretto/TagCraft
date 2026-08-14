@@ -117,3 +117,12 @@ void Track::setFileSize(qint64 fileSize) {
 void Track::setTrackCoverHash(const std::optional<QString>& trackCoverHash) {
     m_trackCoverHash = trackCoverHash;
 }
+
+QString Track::toString() const {
+    return QString("Track(%1, %2, artist=%3, album=%4, path=%5)")
+        .arg(m_id)
+        .arg(m_title)
+        .arg(m_artistId)
+        .arg(m_albumId)
+        .arg(m_relativePath);
+}

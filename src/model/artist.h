@@ -21,6 +21,8 @@ public:
     void setId(int id);
     void setName(const QString& name);
 
+    QString toString() const;
+
 private:
     int m_id;
     QString m_name;

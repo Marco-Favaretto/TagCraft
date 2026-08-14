@@ -23,3 +23,9 @@ void Genre::setId(int id) {
 void Genre::setName(const QString& name) {
     m_name = name;
 }
+
+QString Genre::toString() const {
+    return QString("Genre{id=%1, name='%2'}")
+        .arg(m_id)
+        .arg(m_name);
+}

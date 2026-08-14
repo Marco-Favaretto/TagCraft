@@ -50,6 +50,8 @@ public:
     void setFileSize(qint64 fileSize);
     void setTrackCoverHash(const std::optional<QString>& trackCoverHash);
 
+    QString toString() const;
+
 private:
     int m_id;
     QString m_title;

@@ -50,7 +50,7 @@ bool testDb() {
     
     auto fetchedTrack = TrackDao::findById(1);
     if (fetchedTrack.has_value()) {
-        qDebug() << "Traccia letta dal DB:" << fetchedTrack->title() << "Anno:" << fetchedTrack->year().value_or(0);
+        qDebug() << "Traccia letta dal DB:" << fetchedTrack->toString();
     } else {
         return false;
     }

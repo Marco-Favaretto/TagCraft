@@ -39,3 +39,11 @@ void Album::setArtistId(int artistId) {
 void Album::setCoverCacheHash(const std::optional<QString>& coverCacheHash) {
     m_coverCacheHash = coverCacheHash;
 }
+
+
+QString Album::toString() const {
+    return QString("Album{id=%1, title='%2', artistId=%3}")
+        .arg(m_id)
+        .arg(m_title)
+        .arg(m_artistId);
+}
