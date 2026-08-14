@@ -10,7 +10,11 @@
 class SqlExecutor {
 private:
     
-        static bool execute(QSqlQuery&, const QVariantMap&);
+    static bool execute(QSqlQuery&, const QVariantMap&);
+    
+    static QString sanitizeQuery(QString);
+    static QString formatValue(const QVariant&);
+    static void logQuery(const QString&, const QVariantMap&);
         
 public:
     SqlExecutor() = delete; // Impedisce l'istanziamento

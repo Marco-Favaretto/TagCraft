@@ -1,5 +1,6 @@
 #include "databasemanager.h"
 #include "db/sqlparser.h"
+#include "db/sqlexecutor.h"
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QDebug>
@@ -63,11 +64,10 @@ bool DatabaseManager::executeSqlScript(const QString& resourcePath) {
 
     QSqlQuery query;
     for (const QString &statement : statements) {
-        qDebug() << "Preparazione esecuzione query statement: " << statement;
-        if (!query.exec(statement)) {
-            qCritical() << "Errore esecuzione query nello script:" << resourcePath;
-            qCritical() << "Query fallita:" << statement;
-            qCritical() << "Errore SQL:" << query.lastError().text();
+        query.prepare(statement);
+        
+        if (!SqlExecutor::execute(query, {})) {
+            qCritical() << "Errore durante l'esecuzione dello script:" << resourcePath;
             return false;
         }
     }
