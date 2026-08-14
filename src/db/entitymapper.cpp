@@ -1,5 +1,5 @@
 #include "entitymapper.h"
-#include "dbutils.h"
+#include "utils/dbutils.h"
 
 Track EntityMapper::toEntityTrack(const QSqlQuery& query) {
     Track track;

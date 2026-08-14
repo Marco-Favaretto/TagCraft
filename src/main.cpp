@@ -1,7 +1,7 @@
 #include "ui/mainwindow.h"
 
 #include "db/databasemanager.h"
-#include "db/trackdao.h"
+#include "dao/trackdao.h"
 #include "model/track.h"
 
 #include <QApplication>

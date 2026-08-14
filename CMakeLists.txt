@@ -46,18 +46,23 @@ qt_add_executable(TagCraft
     src/model/track.h
     src/model/track.cpp
 
+    src/dao/trackdao.h
+    src/dao/trackdao.cpp
+
     src/ui/mainwindow.cpp
     src/ui/mainwindow.h
     src/ui/mainwindow.ui
+
     src/db/databasemanager.h
     src/db/databasemanager.cpp
-    src/db/trackdao.h
-    src/db/trackdao.cpp
+    src/db/sqlparser.cpp
+    src/db/sqlparser.h
+    src/db/entitymapper.cpp
+    src/db/entitymapper.h
+    src/db/sqlexecutor.h
+    src/db/sqlexecutor.cpp
+    
     src/utils/dbutils.h
-    src/utils/sqlparser.h
-    src/utils/sqlparser.cpp
-    src/utils/entitymapper.h
-    src/utils/entitymapper.cpp
 )
 
 target_include_directories(TagCraft

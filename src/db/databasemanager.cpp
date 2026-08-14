@@ -1,5 +1,5 @@
 #include "databasemanager.h"
-#include "utils/sqlparser.h"
+#include "db/sqlparser.h"
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QDebug>

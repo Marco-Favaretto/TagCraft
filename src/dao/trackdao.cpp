@@ -1,7 +1,8 @@
 #include "trackdao.h"
-#include "utils/sqlparser.h"
+#include "db/sqlparser.h"
+#include "db/sqlexecutor.h"
 #include "utils/dbutils.h"
-#include "utils/entitymapper.h"
+#include "db/entitymapper.h"
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QVariant>
@@ -23,25 +24,23 @@ bool TrackDao::insert(Track &track) {
     QSqlQuery query;
     query.prepare(queryString);
 
-    query.bindValue(":title", track.title());
-    query.bindValue(":artist_id", track.artistId());
-    query.bindValue(":album_id", track.albumId());
-    query.bindValue(":genre_id", DbUtils::optionalToVariant(track.genreId()));
-    query.bindValue(":year", DbUtils::optionalToVariant(track.year()));
-    query.bindValue(":track_number", DbUtils::optionalToVariant(track.trackNumber()));
-    query.bindValue(":duration_seconds", DbUtils::optionalToVariant(track.durationSeconds()));
-    query.bindValue(":relative_path", track.relativePath());
-    query.bindValue(":file_mtime", track.fileMtime());
-    query.bindValue(":file_size", track.fileSize());
-    query.bindValue(":track_cover_hash", DbUtils::optionalToVariant(track.trackCoverHash()));
-
-    if (!query.exec()) {
-        qCritical() << "Errore nell'inserimento della traccia:" << query.lastError().text();
-        return false;
-    }
+    SqlExecutor::execute(query,{
+        {":title", track.title()},
+        {":artist_id", track.artistId()},
+        {":album_id", track.albumId()},
+        {":genre_id", DbUtils::optionalToVariant(track.genreId())},
+        {":year", DbUtils::optionalToVariant(track.year())},
+        {":track_number", DbUtils::optionalToVariant(track.trackNumber())},
+        {":duration_seconds", DbUtils::optionalToVariant(track.durationSeconds())},
+        {":relative_path", track.relativePath()},
+        {":file_mtime", track.fileMtime()},
+        {":file_size", track.fileSize()},
+        {":track_cover_hash", DbUtils::optionalToVariant(track.trackCoverHash())}
+    });
 
     // id generato da autoincrement
     track.setId(query.lastInsertId().toInt());
+
     return true;
 }
 
@@ -59,13 +58,10 @@ std::optional<Track> TrackDao::findById(int id) {
     query.prepare(queryString);
     query.bindValue(":id", id);
 
-    if (!query.exec()) {
-        qCritical() << "Errore nell'esecuzione di findById:" << query.lastError().text();
-        return std::nullopt;
-    }
-
-    if (query.next()) {
-        return EntityMapper::toEntityTrack(query);
+    if (SqlExecutor::execute(query, { {":id", id} })) {
+        if (query.next()) {
+            return EntityMapper::toEntityTrack(query);
+        }
     }
 
     return std::nullopt;
@@ -84,14 +80,10 @@ QList<Track> TrackDao::getAll() {
 
     QSqlQuery query(queryString);
 
-    if (!query.exec()) {
-        qCritical() << "Errore nell'esecuzione di getAll:" << query.lastError().text();
-        return tracks;
+    if(SqlExecutor::execute(query, {})) {
+        while (query.next()) {
+            tracks.append(EntityMapper::toEntityTrack(query));
+        }
     }
-
-    while (query.next()) {
-        tracks.append(EntityMapper::toEntityTrack(query));
-    }
-
     return tracks;
 }
