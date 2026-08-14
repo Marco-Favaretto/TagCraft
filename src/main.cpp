@@ -2,7 +2,11 @@
 
 #include "db/databasemanager.h"
 #include "dao/trackdao.h"
+#include "dao/artistdao.h"
+#include "dao/albumdao.h"
 #include "model/track.h"
+#include "model/artist.h"
+#include "model/album.h"
 
 #include <QApplication>
 #include <QDebug>
@@ -48,9 +52,23 @@ bool testDb() {
     //     return false;
     // }
     
-    auto fetchedTrack = TrackDao::findById(1);
-    if (fetchedTrack.has_value()) {
-        qDebug() << "Traccia letta dal DB:" << fetchedTrack->toString();
+    auto fetchedTrack = TrackDao::getAll();
+    if (!fetchedTrack.isEmpty()) {
+        for(Track t : fetchedTrack) qDebug() << "Traccia:" << t.toString();
+    } else {
+        return false;
+    }
+    
+    auto fetchedAlbum = AlbumDao::getAll();
+    if (!fetchedAlbum.isEmpty()) {
+        for(Album t : fetchedAlbum) qDebug() << "album:" << t.toString();
+    } else {
+        return false;
+    }
+    
+    auto fetchedArtist = ArtistDao::getAll();
+    if (!fetchedArtist.isEmpty()) {
+        for(Artist t : fetchedArtist) qDebug() << "artista:" << t.toString();
     } else {
         return false;
     }

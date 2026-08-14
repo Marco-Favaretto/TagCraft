@@ -48,6 +48,12 @@ qt_add_executable(TagCraft
 
     src/dao/trackdao.h
     src/dao/trackdao.cpp
+    src/dao/albumdao.h
+    src/dao/albumdao.cpp
+    src/dao/artistdao.h
+    src/dao/artistdao.cpp
+    src/dao/genredao.h
+    src/dao/genredao.cpp
 
     src/ui/mainwindow.cpp
     src/ui/mainwindow.h

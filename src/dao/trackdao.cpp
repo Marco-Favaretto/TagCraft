@@ -11,7 +11,7 @@
 #include <QMap>
 #include <QDebug>
 
-bool TrackDao::insert(Track &track) {
+bool TrackDao::insert(Track& track) {
     static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
     const QString queryString = queries.value("insert");
 
@@ -19,7 +19,6 @@ bool TrackDao::insert(Track &track) {
         qCritical() << "Query 'insert' non trovata in track.sql";
         return false;
     }
-    qDebug() << "Preparazione esecuzione query: " << queryString;
 
     QSqlQuery query;
     query.prepare(queryString);
@@ -44,6 +43,34 @@ bool TrackDao::insert(Track &track) {
     return true;
 }
 
+bool TrackDao::update(const Track& track) {
+    static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
+    const QString queryString = queries.value("update");
+
+    if (queryString.isEmpty()) {
+        qCritical() << "Query 'update' non trovata in track.sql";
+        return false;
+    }
+
+    QSqlQuery query;
+    query.prepare(queryString);
+
+    return SqlExecutor::execute(query, {
+        {":id", track.id()},
+        {":title", track.title()},
+        {":artist_id", track.artistId()},
+        {":album_id", track.albumId()},
+        {":genre_id", DbUtils::optionalToVariant(track.genreId())},
+        {":year", DbUtils::optionalToVariant(track.year())},
+        {":track_number", DbUtils::optionalToVariant(track.trackNumber())},
+        {":duration_seconds", DbUtils::optionalToVariant(track.durationSeconds())},
+        {":relative_path", track.relativePath()},
+        {":file_mtime", track.fileMtime()},
+        {":file_size", track.fileSize()},
+        {":track_cover_hash", DbUtils::optionalToVariant(track.trackCoverHash())}
+    });
+}
+
 std::optional<Track> TrackDao::findById(int id) {
     static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
     const QString queryString = queries.value("findById");
@@ -52,7 +79,6 @@ std::optional<Track> TrackDao::findById(int id) {
         qCritical() << "Query 'findById' non trovata in track.sql";
         return std::nullopt;
     }
-    qDebug() << "Preparazione esecuzione query: " << queryString;
 
     QSqlQuery query;
     query.prepare(queryString);
@@ -76,7 +102,6 @@ QList<Track> TrackDao::getAll() {
         qCritical() << "Query 'getAll' non trovata in track.sql";
         return tracks;
     }
-    qDebug() << "Preparazione esecuzione query: " << queryString;
 
     QSqlQuery query(queryString);
 

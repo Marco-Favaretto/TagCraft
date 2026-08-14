@@ -7,9 +7,10 @@
 
 class TrackDao {
 public:
-    static bool insert(Track &track);
+    static bool insert(Track&);
 
-    static std::optional<Track> findById(int id);
+    static std::optional<Track> findById(int);
+    static bool update(const Track&);
 
     static QList<Track> getAll();
 };

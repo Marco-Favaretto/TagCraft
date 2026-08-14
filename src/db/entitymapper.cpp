@@ -20,3 +20,34 @@ Track EntityMapper::toEntityTrack(const QSqlQuery& query) {
 
     return track;
 }
+
+Album EntityMapper::toEntityAlbum(const QSqlQuery& query) {
+    Album album;
+
+    album.setId(query.value("id").toInt());
+    album.setTitle(query.value("title").toString());
+    album.setArtistId(query.value("artist_id").toInt());
+    album.setCoverCacheHash(
+        DbUtils::variantToOptional<QString>(query.value("cover_cache_hash"))
+    );
+
+    return album;
+}
+
+Artist EntityMapper::toEntityArtist(const QSqlQuery& query) {
+    Artist artist;
+
+    artist.setId(query.value("id").toInt());
+    artist.setName(query.value("name").toString());
+
+    return artist;
+}
+
+Genre EntityMapper::toEntityGenre(const QSqlQuery& query) {
+    Genre genre;
+
+    genre.setId(query.value("id").toInt());
+    genre.setName(query.value("name").toString());
+
+    return genre;
+}
