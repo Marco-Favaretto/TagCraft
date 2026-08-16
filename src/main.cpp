@@ -118,29 +118,6 @@ void testDb(const StorageManager& storageManager) {
     qDebug() << "testDb fine";
 }
 
-// void testTagLib(const StorageManager& storageManager) {
-//     qDebug() << "testTagLib inizio";
-//     QString s(storageManager.toAbsolutePath("Music/ost/metal gear/30 - MGSV - The Man Who Sold The World.mp3"));
-//     TagLib::FileRef f(s.toStdString().c_str()); // serve convertire a char*
-//     TagLib::PropertyMap p = f.properties();
-//     // qDebug() << p.toString().toCString();
-//     /*stampa:
-//         ARTIST=Midge Ure
-//         DATE=2015
-//         GENRE=OST
-//         TITLE=The Man Who Sold The World
-//         TRACKNUMBER=30
-//         Unsupported Data: APIC, APIC
-//     */
-
-//     std::list<std::string> keys = {"ARTIST", "DATE", "GENRE", "TITLE", "TRACKNUMBER"};
-
-//     for(auto key : keys) qDebug() << key << " = " << p[key].front().toCString();  // p[key] ritorna una lista -> front() primo valore. Usare questo.
-//     // for(auto key : keys) qDebug() << key << " = " << p[key].toString().toCString();
-
-//     qDebug() << "testTagLib fine";
-// }
-
 void testTagLib(const StorageManager& storageManager) {
     qDebug() << "testTagLib inizio";
 
