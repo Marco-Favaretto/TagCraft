@@ -86,3 +86,4 @@ CMakeLists.txt.user*
 !.vscode/tasks.json
 
 appunti/
+tmp/

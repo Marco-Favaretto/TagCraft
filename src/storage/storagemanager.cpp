@@ -49,7 +49,7 @@ QString StorageManager::musicAppPoint() const {
 
 QString StorageManager::toAbsolutePath(const QString& relativePath) const {
     if (!isMounted()) return QString();
-    return QDir(m_activeStorage.rootPath() + "/Music").absoluteFilePath(relativePath);
+    return QDir(m_activeStorage.rootPath()).absoluteFilePath(relativePath);
 }
 
 QString StorageManager::toRelativePath(const QString& absolutePath) const {

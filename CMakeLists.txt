@@ -70,6 +70,8 @@ qt_add_executable(TagCraft
     src/db/sqlexecutor.cpp
     
     src/utils/dbutils.h
+    src/utils/tagmapper.h
+    src/utils/tagmapper.cpp
 
     src/storage/storagemanager.h
     src/storage/storagemanager.cpp
@@ -78,8 +80,6 @@ qt_add_executable(TagCraft
         
     src/dto/trackdto.h
     src/dto/trackfilesystemdto.h
-    src/utils/taglibmapper.h
-    src/utils/taglibmapper.cpp
 )
 
 target_include_directories(TagCraft
