@@ -10,31 +10,52 @@
 
 #include <QApplication>
 #include <QDebug>
+#include "storage/storagemanager.h"
 
 
-bool testDb();
+void testDb();
+void testStorage();
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
     // MainWindow w;
     // w.show();
     Q_INIT_RESOURCE(resources);
-    qDebug() << "testDb Avvio";
-    if(testDb()) {
-        qDebug() << "testDb fine";
-    } else {
-        qDebug() << "testDb fallito";
-    }
-    DatabaseManager::instance().closeDatabase();
+    
+    // testDb();
+    testStorage();
+
+
     // return QApplication::exec();
     return 0;
 }
 
+void testStorage() {
+    qDebug() << "avvio test storage";
 
-bool testDb() {
+    StorageManager storagemanager;
+
+    if(storagemanager.scanForStorage()) qDebug() << "storage trovato";
+    else qDebug() << "scan fallita";
+
+    if(storagemanager.isMounted()) {
+        qDebug() << "Mount point: " << storagemanager.mountPoint();
+        QString pathDaDb = "artisti/Pink Floyd/1973 The Dark Side of the Moon/02 - Breathe (In The Air) - The Dark Side Of The Moon - Pink Floyd.mp3";
+        QString absolutePathBreathe = storagemanager.toAbsolutePath(pathDaDb);
+        qDebug() << "absolute Path di Breathe (In The Air): " << absolutePathBreathe;
+        qDebug() << "path relativo di Breathe (In The Air): " << storagemanager.toRelativePath(absolutePathBreathe);
+    }
+
+
+    qDebug() << "fine test storage";
+}
+
+void testDb() {
+    qDebug() << "testDb Avvio";
+
     // connessione db -> attualmente su cartella progetto, in futuro path storage esterno
     if (!DatabaseManager::instance().openDatabase("music_library.db")) {
-        return false;
+        qDebug() << "testDb fallito";
     }
 
     DatabaseManager::instance().initSchema();
@@ -49,29 +70,31 @@ bool testDb() {
     // if (TrackDao::insert(newTrack)) {
     //     qDebug() << "Traccia salvata con successo. Nuovo ID generato da SQLite:" << newTrack.id();
     // } else {
-    //     return false;
+    //     qDebug() << "testDb fallito";
     // }
     
     auto fetchedTrack = TrackDao::getAll();
     if (!fetchedTrack.isEmpty()) {
         for(Track t : fetchedTrack) qDebug() << "Traccia:" << t.toString();
     } else {
-        return false;
+        qDebug() << "testDb fallito";
     }
     
     auto fetchedAlbum = AlbumDao::getAll();
     if (!fetchedAlbum.isEmpty()) {
         for(Album t : fetchedAlbum) qDebug() << "album:" << t.toString();
     } else {
-        return false;
+        qDebug() << "testDb fallito";
     }
     
     auto fetchedArtist = ArtistDao::getAll();
     if (!fetchedArtist.isEmpty()) {
         for(Artist t : fetchedArtist) qDebug() << "artista:" << t.toString();
     } else {
-        return false;
+        qDebug() << "testDb fallito";
     }
 
-    return true;
+    DatabaseManager::instance().closeDatabase();
+
+    qDebug() << "testDb fine";
 }
