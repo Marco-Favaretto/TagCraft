@@ -19,6 +19,9 @@ public:
     QString toAbsolutePath(const QString&) const;
     QString toRelativePath(const QString&) const;
 
+    QString musicPoint() const;
+    QString musicAppPoint() const;
+
 signals:
     void storageMounted(const QString& mountPoint);
     void storageUnmounted();

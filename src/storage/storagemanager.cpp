@@ -31,6 +31,22 @@ QString StorageManager::mountPoint() const {
     else return "";
 }
 
+QString StorageManager::musicPoint() const {
+    QDir rootDir(this->mountPoint());
+    QString musicPoint = "";
+    const QFileInfoList entries = rootDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+    for (const QFileInfo& entry : entries) {
+        if (entry.fileName().compare("Music", Qt::CaseInsensitive) == 0)
+            musicPoint = entry.absoluteFilePath();
+    }
+
+    return musicPoint;
+}
+
+QString StorageManager::musicAppPoint() const {
+    return this->mountPoint() + "/.music_app";
+}
+
 QString StorageManager::toAbsolutePath(const QString& relativePath) const {
     if (!isMounted()) return QString();
     return QDir(m_activeStorage.rootPath() + "/Music").absoluteFilePath(relativePath);
