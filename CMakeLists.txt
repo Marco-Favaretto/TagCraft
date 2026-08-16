@@ -69,6 +69,9 @@ qt_add_executable(TagCraft
     src/db/sqlexecutor.cpp
     
     src/utils/dbutils.h
+
+    src/storage/storagemanager.h
+    src/storage/storagemanager.cpp
 )
 
 target_include_directories(TagCraft

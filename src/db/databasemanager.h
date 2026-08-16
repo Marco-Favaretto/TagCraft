@@ -20,7 +20,7 @@ private:
     DatabaseManager(const DatabaseManager&) = delete;
     DatabaseManager& operator=(const DatabaseManager&) = delete;
 
-    bool executeSqlScript(const QString&);
+    bool executeInitSqlScript(const QString&);
 
     QSqlDatabase m_db;
 };

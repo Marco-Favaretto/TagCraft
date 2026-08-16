@@ -42,11 +42,11 @@ void DatabaseManager::closeDatabase() {
 }
 
 bool DatabaseManager::initSchema() {
-    if (!executeSqlScript(":/sql/schema.sql")) {
+    if (!executeInitSqlScript(":/sql/schema.sql")) {
         return false;
     }
 
-    if (!executeSqlScript(":/sql/startvalues.sql")) {
+    if (!executeInitSqlScript(":/sql/startvalues.sql")) {
         return false;
     }
 
@@ -54,7 +54,7 @@ bool DatabaseManager::initSchema() {
     return true;
 }
 
-bool DatabaseManager::executeSqlScript(const QString& resourcePath) {
+bool DatabaseManager::executeInitSqlScript(const QString& resourcePath) {
     const QStringList statements = SqlParser::parseStatements(resourcePath);
 
     if (statements.isEmpty()) {
