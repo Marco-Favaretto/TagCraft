@@ -3,6 +3,7 @@
 
 #include <QString>
 
+// da usare per scan veloce
 struct TrackFileSystemDto {
     QString absolutePath;
     qint64 fileSize;

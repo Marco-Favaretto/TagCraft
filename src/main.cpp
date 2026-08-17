@@ -10,6 +10,8 @@
 #include "dao/genredao.h"
 #include "model/genre.h"
 #include "storage/storagemanager.h"
+#include "dto/trackdto.h"
+#include "utils/tagmapper.h"
 
 #include <iostream>
 
@@ -122,61 +124,12 @@ void testTagLib(const StorageManager& storageManager) {
     qDebug() << "testTagLib inizio";
 
     QString path = storageManager.toAbsolutePath("Music/ost/metal gear/30 - MGSV - The Man Who Sold The World.mp3");
-    TagLib::FileRef f(path.toStdString().c_str());
+    
+    TrackDto t = TagMapper::fileToDto(path, storageManager.toRelativePath(path));    
+    QByteArray byteArray = TagMapper::extractEmbeddedCover(path);
 
-    if (f.isNull() || !f.file()) {
-        qDebug() << "Impossibile aprire il file:" << path;
-        return;
-    }
-
-    TagLib::MPEG::File* mpegFile = dynamic_cast<TagLib::MPEG::File*>(f.file());
-
-    if (!mpegFile) {
-        qDebug() << "Il file non è un MP3";
-        return;
-    }
-
-    TagLib::ID3v2::Tag *tag = mpegFile->ID3v2Tag(); // Accesso diretto al tag ID3v2
-
-    if (!tag) {
-        qDebug() << "Il file non contiene un tag ID3v2";
-        return;
-    }
-
-    qDebug() << "ARTIST:" << tag->artist().toCString();
-    qDebug() << "TITLE:" << tag->title().toCString();
-    qDebug() << "ALBUM:" << tag->album().toCString();
-    qDebug() << "GENRE:" << tag->genre().toCString();
-    qDebug() << "YEAR:" << tag->year();
-    qDebug() << "TRACK:" << tag->track();
-
-    // APIC = Attached Picture
-    const auto frames = tag->frameList("APIC");
-
-    qDebug() << "Numero APIC:" << frames.size();
-
-    for (const auto *frame : frames) {
-
-        const TagLib::ID3v2::AttachedPictureFrame* picture = dynamic_cast<const TagLib::ID3v2::AttachedPictureFrame*>(frame);
-
-        if (!picture) continue;
-
-        qDebug() << "MIME:" << picture->mimeType().toCString();
-        qDebug() << "Descrizione:" << picture->description().toCString();
-        qDebug() << "Tipo:" << picture->type();
-
-        const TagLib::ByteVector data = picture->picture();
-
-        QImage image;
-        if (!image.loadFromData(
-                reinterpret_cast<const uchar *>(data.data()),
-                static_cast<int>(data.size()))) {
-
-            qDebug() << "Impossibile decodificare l'immagine";
-            continue;
-        }
-
-        qDebug() << "Immagine:" << image.width() << "x" << image.height();
+    QImage image;
+    if (image.loadFromData(byteArray)) {
         image.save("../tmp/cover.jpg");
     }
 
