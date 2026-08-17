@@ -14,6 +14,9 @@
 #include "utils/tagmapper.h"
 
 #include <iostream>
+#include <fstream>
+#include <string>
+#include <unordered_map>
 
 #include <QApplication>
 #include <QDebug>
@@ -25,23 +28,46 @@
 #include <fileref.h>
 #include <tpropertymap.h>
 
+std::unordered_map<std::string, std::string> properties;
+
+void loadProperties() {
+    std::ifstream file("../tmp/application.properties");
+    std::string line;
+    while (std::getline(file, line)) {
+        if (line.empty() || line[0] == '#') continue;
+        auto pos = line.find('=');
+        if (pos != std::string::npos) {
+            std::string key = line.substr(0, pos);
+            std::string value = line.substr(pos + 1);
+            properties[key] = value;
+        }
+    }
+}
+
 void testDb(const StorageManager&);
 void testStorage(StorageManager&);
-void testTagLib(const StorageManager&);
+void testTagFromFile(const StorageManager&);
+void testTagToFile();
+void testCleanTags();
+void saveToMp3(const QString&, const QString&);
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
     // MainWindow w;
     // w.show();
     Q_INIT_RESOURCE(resources);
+    loadProperties();
     
-    StorageManager storage;
-    testStorage(storage);
-    qDebug() << "\n";
-    testDb(storage);
-    qDebug() << "\n";
-    testTagLib(storage);
-    qDebug() << "\n";
+    // StorageManager storage;
+    // testStorage(storage);
+    // qDebug() << "\n";
+    // testDb(storage);
+    // qDebug() << "\n";
+    // testTagFromFile(storage);
+    // qDebug() << "\n";
+
+    testTagToFile();
+    // testCleanTags();
 
     // return QApplication::exec();
     return 0;
@@ -55,10 +81,10 @@ void testStorage(StorageManager& storageManager) {
 
     if(storageManager.isMounted()) {
         qDebug() << "Mount point: " << storageManager.mountPoint();
-        QString pathDaDb = "artisti/Pink Floyd/1973 The Dark Side of the Moon/02 - Breathe (In The Air) - The Dark Side Of The Moon - Pink Floyd.mp3";
+        QString pathDaDb = QString::fromStdString(properties["testStorage"]);
         QString absolutePathBreathe = storageManager.toAbsolutePath(pathDaDb);
-        qDebug() << "absolute Path di Breathe (In The Air): " << absolutePathBreathe;
-        qDebug() << "path relativo di Breathe (In The Air): " << storageManager.toRelativePath(absolutePathBreathe);
+        qDebug() << "absolute Path: " << absolutePathBreathe;
+        qDebug() << "path relativo: " << storageManager.toRelativePath(absolutePathBreathe);
     }
 
     qDebug() << "fine test storage";
@@ -66,20 +92,21 @@ void testStorage(StorageManager& storageManager) {
 
 void testDb(const StorageManager& storageManager) {
     qDebug() << "testDb Avvio";
-
+    
     // connessione db -> attualmente su cartella progetto, in futuro path storage esterno
     if (!DatabaseManager::instance().openDatabase(storageManager.musicAppPoint() + "/" + "music_library.db")) {
         qDebug() << "testDb fallito";
     }
-
+    
     DatabaseManager::instance().initSchema();
-
+    
+    qDebug() << "inserimento traccia: " << QString::fromStdString(properties["testdb.title"]) << "con artista, album e genere di default.";
     // Track newTrack; // id iniziale è -1
-    // newTrack.setTitle("Pigs (Three Different Ones)");
-    // newTrack.setRelativePath("artisti/Pink Floyd/1977 Animals/02 - Pigs.mp3");
+    // newTrack.setTitle(QString::fromStdString(properties["testdb.title"]));
+    // newTrack.setRelativePath(QString::fromStdString(properties["testdb.relPath"]));
     // newTrack.setFileMtime(1600000000);
     // newTrack.setFileSize(15400300);
-    // newTrack.setYear(1977);
+    // newTrack.setYear(std::stoi(properties["testdb.year"]));
 
     // if (TrackDao::insert(newTrack)) {
     //     qDebug() << "Traccia salvata con successo. Nuovo ID generato da SQLite:" << newTrack.id();
@@ -120,10 +147,10 @@ void testDb(const StorageManager& storageManager) {
     qDebug() << "testDb fine";
 }
 
-void testTagLib(const StorageManager& storageManager) {
-    qDebug() << "testTagLib inizio";
+void testTagFromFile(const StorageManager& storageManager) {
+    qDebug() << "testTagFromFile inizio";
 
-    QString path = storageManager.toAbsolutePath("Music/ost/metal gear/30 - MGSV - The Man Who Sold The World.mp3");
+    QString path = storageManager.toAbsolutePath(QString::fromStdString(properties["testTagFromFile"]));
     
     TrackDto t = TagMapper::fileToDto(path, storageManager.toRelativePath(path));    
     QByteArray byteArray = TagMapper::extractEmbeddedCover(path);
@@ -133,5 +160,58 @@ void testTagLib(const StorageManager& storageManager) {
         image.save("../tmp/cover.jpg");
     }
 
-    qDebug() << "testTagLib fine";
+    qDebug() << "testTagFromFile fine";
+}
+
+void testTagToFile() {
+    qDebug() << "testTagToFile inizio";
+    QString path = QString::fromStdString(properties["testTagToFile.path"]);
+    QString pathImage = QString::fromStdString(properties["testTagToFile.pathImage"]);
+    QString targetDir = QString::fromStdString(properties["testTagToFile.target"]);
+    
+    TrackDto t(
+        QString::fromStdString(properties["testTagToFile.relPath"]),
+        QString::fromStdString(properties["testTagToFile.title"]),
+        QString::fromStdString(properties["testTagToFile.artist"]),
+        QString::fromStdString(properties["testTagToFile.album"]),
+        QString::fromStdString(properties["testTagToFile.genre"]),
+        std::stoi(properties["testTagToFile.tracknumber"]),
+        std::stoi(properties["testTagToFile.year"])
+    );
+    
+    bool tags = TagMapper::dtoToFile(path, t);
+    bool cover = TagMapper::embedCover(path, pathImage);
+    if(tags && cover) {
+        qDebug() << "tag aggiornati";
+        saveToMp3(targetDir, path);
+    }
+    qDebug() << "testTagToFile fine";
+}
+
+void testCleanTags() {
+    qDebug() << "testCLeanTags inizio";
+    QString path = QString::fromStdString(properties["testTagToFile.path"]);
+    QString targetDir = QString::fromStdString(properties["testTagToFile.target"]);
+    bool clean = TagMapper::cleanTags(path);
+    if(clean) {
+        qDebug() << "tag aggiornati";
+        saveToMp3(targetDir, path);
+    }
+    qDebug() << "testCLeanTags fine";
+}
+
+void saveToMp3(const QString& targetDir, const QString& origin) {
+    QDir dir(targetDir);
+
+    if (!dir.mkpath(".")) {
+        qWarning() << "Impossibile creare la directory:" << targetDir;
+        return;
+    }
+
+    QString targetFilePath = dir.filePath(QFileInfo(origin).fileName());
+
+    QFile::remove(targetFilePath);
+
+    if (!QFile::copy(origin, targetFilePath)) qWarning() << "Impossibile copiare il file:" << origin << "->" << targetFilePath;
+
 }

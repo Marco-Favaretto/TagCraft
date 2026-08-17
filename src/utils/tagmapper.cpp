@@ -46,10 +46,6 @@ TrackDto TagMapper::fileToDto(const QString& absolutePath, const QString& relati
     return t;
 }
 
-bool TagMapper::dtoToFile(const QString& absolutePath, const TrackDto& dto) {}
-
-bool TagMapper::embedCover(const QString& absolutePath, const QString& imagePath) {}
-
 QByteArray TagMapper::extractEmbeddedCover(const QString& absolutePath) {
     TagLib::FileRef f(absolutePath.toStdString().c_str());
     
@@ -81,4 +77,59 @@ QByteArray TagMapper::extractEmbeddedCover(const QString& absolutePath) {
     qDebug() << "Nessuna cover incorporata trovata:" << absolutePath;
     return {};
 
+}
+
+bool TagMapper::dtoToFile(const QString& path, const TrackDto& dto) {
+    TagLib::MPEG::File file(path.toStdString().c_str());
+    TagLib::ID3v2::Tag *tag = file.ID3v2Tag(true);
+
+    // imposta i tag
+    tag->setTitle(dto.title.toStdString());
+    tag->setArtist(dto.artistName.toStdString());
+    tag->setAlbum(dto.albumName.toStdString());
+    tag->setGenre(dto.genreName.toStdString());
+    tag->setTrack(dto.trackNumber);
+    tag->setYear(dto.year);
+
+    return file.save();
+}
+
+bool TagMapper::embedCover(const QString& path, const QString& coverPath) {
+    TagLib::MPEG::File file(path.toStdString().c_str());
+    TagLib::ID3v2::Tag* tag = file.ID3v2Tag(true);
+
+    QFile imageFile(coverPath);
+    if (!imageFile.open(QIODevice::ReadOnly)) {
+        qWarning() << "Impossibile aprire l'immagine:" << coverPath;
+        return false;
+    }
+    QByteArray imageData = imageFile.readAll();
+    imageFile.close();
+
+    if (imageData.isEmpty()) {
+        qWarning() << "Immagine vuota:" << coverPath;
+        return false;
+    }
+
+    auto* picture = new TagLib::ID3v2::AttachedPictureFrame();
+    picture->setMimeType(
+        coverPath.endsWith(".jpg", Qt::CaseInsensitive) ||
+        coverPath.endsWith(".jpeg", Qt::CaseInsensitive)
+            ? "image/jpeg" : "image/png"
+    );
+    picture->setType(TagLib::ID3v2::AttachedPictureFrame::FrontCover);
+    picture->setPicture(TagLib::ByteVector(imageData.constData(), imageData.size()));
+
+    tag->addFrame(picture);
+
+    return file.save();
+}
+
+bool TagMapper::cleanTags(const QString& absolutePath) {
+    const QByteArray path = QFile::encodeName(absolutePath);
+    TagLib::MPEG::File file(path.constData(), false);
+    if (!file.isValid() || file.readOnly()) return false;
+    // Rimuove ID3v1, ID3v2 e anche la copertina (APIC)
+    file.strip(TagLib::MPEG::File::AllTags);
+    return file.save();
 }
