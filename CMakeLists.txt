@@ -80,6 +80,7 @@ qt_add_executable(TagCraft
         
     src/dto/trackdto.h
     src/dto/trackfilesystemdto.h
+    src/dto/scanresultdto.h
 )
 
 target_include_directories(TagCraft

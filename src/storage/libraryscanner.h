@@ -12,7 +12,7 @@ class LibraryScanner {
 public:
     LibraryScanner() = delete;
     static QList<TrackFileSystemDto> scanAudioFiles(const QString&);
-    static ScanResultDto smartScan();
+    static ScanResultDto smartScan(const QString&);
 };
 
 #endif // LIBRARYSCANNER_H
