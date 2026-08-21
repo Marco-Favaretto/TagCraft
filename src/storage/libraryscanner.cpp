@@ -3,6 +3,8 @@
 #include <QFile>
 #include <QDirIterator>
 
+#include "storage/storagemanager.h"
+
 QList<TrackFileSystemDto> LibraryScanner::scanAudioFiles(const QString& musicFolderPath) {
     QList<TrackFileSystemDto> files;
     QDirIterator it(musicFolderPath, QStringList() << "*.mp3", QDir::Files, QDirIterator::Subdirectories);
@@ -11,7 +13,7 @@ QList<TrackFileSystemDto> LibraryScanner::scanAudioFiles(const QString& musicFol
         it.next();
         QFileInfo info = it.fileInfo();
         files.append({
-            info.absoluteFilePath(),
+            StorageManager::instance().toRelativePath(info.absoluteFilePath()),
             info.size(),
             info.lastModified().toSecsSinceEpoch()
         });

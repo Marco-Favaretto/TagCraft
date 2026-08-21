@@ -5,7 +5,7 @@
 
 // da usare per scan veloce
 struct TrackFileSystemDto {
-    QString absolutePath;
+    QString relativePath;
     qint64 fileSize;
     qint64 lastModified;
 };

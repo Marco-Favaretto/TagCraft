@@ -32,7 +32,7 @@ bool TrackDao::insert(Track& track) {
         {":track_number", DbUtils::optionalToVariant(track.trackNumber())},
         {":duration_seconds", DbUtils::optionalToVariant(track.durationSeconds())},
         {":relative_path", track.relativePath()},
-        {":file_mtime", track.fileMtime()},
+        {":file_mtime", track.fileMtimeSecs()},
         {":file_size", track.fileSize()},
         {":track_cover_hash", DbUtils::optionalToVariant(track.trackCoverHash())}
     });
@@ -65,7 +65,7 @@ bool TrackDao::update(const Track& track) {
         {":track_number", DbUtils::optionalToVariant(track.trackNumber())},
         {":duration_seconds", DbUtils::optionalToVariant(track.durationSeconds())},
         {":relative_path", track.relativePath()},
-        {":file_mtime", track.fileMtime()},
+        {":file_mtime", track.fileMtimeSecs()},
         {":file_size", track.fileSize()},
         {":track_cover_hash", DbUtils::optionalToVariant(track.trackCoverHash())}
     });
@@ -111,4 +111,30 @@ QList<Track> TrackDao::getAll() {
         }
     }
     return tracks;
+}
+
+QHash<QString, TrackFileSystemDto> TrackDao::getAllFileStates() {
+    QHash<QString, TrackFileSystemDto> states;
+    static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
+    const QString queryString = queries.value("filesState");
+    if (queryString.isEmpty()) {
+        qCritical() << "Query 'filesState' non trovata in track.sql";
+        return states;
+    }
+
+    QSqlQuery query(queryString);
+
+    if(SqlExecutor::execute(query, {})) {
+        while (query.next()) {
+            QString relativePath = query.value(0).toString();
+            TrackFileSystemDto dto;
+            dto.relativePath = relativePath;
+            dto.lastModified = query.value(1).toLongLong();
+            dto.fileSize = query.value(2).toLongLong();
+
+            states.insert(relativePath, dto);
+        }
+    }
+
+    return states;
 }

@@ -9,7 +9,7 @@ Track EntityMapper::toEntityTrack(const QSqlQuery& query) {
     track.setArtistId(query.value("artist_id").toInt());
     track.setAlbumId(query.value("album_id").toInt());
     track.setRelativePath(query.value("relative_path").toString());
-    track.setFileMtime(query.value("file_mtime").toLongLong());
+    track.setFileMtimeSecs(query.value("file_mtime").toLongLong());
     track.setFileSize(query.value("file_size").toLongLong());
 
     track.setGenreId(DbUtils::variantToOptional<int>(query.value("genre_id")));

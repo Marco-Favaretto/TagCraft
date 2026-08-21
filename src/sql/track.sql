@@ -73,3 +73,10 @@ SELECT
     file_size, 
     track_cover_hash 
 FROM track;
+
+-- name: filesState
+SELECT 
+    relative_path, 
+    file_mtime, 
+    file_size 
+FROM track;
