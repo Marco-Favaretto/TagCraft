@@ -10,6 +10,7 @@
 #include "dao/genredao.h"
 #include "model/genre.h"
 #include "storage/storagemanager.h"
+#include "storage/libraryscanner.h"
 #include "dto/trackdto.h"
 #include "utils/tagmapper.h"
 
@@ -18,6 +19,9 @@
 #include <string>
 #include <unordered_map>
 
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QApplication>
 #include <QDebug>
 #include <QImage>
@@ -44,13 +48,15 @@ void loadProperties() {
     }
 }
 
-
 void testDb();
 void testStorage();
 void testTagFromFile();
 void testTagToFile();
 void testCleanTags();
 void saveToMp3(const QString&, const QString&);
+void testFullScan();
+void testSmartScan();
+QJsonObject trackToJson(const TrackFileSystemDto&);
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
@@ -63,7 +69,7 @@ int main(int argc, char *argv[]) {
     QTextStream stream(stdin);
 
     while (true) {
-        qDebug() << "Comandi disponibili: [dbstorage] [readfile] [writetags] [cleantags] [exit]";
+        qDebug() << "Comandi disponibili: [dbstorage] [readfile] [writetags] [cleantags] [fullscan] [smartscan] [exit]";
         stream >> command;
 
         if (command == "dbstorage") {
@@ -81,6 +87,12 @@ int main(int argc, char *argv[]) {
         } 
         else if (command == "cleantags") {
             testCleanTags();
+        } 
+        else if (command == "fullscan") {
+            testFullScan();
+        } 
+        else if (command == "smartscan") {
+            testSmartScan();
         } 
         else if (command == "exit") {
             break;
@@ -240,4 +252,74 @@ void saveToMp3(const QString& targetDir, const QString& origin) {
 
     if (!QFile::copy(origin, targetFilePath)) qWarning() << "Impossibile copiare il file:" << origin << "->" << targetFilePath;
 
+}
+
+QJsonObject trackToJson(const TrackFileSystemDto& track) {
+    return QJsonObject{
+        {"relativePath", track.relativePath},
+        {"fileSize", track.fileSize},
+        {"lastModified", track.lastModified}
+    };
+}
+
+void testFullScan() {
+    qDebug() << "inizio testfullscan";
+    if(!StorageManager::instance().isMounted()) testStorage();
+    QList<TrackFileSystemDto> files = LibraryScanner::scanAudioFiles(StorageManager::instance().musicPoint());
+    QJsonArray jsonArray;
+    
+    for (const auto& f : files) jsonArray.append(trackToJson(f));
+    
+    QJsonDocument doc(jsonArray);
+    QFile file("../tmp/library.json");
+    if (file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        file.write(doc.toJson(QJsonDocument::Indented));
+        file.close();
+    } else {
+        qWarning() << "Impossibile aprire il file:" << file.errorString();
+    }
+    qDebug() << "fine testfullscan";
+}
+
+void testSmartScan() {
+    qDebug() << "inizio testsmartscan";
+    if(!StorageManager::instance().isMounted()) testStorage();
+    if (!DatabaseManager::instance().openDatabase(StorageManager::instance().musicPoint() + "/" + "music_library.db")) {
+        qDebug() << "testDb fallito";
+    }
+    
+    ScanResultDto result = LibraryScanner::smartScan(StorageManager::instance().musicPoint());
+
+    QJsonArray newTracks;
+    for (const auto& f : result.newTracks) newTracks.append(trackToJson(f));
+
+    QJsonArray modifiedTracks;
+    for (const auto& f : result.modifiedTracks) modifiedTracks.append(trackToJson(f));
+
+    QJsonArray deletedTracks;
+    for (const auto& path : result.deletedTracks) deletedTracks.append(path);
+
+    QJsonArray unchangedTracks;
+    for (const auto& path : result.unchangedTracks) unchangedTracks.append(path);
+
+    QJsonObject root{
+        {"newTracks", newTracks},
+        {"modifiedTracks", modifiedTracks},
+        {"deletedTracks", deletedTracks},
+        {"unchangedTracks", unchangedTracks}
+    };
+
+    QJsonDocument doc(root);
+
+    QFile file("../tmp/scan_result.json");
+
+    if (file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        file.write(doc.toJson(QJsonDocument::Indented));
+        file.close();
+    } else {
+        qWarning() << "Impossibile aprire il file:" << file.errorString();
+    }
+
+    DatabaseManager::instance().closeDatabase();
+    qDebug() << "fine testsmartscan";
 }
