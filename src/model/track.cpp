@@ -1,7 +1,7 @@
 #include "track.h"
 
 Track::Track()
-    : m_id(-1), m_artistId(1), m_albumId(1), m_genreId(1), m_fileMtime(0), m_fileSize(0) 
+    : m_id(-1), m_artistId(1), m_albumId(1), m_genreId(1), m_fileMtimeSecs(0), m_fileSize(0) 
 {}
 
 Track::Track(int id, 
@@ -18,7 +18,7 @@ Track::Track(int id,
       m_albumId(albumId), 
       m_genreId(genreId),
       m_relativePath(relativePath), 
-      m_fileMtime(fileMtime), 
+      m_fileMtimeSecs(fileMtime), 
       m_fileSize(fileSize) 
 {}
 
@@ -58,8 +58,8 @@ QString Track::relativePath() const {
     return m_relativePath;
 }
 
-qint64 Track::fileMtime() const {
-    return m_fileMtime;
+qint64 Track::fileMtimeSecs() const {
+    return m_fileMtimeSecs;
 }
 
 qint64 Track::fileSize() const {
@@ -106,8 +106,8 @@ void Track::setRelativePath(const QString& relativePath) {
     m_relativePath = relativePath;
 }
 
-void Track::setFileMtime(qint64 fileMtime) {
-    m_fileMtime = fileMtime;
+void Track::setFileMtimeSecs(qint64 fileMtime) {
+    m_fileMtimeSecs = fileMtime;
 }
 
 void Track::setFileSize(qint64 fileSize) {

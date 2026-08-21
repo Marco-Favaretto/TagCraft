@@ -42,7 +42,7 @@ TrackDto TagMapper::fileToDto(const QString& absolutePath, const QString& relati
     
     t.durationSeconds = mpegFile->audioProperties() ? mpegFile->audioProperties()->lengthInSeconds() : 0;
     t.fileSize = fileInfo.size();
-    t.lastModified = fileInfo.lastModified().toMSecsSinceEpoch();
+    t.lastModified = fileInfo.lastModified().toSecsSinceEpoch();
     
     qDebug() << t.toString();
 

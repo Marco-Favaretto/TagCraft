@@ -33,7 +33,7 @@ public:
     std::optional<int> trackNumber() const;
     std::optional<int> durationSeconds() const;
     QString relativePath() const;
-    qint64 fileMtime() const;
+    qint64 fileMtimeSecs() const;
     qint64 fileSize() const;
     std::optional<QString> trackCoverHash() const;
 
@@ -46,7 +46,7 @@ public:
     void setTrackNumber(const std::optional<int>& trackNumber);
     void setDurationSeconds(const std::optional<int>& durationSeconds);
     void setRelativePath(const QString& relativePath);
-    void setFileMtime(qint64 fileMtime);
+    void setFileMtimeSecs(qint64 fileMtime);
     void setFileSize(qint64 fileSize);
     void setTrackCoverHash(const std::optional<QString>& trackCoverHash);
 
@@ -63,7 +63,7 @@ private:
     std::optional<int> m_durationSeconds;
 
     QString m_relativePath;
-    qint64 m_fileMtime;
+    qint64 m_fileMtimeSecs;
     qint64 m_fileSize;
 
     std::optional<QString> m_trackCoverHash;
