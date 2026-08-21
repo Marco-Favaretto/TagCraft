@@ -44,6 +44,9 @@ void loadProperties() {
     }
 }
 
+StorageManager storage;
+
+
 void testDb(const StorageManager&);
 void testStorage(StorageManager&);
 void testTagFromFile(const StorageManager&);
@@ -57,17 +60,36 @@ int main(int argc, char *argv[]) {
     // w.show();
     Q_INIT_RESOURCE(resources);
     loadProperties();
-    
-    // StorageManager storage;
-    // testStorage(storage);
-    // qDebug() << "\n";
-    // testDb(storage);
-    // qDebug() << "\n";
-    // testTagFromFile(storage);
-    // qDebug() << "\n";
 
-    testTagToFile();
-    // testCleanTags();
+    QString command;
+    QTextStream stream(stdin);
+
+    while (true) {
+        qDebug() << "Comandi disponibili: [dbstorage] [readfile] [writetags] [cleantags] [exit]";
+        stream >> command;
+
+        if (command == "dbstorage") {
+            testStorage(storage);
+            qDebug() << "\n";
+            testDb(storage);
+            qDebug() << "\n";
+        } 
+        else if (command == "readfile") {
+            if(!storage.isMounted()) testStorage(storage);
+            testTagFromFile(storage);
+            qDebug() << "\n";
+        } 
+        else if (command == "writetags") {
+            testTagToFile();
+        } 
+        else if (command == "cleantags") {
+            testCleanTags();
+        } 
+        else if (command == "exit") {
+            break;
+        }
+    }
+
 
     // return QApplication::exec();
     return 0;
