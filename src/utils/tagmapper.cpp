@@ -10,15 +10,18 @@
 
 TrackDto TagMapper::fileToDto(const QString& absolutePath, const QString& relativePath) {
     TagLib::FileRef f(absolutePath.toStdString().c_str());
-    
     if (f.isNull() || !f.file()) {
         qDebug() << "Impossibile aprire il file:" << relativePath;
         return TrackDto();
     }
 
     TagLib::MPEG::File* mpegFile = dynamic_cast<TagLib::MPEG::File*>(f.file());
-    TagLib::ID3v2::Tag* tag = mpegFile->ID3v2Tag();
+    if (!mpegFile) {
+        qDebug() << "Il file non è un MPEG/MP3 valido";
+        return TrackDto();
+    }
 
+    TagLib::ID3v2::Tag* tag = mpegFile->ID3v2Tag();
     if (!tag) {
         qDebug() << "Il file non contiene un tag ID3v2";
         return TrackDto();
@@ -48,14 +51,23 @@ TrackDto TagMapper::fileToDto(const QString& absolutePath, const QString& relati
 
 QByteArray TagMapper::extractEmbeddedCover(const QString& absolutePath) {
     TagLib::FileRef f(absolutePath.toStdString().c_str());
-    
     if (f.isNull() || !f.file()) {
         qDebug() << "Impossibile aprire il file:" << absolutePath;
         return QByteArray();
     }
 
     TagLib::MPEG::File* mpegFile = dynamic_cast<TagLib::MPEG::File*>(f.file());
+    if (!mpegFile) {
+        qDebug() << "Il file non è un MPEG/MP3 valido";
+        return QByteArray();
+    }
+
     TagLib::ID3v2::Tag* tag = mpegFile->ID3v2Tag();
+    if (!tag) {
+        qDebug() << "Il file non contiene un tag ID3v2";
+        return QByteArray();
+    }
+
     const TagLib::ID3v2::FrameList& frames = tag->frameList("APIC");
     qDebug() << "Numero APIC:" << frames.size();
 
@@ -110,6 +122,9 @@ bool TagMapper::embedCover(const QString& path, const QString& coverPath) {
         qWarning() << "Immagine vuota:" << coverPath;
         return false;
     }
+    
+    TagLib::ID3v2::FrameList frames = tag->frameList("APIC");
+    for (auto it = frames.begin(); it != frames.end(); ++it) tag->removeFrame(*it, true);
 
     auto* picture = new TagLib::ID3v2::AttachedPictureFrame();
     picture->setMimeType(
