@@ -9,7 +9,7 @@ class StorageManager : public QObject {
     Q_OBJECT
 
 public:
-    explicit StorageManager(QObject* parent = nullptr);
+    static StorageManager& instance();
 
     bool scanForStorage(); 
     bool isMounted() const;
@@ -29,6 +29,12 @@ signals:
 private:
     QStorageInfo m_activeStorage;
     bool m_isMounted{false};
+    
+    explicit StorageManager(QObject* parent = nullptr);
+    ~StorageManager() override = default;
+
+    StorageManager(const StorageManager&) = delete;
+    StorageManager& operator=(const StorageManager&) = delete;
 
     bool isValidMusicStorage(const QStorageInfo&) const;
 };

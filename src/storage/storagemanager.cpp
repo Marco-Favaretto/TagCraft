@@ -2,6 +2,11 @@
 
 #include <QDir>
 
+StorageManager& StorageManager::instance() {
+    static StorageManager instance;
+    return instance;
+}
+
 StorageManager::StorageManager(QObject* parent) : 
     QObject(parent), 
     m_activeStorage(), 

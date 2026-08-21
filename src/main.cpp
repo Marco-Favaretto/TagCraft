@@ -44,12 +44,10 @@ void loadProperties() {
     }
 }
 
-StorageManager storage;
 
-
-void testDb(const StorageManager&);
-void testStorage(StorageManager&);
-void testTagFromFile(const StorageManager&);
+void testDb();
+void testStorage();
+void testTagFromFile();
 void testTagToFile();
 void testCleanTags();
 void saveToMp3(const QString&, const QString&);
@@ -69,14 +67,13 @@ int main(int argc, char *argv[]) {
         stream >> command;
 
         if (command == "dbstorage") {
-            testStorage(storage);
+            testStorage();
             qDebug() << "\n";
-            testDb(storage);
+            testDb();
             qDebug() << "\n";
         } 
         else if (command == "readfile") {
-            if(!storage.isMounted()) testStorage(storage);
-            testTagFromFile(storage);
+            testTagFromFile();
             qDebug() << "\n";
         } 
         else if (command == "writetags") {
@@ -95,8 +92,9 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-void testStorage(StorageManager& storageManager) {
+void testStorage() {
     qDebug() << "avvio test storage";
+    StorageManager& storageManager = StorageManager::instance();
 
     if(storageManager.scanForStorage()) qDebug() << "storage trovato";
     else qDebug() << "scan fallita";
@@ -112,8 +110,11 @@ void testStorage(StorageManager& storageManager) {
     qDebug() << "fine test storage";
 }
 
-void testDb(const StorageManager& storageManager) {
+void testDb() {
     qDebug() << "testDb Avvio";
+
+    if(!StorageManager::instance().isMounted()) testStorage();
+    const StorageManager& storageManager = StorageManager::instance();
     
     // connessione db -> attualmente su cartella progetto, in futuro path storage esterno
     if (!DatabaseManager::instance().openDatabase(storageManager.musicAppPoint() + "/" + "music_library.db")) {
@@ -169,8 +170,11 @@ void testDb(const StorageManager& storageManager) {
     qDebug() << "testDb fine";
 }
 
-void testTagFromFile(const StorageManager& storageManager) {
+void testTagFromFile() {
     qDebug() << "testTagFromFile inizio";
+
+    if(!StorageManager::instance().isMounted()) testStorage();
+    const StorageManager& storageManager = StorageManager::instance();
 
     QString path = storageManager.toAbsolutePath(QString::fromStdString(properties["testTagFromFile"]));
     
