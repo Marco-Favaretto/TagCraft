@@ -4,10 +4,10 @@
 #include "dao/trackdao.h"
 #include "dao/artistdao.h"
 #include "dao/albumdao.h"
+#include "dao/genredao.h"
 #include "model/track.h"
 #include "model/artist.h"
 #include "model/album.h"
-#include "dao/genredao.h"
 #include "model/genre.h"
 #include "storage/storagemanager.h"
 #include "storage/libraryscanner.h"
@@ -70,17 +70,14 @@ int main(int argc, char *argv[]) {
 
     while (true) {
         qDebug() << "Comandi disponibili: [dbstorage] [readfile] [writetags] [cleantags] [fullscan] [smartscan] [exit]";
+        std::cout << "~ ";
         stream >> command;
 
         if (command == "dbstorage") {
-            testStorage();
-            qDebug() << "\n";
             testDb();
-            qDebug() << "\n";
         } 
         else if (command == "readfile") {
             testTagFromFile();
-            qDebug() << "\n";
         } 
         else if (command == "writetags") {
             testTagToFile();
@@ -139,10 +136,9 @@ void testDb() {
     // Track newTrack; // id iniziale è -1
     // newTrack.setTitle(QString::fromStdString(properties["testdb.title"]));
     // newTrack.setRelativePath(QString::fromStdString(properties["testdb.relPath"]));
-    // newTrack.setFileMtime(1600000000);
-    // newTrack.setFileSize(15400300);
+    // newTrack.setFileMtime(std::stoi(properties["testdb.filemtime"]));
+    // newTrack.setFileSize(std::stoi(properties["testdb.filesize"]));
     // newTrack.setYear(std::stoi(properties["testdb.year"]));
-
     // if (TrackDao::insert(newTrack)) {
     //     qDebug() << "Traccia salvata con successo. Nuovo ID generato da SQLite:" << newTrack.id();
     // } else {
@@ -194,9 +190,7 @@ void testTagFromFile() {
     QByteArray byteArray = TagMapper::extractEmbeddedCover(path);
 
     QImage image;
-    if (image.loadFromData(byteArray)) {
-        image.save("../tmp/cover.jpg");
-    }
+    if (image.loadFromData(byteArray)) image.save("../tmp/extractcover/cover.jpg");
 
     qDebug() << "testTagFromFile fine";
 }
