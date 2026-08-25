@@ -96,3 +96,29 @@ QList<Genre> GenreDao::getAll() {
 
     return genres;
 }
+
+bool GenreDao::deleteById(int id) {
+    static const auto queries = SqlParser::parseNamedQueries(":/sql/genre.sql");
+    const QString queryString = queries.value("deleteById");
+    if (queryString.isEmpty()) return false;
+
+    QSqlQuery query;
+    query.prepare(queryString);
+    return SqlExecutor::execute(query, {{":id", id}});
+}
+
+std::optional<Genre> GenreDao::getByName(const QString& name) {
+    static const auto queries = SqlParser::parseNamedQueries(":/sql/genre.sql");
+    const QString queryString = queries.value("getByName");
+    if (queryString.isEmpty()) return std::nullopt;
+
+    QSqlQuery query;
+    query.prepare(queryString);
+
+    if (SqlExecutor::execute(query, {{":name", name.trimmed()}})) {
+        if (query.next()) {
+            return EntityMapper::toEntityGenre(query);
+        }
+    }
+    return std::nullopt;
+}

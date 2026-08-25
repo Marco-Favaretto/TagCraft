@@ -23,3 +23,12 @@ SELECT
     id,
     name
 FROM artist;
+
+-- name: deleteById
+DELETE FROM artist 
+WHERE id = :id;
+
+-- name: getByName
+SELECT id, name 
+FROM artist 
+WHERE LOWER(name) = LOWER(:name);

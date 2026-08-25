@@ -13,6 +13,10 @@ public:
 
     bool initSchema();
 
+    bool beginTransaction();
+    bool commit();
+    bool rollback();
+
 private:
     DatabaseManager() = default;
     ~DatabaseManager();

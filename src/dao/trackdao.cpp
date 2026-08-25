@@ -138,3 +138,13 @@ QHash<QString, TrackFileSystemDto> TrackDao::getAllFileStates() {
 
     return states;
 }
+
+bool TrackDao::deleteById(int id) {
+    static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
+    const QString queryString = queries.value("deleteById");
+    if (queryString.isEmpty()) return false;
+
+    QSqlQuery query;
+    query.prepare(queryString);
+    return SqlExecutor::execute(query, {{":id", id}});
+}

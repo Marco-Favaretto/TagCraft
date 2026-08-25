@@ -97,3 +97,29 @@ QList<Artist> ArtistDao::getAll() {
 
     return artists;
 }
+
+bool ArtistDao::deleteById(int id) {
+    static const auto queries = SqlParser::parseNamedQueries(":/sql/artist.sql");
+    const QString queryString = queries.value("deleteById");
+    if (queryString.isEmpty()) return false;
+
+    QSqlQuery query;
+    query.prepare(queryString);
+    return SqlExecutor::execute(query, {{":id", id}});
+}
+
+std::optional<Artist> ArtistDao::getByName(const QString& name) {
+    static const auto queries = SqlParser::parseNamedQueries(":/sql/artist.sql");
+    const QString queryString = queries.value("getByName");
+    if (queryString.isEmpty()) return std::nullopt;
+
+    QSqlQuery query;
+    query.prepare(queryString);
+
+    if (SqlExecutor::execute(query, {{":name", name.trimmed()}})) {
+        if (query.next()) {
+            return EntityMapper::toEntityArtist(query);
+        }
+    }
+    return std::nullopt;
+}

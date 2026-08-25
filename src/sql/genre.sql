@@ -23,3 +23,12 @@ SELECT
     id,
     name
 FROM genre;
+
+-- name: deleteById
+DELETE FROM genre 
+WHERE id = :id;
+
+-- name: getByName
+SELECT id, name 
+FROM genre 
+WHERE LOWER(name) = LOWER(:name);

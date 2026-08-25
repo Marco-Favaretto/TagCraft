@@ -74,3 +74,16 @@ bool DatabaseManager::executeInitSqlScript(const QString& resourcePath) {
 
     return true;
 }
+
+bool DatabaseManager::beginTransaction() {
+    return m_db.transaction();
+}
+
+bool DatabaseManager::commit() {
+    return m_db.commit();
+}
+
+bool DatabaseManager::rollback() {
+    return m_db.rollback();
+} 
+

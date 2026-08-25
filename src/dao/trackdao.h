@@ -9,14 +9,12 @@
 
 class TrackDao {
 public:
-    static bool insert(Track&);
+    static bool insert(Track& track);
+    static bool update(const Track& track);
+    static bool deleteById(int id);
 
-    static std::optional<Track> findById(int);
-
-    static bool update(const Track&);
-
+    static std::optional<Track> findById(int id);
     static QList<Track> getAll();
-
     static QHash<QString, TrackFileSystemDto> getAllFileStates(); 
 };
 

@@ -8,11 +8,12 @@
 
 class AlbumDao {
 public:
-    static bool insert(Album &album);
-    static bool update(const Album &album);
+    static bool insert(Album& album);
+    static bool update(const Album& album);
+    static bool deleteById(int id);
 
     static std::optional<Album> findById(int id);
-
+    static std::optional<Album> getByTitleAndArtist(const QString& title, int artistId);
     static QList<Album> getAll();
 };
 

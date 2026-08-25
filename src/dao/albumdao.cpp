@@ -100,3 +100,29 @@ QList<Album> AlbumDao::getAll() {
 
     return albums;
 }
+
+bool AlbumDao::deleteById(int id) {
+    static const auto queries = SqlParser::parseNamedQueries(":/sql/album.sql");
+    const QString queryString = queries.value("deleteById");
+    if (queryString.isEmpty()) return false;
+
+    QSqlQuery query;
+    query.prepare(queryString);
+    return SqlExecutor::execute(query, {{":id", id}});
+}
+
+std::optional<Album> AlbumDao::getByTitleAndArtist(const QString& title, int artistId) {
+    static const auto queries = SqlParser::parseNamedQueries(":/sql/album.sql");
+    const QString queryString = queries.value("getByTitleAndArtist");
+    if (queryString.isEmpty()) return std::nullopt;
+
+    QSqlQuery query;
+    query.prepare(queryString);
+
+    if (SqlExecutor::execute(query, {{":title", title.trimmed()}, {":artist_id", artistId}})) {
+        if (query.next()) {
+            return EntityMapper::toEntityAlbum(query);
+        }
+    }
+    return std::nullopt;
+}

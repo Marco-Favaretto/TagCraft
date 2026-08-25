@@ -8,11 +8,12 @@
 
 class GenreDao {
 public:
-    static bool insert(Genre&);
-    static bool update(const Genre&);
+    static bool insert(Genre& genre);
+    static bool update(const Genre& genre);
+    static bool deleteById(int id);
 
-    static std::optional<Genre> findById(int);
-
+    static std::optional<Genre> findById(int id);
+    static std::optional<Genre> getByName(const QString& name);
     static QList<Genre> getAll();
 };
 

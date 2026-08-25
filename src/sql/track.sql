@@ -80,3 +80,7 @@ SELECT
     file_mtime, 
     file_size 
 FROM track;
+
+-- name: deleteById
+DELETE FROM track 
+WHERE id = :id;
