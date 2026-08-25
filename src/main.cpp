@@ -60,8 +60,21 @@ QJsonObject trackToJson(const TrackFileSystemDto&);
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
+
+    // if (!StorageManager::instance().scanForStorage()) {
+    // gestione storage non trovato 
+    // (copia locale db, e sync due versioni una volta riconnesso o copia locale e visualizzazione senza modifiche)
+    // }
+    // DatabaseManager::instance().openDatabase(/* path calcolato da StorageManager */);
+    // DatabaseManager::instance().initSchema();
+
     // MainWindow w;
     // w.show();
+
+    // int ret = QApplication::exec();
+    // DatabaseManager::instance().closeDatabase();
+    // return ret;
+
     Q_INIT_RESOURCE(resources);
     loadProperties();
 
@@ -95,9 +108,6 @@ int main(int argc, char *argv[]) {
             break;
         }
     }
-
-
-    // return QApplication::exec();
     return 0;
 }
 
