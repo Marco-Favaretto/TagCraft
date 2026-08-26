@@ -5,8 +5,8 @@
 #include <QString>
 
 #include "dto/scanresultdto.h"
-#include "controller/librarycontroller.h"
 #include "controller/databasecontroller.h"
+#include "controller/storagecontroller.h"
 
 class AppController : public QObject {
     Q_OBJECT
@@ -17,8 +17,8 @@ private slots:
     void scanAndSync(const QString&);
 
 private:
-    LibraryController* m_libraryController;
     DatabaseController* m_databaseController;
+    StorageController* m_storageController;
 };
 
 #endif // APPCONTROLLER_H

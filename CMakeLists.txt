@@ -84,12 +84,12 @@ qt_add_executable(TagCraft
 
     src/controller/appcontroller.h
     src/controller/appcontroller.cpp
-    src/controller/librarycontroller.h
-    src/controller/librarycontroller.cpp
     src/controller/databasecontroller.h
     src/controller/databasecontroller.cpp
     src/db/transactionmanager.h
     src/db/transactionmanager.cpp
+    src/controller/storagecontroller.h
+    src/controller/storagecontroller.cpp
 )
 
 target_include_directories(TagCraft

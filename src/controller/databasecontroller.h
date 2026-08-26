@@ -21,6 +21,7 @@ public:
     bool insertNewTracks(const QList<TrackFileSystemDto>&);
     bool updateNewTracks(const QList<TrackFileSystemDto>&);
     bool deleteNewTracks(const QList<QString>&);
+    bool deleteOrphans();
 
 private:
     std::optional<Track> insertTrackInternal(const TrackFileSystemDto&);

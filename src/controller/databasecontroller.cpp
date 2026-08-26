@@ -50,6 +50,14 @@ bool DatabaseController::deleteNewTracks(const QList<QString>& list) {
     return transaction.commit();
 }
 
+bool DatabaseController::deleteOrphans() {
+    bool genreOrph = GenreDao::deleteOrphans();
+    bool albumOrph = AlbumDao::deleteOrphans();
+    bool artistOrph = ArtistDao::deleteOrphans();
+
+    return genreOrph && albumOrph && artistOrph;
+}
+
 std::optional<Track> DatabaseController::insertTrackInternal(const TrackFileSystemDto& fsDto) {
     QString absolutePath = StorageManager::instance().toAbsolutePath(fsDto.relativePath);
     TrackDto tagDto = TagMapper::fileToDto(absolutePath, fsDto.relativePath);

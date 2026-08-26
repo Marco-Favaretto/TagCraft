@@ -268,11 +268,17 @@ QJsonObject trackToJson(const TrackFileSystemDto& track) {
 
 void testFullScan() {
     qDebug() << "inizio testfullscan";
-    if(!StorageManager::instance().isMounted()) testStorage();
+    if (!StorageManager::instance().isMounted()) testStorage();
+    
     QList<TrackFileSystemDto> files = LibraryScanner::scanAudioFiles(StorageManager::instance().musicPoint());
     QJsonArray jsonArray;
     
-    for (const auto& f : files) jsonArray.append(trackToJson(f));
+    int total = files.size();
+    for (int i = 0; i < total; ++i) {
+        jsonArray.append(trackToJson(files[i]));
+        int percentage = (total > 0) ? static_cast<int>(((i + 1) * 100.0) / total) : 0;
+        qDebug() << "FullScan JSON Progress:" << percentage << "% (" << (i + 1) << "/" << total << ")";
+    }
     
     QJsonDocument doc(jsonArray);
     QFile file("../tmp/library.json");
@@ -287,12 +293,18 @@ void testFullScan() {
 
 void testSmartScan() {
     qDebug() << "inizio testsmartscan";
-    if(!StorageManager::instance().isMounted()) testStorage();
+    if (!StorageManager::instance().isMounted()) testStorage();
     if (!DatabaseManager::instance().openDatabase(StorageManager::instance().musicPoint() + "/" + "music_library.db")) {
         qDebug() << "testDb fallito";
     }
     
-    ScanResultDto result = LibraryScanner::smartScan(StorageManager::instance().musicPoint());
+    // Callback lambda passata a smartScan per loggare il progresso
+    auto logProgress = [](int current, int total) {
+        int percentage = (total > 0) ? static_cast<int>((current * 100.0) / total) : 0;
+        qDebug() << "SmartScan Progress:" << percentage << "% (" << current << "/" << total << ")";
+    };
+
+    ScanResultDto result = LibraryScanner::smartScan(StorageManager::instance().musicPoint(), logProgress);
 
     QJsonArray newTracks;
     for (const auto& f : result.newTracks) newTracks.append(trackToJson(f));
