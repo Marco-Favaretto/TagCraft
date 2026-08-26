@@ -63,18 +63,7 @@ bool StorageController::validateMusicDirectory(const QString& path) const {
     return info.exists() && info.isDir() && info.isReadable();
 }
 
-void StorageController::onStorageMountedInternal(const QString& mountPoint) {
-    emit storageMounted(mountPoint);
-}
-
-void StorageController::onStorageUnmountedInternal() {
-    emit storageUnmounted();
-}
-
 void StorageController::setupConnections() {
-    connect(&storage, &StorageManager::storageMounted, 
-            this, &StorageController::onStorageMountedInternal);
-            
-    connect(&storage, &StorageManager::storageUnmounted, 
-            this, &StorageController::onStorageUnmountedInternal);
+    connect(&storage, &StorageManager::storageMounted, this, &StorageController::storageMounted);
+    connect(&storage, &StorageManager::storageUnmounted, this, &StorageController::storageUnmounted);
 }

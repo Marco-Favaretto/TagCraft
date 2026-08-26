@@ -16,6 +16,10 @@ public:
 private slots:
     void scanAndSync(const QString&);
 
+signals:
+    void errorOccurred(const QString&);
+    void libraryUpdated();
+
 private:
     DatabaseController* m_databaseController;
     StorageController* m_storageController;

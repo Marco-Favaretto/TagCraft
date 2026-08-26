@@ -32,10 +32,6 @@ signals:
     void scanFinished(const ScanResultDto& result);
     void errorOccurred(const QString& message);
 
-private slots:
-    void onStorageMountedInternal(const QString& mountPoint);
-    void onStorageUnmountedInternal();
-
 private:
     StorageManager& storage;
     void setupConnections();

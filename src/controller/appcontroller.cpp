@@ -8,7 +8,14 @@ AppController::AppController(QObject* parent) : QObject(parent) {
 void AppController::scanAndSync(const QString& path) {
     ScanResultDto result = m_storageController->runScan(path);
 
-    if(!result.newTracks.isEmpty()) m_databaseController->insertNewTracks(result.newTracks);
-    if(!result.modifiedTracks.isEmpty()) m_databaseController->updateNewTracks(result.modifiedTracks);
-    if(!result.deletedTracks.isEmpty()) m_databaseController->deleteNewTracks(result.deletedTracks);
+    if (!result.newTracks.isEmpty() && !m_databaseController->insertNewTracks(result.newTracks))
+        emit errorOccurred("Inserimento nuove tracce fallito");
+
+    if (!result.modifiedTracks.isEmpty() && !m_databaseController->updateNewTracks(result.modifiedTracks))
+        emit errorOccurred("Aggiornamento tracce fallito");
+
+    if (!result.deletedTracks.isEmpty() && !m_databaseController->deleteNewTracks(result.deletedTracks))
+        emit errorOccurred("Eliminazione tracce fallito");
+
+    emit libraryUpdated();
 }
