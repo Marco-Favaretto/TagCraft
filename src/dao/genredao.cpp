@@ -122,3 +122,22 @@ std::optional<Genre> GenreDao::getByName(const QString& name) {
     }
     return std::nullopt;
 }
+
+std::optional<Genre> GenreDao::getOrCreate(const QString& name) {
+    if(auto existing = getByName(name)) return *existing;
+
+    Genre genre;
+    genre.setName(name);
+    if(!insert(genre)) return std::nullopt;
+    else return genre;
+}
+
+bool GenreDao::deleteOrphans() {
+    static const auto queries = SqlParser::parseNamedQueries(":/sql/genre.sql");
+    const QString queryString = queries.value("deleteOrphans");
+    if (queryString.isEmpty()) return false;
+
+    QSqlQuery query;
+    query.prepare(queryString);
+    return SqlExecutor::execute(query, {});
+}

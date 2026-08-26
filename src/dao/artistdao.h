@@ -13,8 +13,11 @@ public:
     static bool deleteById(int id);
 
     static std::optional<Artist> findById(int id);
+    static std::optional<Artist> getOrCreate(const QString&);
     static std::optional<Artist> getByName(const QString& name);
     static QList<Artist> getAll();
+    
+    static bool deleteOrphans();
 };
 
 #endif // ARTISTDAO_H

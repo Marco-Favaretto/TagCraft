@@ -123,3 +123,22 @@ std::optional<Artist> ArtistDao::getByName(const QString& name) {
     }
     return std::nullopt;
 }
+
+std::optional<Artist> ArtistDao::getOrCreate(const QString& name) {
+    if(auto existing = getByName(name)) return *existing;
+
+    Artist artist;
+    artist.setName(name);
+    if(!insert(artist)) return std::nullopt;
+    else return artist;
+}
+
+bool ArtistDao::deleteOrphans() {
+    static const auto queries = SqlParser::parseNamedQueries(":/sql/artist.sql");
+    const QString queryString = queries.value("deleteOrphans");
+    if (queryString.isEmpty()) return false;
+
+    QSqlQuery query;
+    query.prepare(queryString);
+    return SqlExecutor::execute(query, {});
+}

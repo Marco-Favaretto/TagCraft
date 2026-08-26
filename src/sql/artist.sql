@@ -32,3 +32,11 @@ WHERE id = :id;
 SELECT id, name 
 FROM artist 
 WHERE LOWER(name) = LOWER(:name);
+
+-- name: deleteOrphans
+DELETE FROM artist AS a
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM track AS t
+    WHERE t.artist_id = a.id
+);

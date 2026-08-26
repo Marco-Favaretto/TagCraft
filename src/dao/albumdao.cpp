@@ -126,3 +126,23 @@ std::optional<Album> AlbumDao::getByTitleAndArtist(const QString& title, int art
     }
     return std::nullopt;
 }
+
+std::optional<Album> AlbumDao::getOrCreate(const QString& name, int artistId) {
+    if(auto existing = getByTitleAndArtist(name, artistId)) return *existing;
+
+    Album album;
+    album.setTitle(name);
+    album.setArtistId(artistId);
+    if(!insert(album)) return std::nullopt;
+    else return album;
+}
+
+bool AlbumDao::deleteOrphans() {
+    static const auto queries = SqlParser::parseNamedQueries(":/sql/album.sql");
+    const QString queryString = queries.value("deleteOrphans");
+    if (queryString.isEmpty()) return false;
+
+    QSqlQuery query;
+    query.prepare(queryString);
+    return SqlExecutor::execute(query, {});
+}

@@ -22,4 +22,4 @@ private:
     bool m_committed{false};
 };
 
-#endif TRANSACTIONMANAGER_H
+#endif // TRANSACTIONMANAGER_H

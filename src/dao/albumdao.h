@@ -14,7 +14,10 @@ public:
 
     static std::optional<Album> findById(int id);
     static std::optional<Album> getByTitleAndArtist(const QString& title, int artistId);
+    static std::optional<Album> getOrCreate(const QString&, int);
     static QList<Album> getAll();
+
+    static bool deleteOrphans();
 };
 
 #endif // ALBUMDAO_H

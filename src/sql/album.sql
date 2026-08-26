@@ -42,3 +42,11 @@ WHERE id = :id;
 SELECT id, title, artist_id, year, cover_hash 
 FROM album 
 WHERE LOWER(title) = LOWER(:title) AND artist_id = :artist_id;
+
+-- name: deleteOrphans
+DELETE FROM album AS a
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM track AS t
+    WHERE t.album_id = a.id
+);
