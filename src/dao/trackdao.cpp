@@ -93,6 +93,28 @@ std::optional<Track> TrackDao::findById(int id) {
     return std::nullopt;
 }
 
+std::optional<Track> TrackDao::findByRelativePath(const QString& relativePath) {
+    static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
+    const QString queryString = queries.value("findByRelativePath");
+
+    if (queryString.isEmpty()) {
+        qCritical() << "Query 'findByRelativePath' non trovata in track.sql";
+        return std::nullopt;
+    }
+
+    QSqlQuery query;
+    query.prepare(queryString);
+    query.bindValue(":relative_path", relativePath);
+
+    if (SqlExecutor::execute(query, { {":relative_path", relativePath} })) {
+        if (query.next()) {
+            return EntityMapper::toEntityTrack(query);
+        }
+    }
+
+    return std::nullopt;
+}
+
 QList<Track> TrackDao::getAll() {
     QList<Track> tracks;
     static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
@@ -148,6 +170,7 @@ bool TrackDao::deleteById(int id) {
     query.prepare(queryString);
     return SqlExecutor::execute(query, {{":id", id}});
 }
+
 bool TrackDao::deleteByRelativePath(const QString& relativePath) {
     static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
     const QString queryString = queries.value("deleteByRelativePath");

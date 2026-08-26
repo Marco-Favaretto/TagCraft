@@ -1,0 +1,108 @@
+#include "controller/databasecontroller.h"
+
+#include "storage/storagemanager.h"
+#include "db/transactionmanager.h"
+#include "dao/albumdao.h"
+#include "dao/artistdao.h"
+#include "dao/genredao.h"
+#include "dao/trackdao.h"
+#include "dto/trackdto.h"
+#include "utils/tagmapper.h"
+
+DatabaseController::DatabaseController(QObject* parent) : QObject(parent) {}
+
+bool DatabaseController::insertNewTracks(const QList<TrackFileSystemDto>& list) {
+    auto& db = DatabaseManager::instance();
+    TransactionManager transaction(db);
+    if (!transaction.isStarted()) return false; // Impossibile avviare la transazione
+
+    for (const auto& t : list) {
+        if (!insertTrackInternal(t)) return false; // metodo helper di inserimento (converte TrackFileSystemDto in entity Track e poi dao.insert con check per nuovi album, artist e genre)
+    }
+
+    return transaction.commit();
+}
+
+bool DatabaseController::updateNewTracks(const QList<TrackFileSystemDto>& list) {
+    auto& db = DatabaseManager::instance();
+    TransactionManager transaction(db);
+    if (!transaction.isStarted()) return false; // Impossibile avviare la transazione
+
+    // for(auto t : list) getTrackByRelativePath (ma se è cambiato quello?) se cambiato path -> vecchio path in deleted e nuovo path in new
+    // entity dao.updateTrack() ed eventualmente artist, genre, album
+    for (const auto& t : list) if (!updateTrackInternal(t)) return false;
+
+    return transaction.commit();
+}
+
+bool DatabaseController::deleteNewTracks(const QList<QString>& list) {
+    auto& db = DatabaseManager::instance();
+    TransactionManager transaction(db);
+    if (!transaction.isStarted()) return false; // Impossibile avviare la transazione
+
+    // for(auto t : list) delete track by relPath
+    for(const auto& t : list) {
+        auto trackOpt = TrackDao::findByRelativePath(t); 
+        if (!trackOpt) return false;
+        if(!TrackDao::deleteById(trackOpt->id())) return false;
+    }
+
+    return transaction.commit();
+}
+
+std::optional<Track> DatabaseController::insertTrackInternal(const TrackFileSystemDto& fsDto) {
+    QString absolutePath = StorageManager::instance().toAbsolutePath(fsDto.relativePath);
+    TrackDto tagDto = TagMapper::fileToDto(absolutePath, fsDto.relativePath);
+
+    auto artistOpt = ArtistDao::getOrCreate(tagDto.artistName);
+    if (!artistOpt) return std::nullopt;
+
+    auto albumOpt = AlbumDao::getOrCreate(tagDto.albumName, artistOpt->id());
+    if (!albumOpt) return std::nullopt;
+
+    auto genreOpt = GenreDao::getOrCreate(tagDto.genreName);
+    if (!genreOpt) return std::nullopt;
+
+    Track track;
+    track.setTitle(tagDto.title);
+    track.setArtistId(artistOpt->id());
+    track.setAlbumId(albumOpt->id());
+    track.setGenreId(genreOpt->id());
+    track.setYear(tagDto.year);
+    track.setTrackNumber(tagDto.trackNumber);
+    track.setRelativePath(fsDto.relativePath);
+    track.setFileMtimeSecs(fsDto.lastModified);
+    track.setFileSize(fsDto.fileSize);
+
+    if (!TrackDao::insert(track)) return std::nullopt;
+    return track;
+}
+
+bool DatabaseController::updateTrackInternal(const TrackFileSystemDto& fsDto) {
+    auto trackOpt = TrackDao::findByRelativePath(fsDto.relativePath);
+    if (!trackOpt) return false;
+    Track track = *trackOpt;
+
+    QString absolutePath = StorageManager::instance().toAbsolutePath(fsDto.relativePath);
+    TrackDto tagDto = TagMapper::fileToDto(absolutePath, fsDto.relativePath);
+
+    auto artistOpt = ArtistDao::getOrCreate(tagDto.artistName);
+    if (!artistOpt) return false;
+
+    auto albumOpt = AlbumDao::getOrCreate(tagDto.albumName, artistOpt->id());
+    if (!albumOpt) return false;
+
+    auto genreOpt = GenreDao::getOrCreate(tagDto.genreName);
+    if (!genreOpt) return false;
+
+    track.setTitle(tagDto.title);
+    track.setArtistId(artistOpt->id());
+    track.setAlbumId(albumOpt->id());
+    track.setGenreId(genreOpt->id());
+    track.setYear(tagDto.year);
+    track.setTrackNumber(tagDto.trackNumber);
+    track.setFileMtimeSecs(fsDto.lastModified);
+    track.setFileSize(fsDto.fileSize);
+
+    return TrackDao::update(track);
+}

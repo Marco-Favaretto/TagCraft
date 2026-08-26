@@ -15,6 +15,7 @@ public:
     static bool deleteByRelativePath(const QString& relativePath);
     
     static std::optional<Track> findById(int id);
+    static std::optional<Track> findByRelativePath(const QString&);
     static QList<Track> getAll();
     static QList<Track> getByAlbumId(int albumId);
     static QList<Track> getByArtistId(int artistId);
