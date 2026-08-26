@@ -40,3 +40,6 @@ WHERE NOT EXISTS (
     FROM track AS t
     WHERE t.artist_id = a.id
 );
+
+-- name: searchByKeyword
+SELECT id, name FROM artist WHERE LOWER(name) LIKE LOWER(:keyword) ORDER BY name ASC;

@@ -16,7 +16,8 @@ public:
     static std::optional<Genre> getOrCreate(const QString&);
     static std::optional<Genre> getByName(const QString& name);
     static QList<Genre> getAll();
-    
+    static QList<Genre> searchByKeyword(const QString&);
+
     static bool deleteOrphans();
 };
 

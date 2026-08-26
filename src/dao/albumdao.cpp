@@ -146,3 +146,36 @@ bool AlbumDao::deleteOrphans() {
     query.prepare(queryString);
     return SqlExecutor::execute(query, {});
 }
+
+QList<Album> AlbumDao::getByArtistId(int artistId) {
+    QList<Album> albums;
+    static const auto queries = SqlParser::parseNamedQueries(":/sql/album.sql");
+    const QString queryString = queries.value("getByArtistId");
+    if (queryString.isEmpty()) return albums;
+
+    QSqlQuery query;
+    query.prepare(queryString);
+    if (SqlExecutor::execute(query, {{":artist_id", artistId}})) {
+        while (query.next()) {
+            albums.append(EntityMapper::toEntityAlbum(query));
+        }
+    }
+    return albums;
+}
+
+QList<Album> AlbumDao::searchByKeyword(const QString& keyword) {
+    QList<Album> albums;
+    static const auto queries = SqlParser::parseNamedQueries(":/sql/album.sql");
+    const QString queryString = queries.value("searchByKeyword");
+    if (queryString.isEmpty()) return albums;
+
+    QSqlQuery query;
+    query.prepare(queryString);
+    QString pattern = "%" + keyword.trimmed() + "%";
+    if (SqlExecutor::execute(query, {{":keyword", pattern}})) {
+        while (query.next()) {
+            albums.append(EntityMapper::toEntityAlbum(query));
+        }
+    }
+    return albums;
+}

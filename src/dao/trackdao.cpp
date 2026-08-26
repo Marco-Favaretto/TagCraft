@@ -148,3 +148,77 @@ bool TrackDao::deleteById(int id) {
     query.prepare(queryString);
     return SqlExecutor::execute(query, {{":id", id}});
 }
+bool TrackDao::deleteByRelativePath(const QString& relativePath) {
+    static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
+    const QString queryString = queries.value("deleteByRelativePath");
+    if (queryString.isEmpty()) return false;
+
+    QSqlQuery query;
+    query.prepare(queryString);
+    return SqlExecutor::execute(query, {{":relative_path", relativePath}});
+}
+
+QList<Track> TrackDao::getByAlbumId(int albumId) {
+    QList<Track> tracks;
+    static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
+    const QString queryString = queries.value("getByAlbumId");
+    if (queryString.isEmpty()) return tracks;
+
+    QSqlQuery query;
+    query.prepare(queryString);
+    if (SqlExecutor::execute(query, {{":album_id", albumId}})) {
+        while (query.next()) {
+            tracks.append(EntityMapper::toEntityTrack(query));
+        }
+    }
+    return tracks;
+}
+
+QList<Track> TrackDao::getByArtistId(int artistId) {
+    QList<Track> tracks;
+    static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
+    const QString queryString = queries.value("getByArtistId");
+    if (queryString.isEmpty()) return tracks;
+
+    QSqlQuery query;
+    query.prepare(queryString);
+    if (SqlExecutor::execute(query, {{":artist_id", artistId}})) {
+        while (query.next()) {
+            tracks.append(EntityMapper::toEntityTrack(query));
+        }
+    }
+    return tracks;
+}
+
+QList<Track> TrackDao::getByGenreId(int genreId) {
+    QList<Track> tracks;
+    static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
+    const QString queryString = queries.value("getByGenreId");
+    if (queryString.isEmpty()) return tracks;
+
+    QSqlQuery query;
+    query.prepare(queryString);
+    if (SqlExecutor::execute(query, {{":genre_id", genreId}})) {
+        while (query.next()) {
+            tracks.append(EntityMapper::toEntityTrack(query));
+        }
+    }
+    return tracks;
+}
+
+QList<Track> TrackDao::searchByKeyword(const QString& keyword) {
+    QList<Track> tracks;
+    static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
+    const QString queryString = queries.value("searchByKeyword");
+    if (queryString.isEmpty()) return tracks;
+
+    QSqlQuery query;
+    query.prepare(queryString);
+    QString pattern = "%" + keyword.trimmed() + "%";
+    if (SqlExecutor::execute(query, {{":keyword", pattern}})) {
+        while (query.next()) {
+            tracks.append(EntityMapper::toEntityTrack(query));
+        }
+    }
+    return tracks;
+}

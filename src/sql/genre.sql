@@ -40,3 +40,6 @@ WHERE NOT EXISTS (
     FROM track AS t
     WHERE t.genre_id = g.id
 );
+
+-- name: searchByKeyword
+SELECT id, name FROM genre WHERE LOWER(name) LIKE LOWER(:keyword) ORDER BY name ASC;

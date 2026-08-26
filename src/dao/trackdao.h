@@ -12,10 +12,15 @@ public:
     static bool insert(Track& track);
     static bool update(const Track& track);
     static bool deleteById(int id);
-
+    static bool deleteByRelativePath(const QString& relativePath);
+    
     static std::optional<Track> findById(int id);
     static QList<Track> getAll();
-    static QHash<QString, TrackFileSystemDto> getAllFileStates(); 
+    static QList<Track> getByAlbumId(int albumId);
+    static QList<Track> getByArtistId(int artistId);
+    static QList<Track> getByGenreId(int genreId);
+    static QList<Track> searchByKeyword(const QString& keyword);
+    static QHash<QString, TrackFileSystemDto> getAllFileStates();
 };
 
 #endif // TRACKDAO_H

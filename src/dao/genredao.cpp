@@ -141,3 +141,20 @@ bool GenreDao::deleteOrphans() {
     query.prepare(queryString);
     return SqlExecutor::execute(query, {});
 }
+
+QList<Genre> GenreDao::searchByKeyword(const QString& keyword) {
+    QList<Genre> genres;
+    static const auto queries = SqlParser::parseNamedQueries(":/sql/genre.sql");
+    const QString queryString = queries.value("searchByKeyword");
+    if (queryString.isEmpty()) return genres;
+
+    QSqlQuery query;
+    query.prepare(queryString);
+    QString pattern = "%" + keyword.trimmed() + "%";
+    if (SqlExecutor::execute(query, {{":keyword", pattern}})) {
+        while (query.next()) {
+            genres.append(EntityMapper::toEntityGenre(query));
+        }
+    }
+    return genres;
+}
