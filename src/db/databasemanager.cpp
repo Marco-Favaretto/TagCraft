@@ -87,3 +87,24 @@ bool DatabaseManager::rollback() {
     return m_db.rollback();
 } 
 
+bool DatabaseManager::resetDb() {
+    QString resourcePath = ":sql/resetdb.sql";
+    const QStringList statements = SqlParser::parseStatements(resourcePath);
+
+    if (statements.isEmpty()) {
+        qWarning() << "Nessun comando valido trovato nello script:" << resourcePath;
+        return false;
+    }
+
+    QSqlQuery query;
+    for (const QString& statement : statements) {
+        query.prepare(statement);
+        
+        if (!SqlExecutor::execute(query, {})) {
+            qCritical() << "Errore durante l'esecuzione dello script:" << resourcePath;
+            return false;
+        }
+    }
+
+    return true;
+}

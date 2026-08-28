@@ -13,12 +13,14 @@
 class LibraryScanner {
 public:
     LibraryScanner() = delete;
-    static QList<TrackFileSystemDto> scanAudioFiles(const QString&);
-
+    
     // Callback tipo: std::function<void(int attuali, int totali)>
     using ProgressCallback = std::function<void(int, int)>;
 
+    static QList<TrackFileSystemDto> scanAudioFiles(const QString& musicFolderPath, ProgressCallback onProgress = nullptr);
+
     static ScanResultDto smartScan(const QString& musicFolderPath, ProgressCallback onProgress = nullptr);
+
 private:
     static int countFile(const QString&);
 };

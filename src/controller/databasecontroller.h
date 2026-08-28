@@ -23,6 +23,8 @@ public:
     bool deleteNewTracks(const QList<QString>&);
     bool deleteOrphans();
 
+    bool resetDb();
+
 private:
     std::optional<Track> insertTrackInternal(const TrackFileSystemDto&);
     bool updateTrackInternal(const TrackFileSystemDto&);

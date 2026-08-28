@@ -40,6 +40,26 @@ ScanResultDto StorageController::runScan(const QString& path) {
     return result;
 }
 
+QList<TrackFileSystemDto> StorageController::runFullScan(const QString& path) {
+    QList<TrackFileSystemDto> list;
+
+    if (!validateMusicDirectory(path)) {
+        emit errorOccurred("Percorso libreria non valido o non accessibile: " + path);
+        return list;
+    }
+
+    // Lambda per calcolare la percentuale e rilanciare il segnale
+    // viene poi passata a smartScan che la esegue
+    auto progressHandler = [this](int current, int total) {
+        int percentage = (total > 0) ? static_cast<int>((current * 100.0) / total) : 0;
+        emit scanProgress(percentage);
+    };
+
+    list = LibraryScanner::scanAudioFiles(path, progressHandler);
+    emit fullScanFinished(list);
+    return list;
+}
+
 bool StorageController::isStorageMounted() const {
     return storage.isMounted();
 }

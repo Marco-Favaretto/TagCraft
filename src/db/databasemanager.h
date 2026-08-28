@@ -13,6 +13,8 @@ public:
 
     bool initSchema();
 
+    bool resetDb();
+
     bool beginTransaction();
     bool commit();
     bool rollback();

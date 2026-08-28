@@ -3,6 +3,7 @@
     <qresource prefix="/sql">
         <file alias="schema.sql">src/sql/schema.sql</file>
         <file alias="startvalues.sql">src/sql/startvalues.sql</file>
+        <file alias="resetdb.sql">src/sql/resetdb.sql</file>
         <file alias="track.sql">src/sql/track.sql</file>
         <file alias="artist.sql">src/sql/artist.sql</file>
         <file alias="album.sql">src/sql/album.sql</file>

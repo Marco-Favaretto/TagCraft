@@ -24,12 +24,14 @@ public:
     bool validateMusicDirectory(const QString& path) const;
 
     ScanResultDto runScan(const QString& path);
+    QList<TrackFileSystemDto> runFullScan(const QString& path);
 
 signals:
     void storageMounted(const QString& mountPoint);
     void storageUnmounted();
     void scanProgress(int percentage);
     void scanFinished(const ScanResultDto& result);
+    void fullScanFinished(const QList<TrackFileSystemDto>&);
     void errorOccurred(const QString& message);
 
 private:

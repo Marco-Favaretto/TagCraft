@@ -90,6 +90,10 @@ qt_add_executable(TagCraft
     src/db/transactionmanager.cpp
     src/controller/storagecontroller.h
     src/controller/storagecontroller.cpp
+    src/controller/metadatacontroller.h
+    src/controller/metadatacontroller.cpp
+    src/utils/imageutils.h
+    src/utils/imageutils.cpp
 )
 
 target_include_directories(TagCraft

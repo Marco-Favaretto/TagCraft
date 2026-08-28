@@ -7,18 +7,24 @@
 #include "storage/storagemanager.h"
 #include "dao/trackdao.h"
 
-QList<TrackFileSystemDto> LibraryScanner::scanAudioFiles(const QString& musicFolderPath) {
+QList<TrackFileSystemDto> LibraryScanner::scanAudioFiles(const QString& musicFolderPath, ProgressCallback onProgress = nullptr) {
+    int totalFiles = countFile(musicFolderPath);
     QList<TrackFileSystemDto> files;
     QDirIterator it(musicFolderPath, QStringList() << "*.mp3", QDir::Files, QDirIterator::Subdirectories);
-    
+    int currentFile = 0;
     while (it.hasNext()) {
         it.next();
+        currentFile++;
         QFileInfo info = it.fileInfo();
         files.append({
             StorageManager::instance().toRelativePath(info.absoluteFilePath()),
             info.size(),
             info.lastModified().toSecsSinceEpoch()
         });
+        if (onProgress && totalFiles > 0) {
+            onProgress(currentFile, totalFiles); // esegue la lamba passata come parametro
+            QCoreApplication::processEvents(); // Mantiene reattiva la ProgressBar
+        }
     }
 
     return files;

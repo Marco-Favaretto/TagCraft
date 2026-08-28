@@ -114,3 +114,16 @@ bool DatabaseController::updateTrackInternal(const TrackFileSystemDto& fsDto) {
 
     return TrackDao::update(track);
 }
+
+bool DatabaseController::resetDb() {
+    auto& db = DatabaseManager::instance();
+    TransactionManager transaction(db);
+    if (!transaction.isStarted()) return false;
+
+    if (!db.resetDb()) {
+        qCritical() << "Errore durante il reset del database";
+        return false;
+    }
+    
+    return transaction.commit();
+}

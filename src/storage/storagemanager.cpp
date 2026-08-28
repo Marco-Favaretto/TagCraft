@@ -78,3 +78,8 @@ bool StorageManager::isValidMusicStorage(const QStorageInfo& device) const {
     QDir rootDir(device.rootPath());
     return rootDir.exists("Music") && rootDir.exists(".music_app");
 }
+
+
+QString StorageManager::artworkCacheDirectory() const {
+    return this->mountPoint() + "./music_app/covers";
+}

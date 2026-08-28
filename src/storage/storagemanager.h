@@ -21,6 +21,7 @@ public:
 
     QString musicPoint() const;
     QString musicAppPoint() const;
+    QString artworkCacheDirectory() const;
 
 signals:
     void storageMounted(const QString& mountPoint);
