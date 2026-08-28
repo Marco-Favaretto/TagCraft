@@ -138,14 +138,14 @@ jobs:
       - name: Install application
         run: |
           cmake --install build \
-            --prefix package \
+            --prefix "${{ github.workspace }}/package" \
             --config Release
 
       - name: Create archive
         run: |
           tar -czf \
             "TagCraft-${{ steps.version.outputs.tag }}-linux-x64.tar.gz" \
-            -C package .
+            -C "${{ github.workspace }}/package" .
 
       - name: Create GitHub Release
         env:
