@@ -34,9 +34,9 @@ bool AppController::initialize() {
 
 void AppController::setupConnections() {
     connect(m_storageController, &StorageController::scanFinished,
-            this, &AppController::onFullScanFinished);
-    connect(m_storageController, &StorageController::fullScanFinished,
             this, &AppController::onScanFinished);
+    connect(m_storageController, &StorageController::fullScanFinished,
+            this, &AppController::onFullScanFinished);
     connect(m_storageController, &StorageController::scanProgress,
             this, &AppController::scanProgress);
     connect(m_storageController, &StorageController::errorOccurred,
@@ -45,7 +45,6 @@ void AppController::setupConnections() {
             this, &AppController::onStorageMounted);
     connect(m_storageController, &StorageController::storageUnmounted,
             this, &AppController::onStorageUnmounted);
-
     connect(m_metadataController, &MetadataController::metadataSaved,
             this, &AppController::metadataSaved);
     connect(m_metadataController, &MetadataController::metadataSaveFailed,
