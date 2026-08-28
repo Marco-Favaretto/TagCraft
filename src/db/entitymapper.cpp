@@ -51,3 +51,23 @@ Genre EntityMapper::toEntityGenre(const QSqlQuery& query) {
 
     return genre;
 }
+
+TrackFileSystemDto EntityMapper::trackToTFSDto(const Track& track) {
+    TrackFileSystemDto dto;
+
+    dto.relativePath = track.relativePath();
+    dto.fileSize = track.fileSize();
+    dto.lastModified = track.fileMtimeSecs();
+
+    return dto;
+}
+
+TrackFileSystemDto EntityMapper::trackDtoToTFSDto(const TrackDto& trackDto) {
+    TrackFileSystemDto dto;
+
+    dto.relativePath = trackDto.relativePath;
+    dto.fileSize = trackDto.fileSize;
+    dto.lastModified = trackDto.lastModified;
+
+    return dto;
+}
