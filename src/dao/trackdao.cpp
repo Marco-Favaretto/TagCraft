@@ -71,6 +71,25 @@ bool TrackDao::update(const Track& track) {
     });
 }
 
+
+bool TrackDao::updateCover(int id, const QString& imagehash) {
+    static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
+    const QString queryString = queries.value("updateCover");
+
+    if (queryString.isEmpty()) {
+        qCritical() << "Query 'updateCover' non trovata in track.sql";
+        return false;
+    }
+
+    QSqlQuery query;
+    query.prepare(queryString);
+
+    return SqlExecutor::execute(query, {
+        {":id", id},
+        {":track_cover_hash", imagehash}
+    });
+}
+
 std::optional<Track> TrackDao::findById(int id) {
     static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
     const QString queryString = queries.value("findById");
@@ -244,4 +263,14 @@ QList<Track> TrackDao::searchByKeyword(const QString& keyword) {
         }
     }
     return tracks;
+}
+
+bool TrackDao::drop() {
+    static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
+    const QString queryString = queries.value("drop");
+    if (queryString.isEmpty()) return false;
+
+    QSqlQuery query;
+    query.prepare(queryString);
+    return SqlExecutor::execute(query, {});
 }

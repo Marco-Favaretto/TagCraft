@@ -179,3 +179,13 @@ QList<Album> AlbumDao::searchByKeyword(const QString& keyword) {
     }
     return albums;
 }
+
+bool AlbumDao::drop() {
+    static const auto queries = SqlParser::parseNamedQueries(":/sql/album.sql");
+    const QString queryString = queries.value("drop");
+    if (queryString.isEmpty()) return false;
+
+    QSqlQuery query;
+    query.prepare(queryString);
+    return SqlExecutor::execute(query, {});
+}

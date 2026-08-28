@@ -11,6 +11,7 @@ public:
     static bool insert(Genre& genre);
     static bool update(const Genre& genre);
     static bool deleteById(int id);
+    static bool drop();
 
     static std::optional<Genre> findById(int id);
     static std::optional<Genre> getOrCreate(const QString&);

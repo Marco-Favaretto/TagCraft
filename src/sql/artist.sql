@@ -43,3 +43,6 @@ WHERE NOT EXISTS (
 
 -- name: searchByKeyword
 SELECT id, name FROM artist WHERE LOWER(name) LIKE LOWER(:keyword) ORDER BY name ASC;
+
+-- name: drop
+DELETE FROM artist;

@@ -158,3 +158,13 @@ QList<Genre> GenreDao::searchByKeyword(const QString& keyword) {
     }
     return genres;
 }
+
+bool GenreDao::drop() {
+    static const auto queries = SqlParser::parseNamedQueries(":/sql/genre.sql");
+    const QString queryString = queries.value("drop");
+    if (queryString.isEmpty()) return false;
+
+    QSqlQuery query;
+    query.prepare(queryString);
+    return SqlExecutor::execute(query, {});
+}

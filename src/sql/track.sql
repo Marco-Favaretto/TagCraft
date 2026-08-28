@@ -128,3 +128,12 @@ SELECT id, title, artist_id, album_id, genre_id, year, track_number, duration_se
 FROM track 
 WHERE LOWER(title) LIKE LOWER(:keyword)
 ORDER BY title ASC;
+
+-- name: updateCover
+UPDATE track
+SET
+    track_cover_hash = :track_cover_hash
+WHERE id = :id;
+
+-- name: drop
+DELETE FROM track;

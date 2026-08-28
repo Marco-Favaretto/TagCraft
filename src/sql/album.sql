@@ -62,3 +62,6 @@ SELECT id, title, artist_id, year, cover_hash
 FROM album 
 WHERE LOWER(title) LIKE LOWER(:keyword) 
 ORDER BY title ASC;
+
+-- name: drop
+DELETE FROM album;

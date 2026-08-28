@@ -159,3 +159,13 @@ QList<Artist> ArtistDao::searchByKeyword(const QString& keyword) {
     }
     return artists;
 }
+
+bool ArtistDao::drop() {
+    static const auto queries = SqlParser::parseNamedQueries(":/sql/artist.sql");
+    const QString queryString = queries.value("drop");
+    if (queryString.isEmpty()) return false;
+
+    QSqlQuery query;
+    query.prepare(queryString);
+    return SqlExecutor::execute(query, {});
+}

@@ -11,6 +11,7 @@ public:
     static bool insert(Artist& artist);
     static bool update(const Artist& artist);
     static bool deleteById(int id);
+    static bool drop();
 
     static std::optional<Artist> findById(int id);
     static std::optional<Artist> getOrCreate(const QString&);
