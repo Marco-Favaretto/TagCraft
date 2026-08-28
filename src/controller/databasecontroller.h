@@ -23,6 +23,8 @@ public:
     bool deleteNewTracks(const QList<QString>&);
     bool deleteOrphans();
 
+    bool updateTrackCoverHash(const QString& relativePath, const QString& hash);
+
     bool resetDb();
 
 private:

@@ -21,6 +21,8 @@ public:
     
     bool cleanTags(const QString& absolutePath);
     
+    QByteArray resolveArtwork(const QString& relativePath) const;
+    QString resolveAndCacheArtwork(const QString& relativePath);
 signals:
     void metadataSaved(const QString& relativePath);
     void metadataSaveFailed(const QString& relativePath, const QString& reason);

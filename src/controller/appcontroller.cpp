@@ -111,12 +111,23 @@ void AppController::requestSetCoverBatch(const QList<QString>& relativePaths, co
 }
 
 void AppController::onScanFinished(const ScanResultDto& result) {
-    if (!result.newTracks.isEmpty() && !m_databaseController->insertNewTracks(result.newTracks))
-        emit errorOccurred("Inserimento nuove tracce fallito");
-    if (!result.modifiedTracks.isEmpty() && !m_databaseController->updateNewTracks(result.modifiedTracks))
-        emit errorOccurred("Aggiornamento tracce fallito");
+    if (!result.newTracks.isEmpty()) {
+        if (!m_databaseController->insertNewTracks(result.newTracks))
+            emit errorOccurred("Inserimento nuove tracce fallito");
+        else
+            resolveArtworkFor(result.newTracks);
+    }
+
+    if (!result.modifiedTracks.isEmpty()) {
+        if (!m_databaseController->updateNewTracks(result.modifiedTracks))
+            emit errorOccurred("Aggiornamento tracce fallito");
+        else
+            resolveArtworkFor(result.modifiedTracks);
+    }
+
     if (!result.deletedTracks.isEmpty() && !m_databaseController->deleteNewTracks(result.deletedTracks))
         emit errorOccurred("Eliminazione tracce fallito");
+
     emit libraryUpdated();
 }
 
@@ -145,4 +156,12 @@ void AppController::onFullScanFinished(const QList<TrackFileSystemDto>& list) {
         emit errorOccurred("Ricostruzione database fallita");
     else
         emit libraryUpdated();
+}
+
+void AppController::resolveArtworkFor(const QList<TrackFileSystemDto>& tracks) {
+    for (const auto& t : tracks) {
+        QString hash = m_metadataController->resolveAndCacheArtwork(t.relativePath);
+        if (!hash.isEmpty())
+            m_databaseController->updateTrackCoverHash(t.relativePath, hash);
+    }
 }

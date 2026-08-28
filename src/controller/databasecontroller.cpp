@@ -127,3 +127,10 @@ bool DatabaseController::resetDb() {
     
     return transaction.commit();
 }
+
+bool DatabaseController::updateTrackCoverHash(const QString& relativePath, const QString& hash) {
+    auto trackOpt = TrackDao::findByRelativePath(relativePath);
+    if (!trackOpt) return false;
+
+    return TrackDao::updateCover(trackOpt->id(), hash);
+}

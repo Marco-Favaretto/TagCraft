@@ -56,6 +56,7 @@ private slots:
 
 private:
     void setupConnections();
+    void resolveArtworkFor(const QList<TrackFileSystemDto>& tracks);
 
     StorageController* m_storageController;
     MetadataController* m_metadataController;
