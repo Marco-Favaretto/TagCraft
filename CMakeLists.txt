@@ -68,10 +68,14 @@ qt_add_executable(TagCraft
     src/db/entitymapper.h
     src/db/sqlexecutor.h
     src/db/sqlexecutor.cpp
+    src/db/transactionmanager.h
+    src/db/transactionmanager.cpp
     
     src/utils/dbutils.h
     src/utils/tagmapper.h
     src/utils/tagmapper.cpp
+    src/utils/imageutils.h
+    src/utils/imageutils.cpp
 
     src/storage/storagemanager.h
     src/storage/storagemanager.cpp
@@ -86,14 +90,13 @@ qt_add_executable(TagCraft
     src/controller/appcontroller.cpp
     src/controller/databasecontroller.h
     src/controller/databasecontroller.cpp
-    src/db/transactionmanager.h
-    src/db/transactionmanager.cpp
     src/controller/storagecontroller.h
     src/controller/storagecontroller.cpp
     src/controller/metadatacontroller.h
     src/controller/metadatacontroller.cpp
-    src/utils/imageutils.h
-    src/utils/imageutils.cpp
+    src/controller/librarycontroller.h
+    src/controller/librarycontroller.cpp
+    src/dto/searchresultdto.h
 )
 
 target_include_directories(TagCraft

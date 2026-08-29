@@ -8,12 +8,15 @@
 #include "controller/databasecontroller.h"
 #include "controller/storagecontroller.h"
 #include "controller/metadatacontroller.h"
+#include "controller/librarycontroller.h"
 
 class AppController : public QObject {
     Q_OBJECT
 public:
     explicit AppController(QObject* parent = nullptr);
     ~AppController() override = default;
+
+    LibraryController* library() const;
 
     bool initialize();
 
@@ -61,6 +64,7 @@ private:
     StorageController* m_storageController;
     MetadataController* m_metadataController;
     DatabaseController* m_databaseController;
+    LibraryController* m_libraryController;
     // DownloaderController* m_downloaderController = nullptr; // futuro
 };
 

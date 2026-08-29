@@ -53,6 +53,8 @@ void AppController::setupConnections() {
             this, &AppController::errorOccurred);
 }
 
+LibraryController* AppController::library() const { return m_libraryController; }
+
 void AppController::requestScan(const QString& path) {
     m_storageController->runScan(path);
 }
