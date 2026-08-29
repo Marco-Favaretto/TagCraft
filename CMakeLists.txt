@@ -58,8 +58,13 @@ qt_add_executable(TagCraft
 
     src/ui/mainwindow.cpp
     src/ui/mainwindow.h
-    src/ui/mainwindow.ui
-
+    src/ui/widgets/detailspanel.h
+    src/ui/widgets/detailspanel.cpp
+    src/ui/widgets/navigationsidebar.h
+    src/ui/widgets/navigationsidebar.cpp
+    src/ui/widgets/tracklistview.h
+    src/ui/widgets/tracklistview.cpp
+    
     src/db/databasemanager.h
     src/db/databasemanager.cpp
     src/db/sqlparser.cpp
@@ -85,6 +90,8 @@ qt_add_executable(TagCraft
     src/dto/trackdto.h
     src/dto/trackfilesystemdto.h
     src/dto/scanresultdto.h
+    src/dto/searchresultdto.h
+    src/dto/navigationsection.h
 
     src/controller/appcontroller.h
     src/controller/appcontroller.cpp
@@ -96,7 +103,6 @@ qt_add_executable(TagCraft
     src/controller/metadatacontroller.cpp
     src/controller/librarycontroller.h
     src/controller/librarycontroller.cpp
-    src/dto/searchresultdto.h
 )
 
 target_include_directories(TagCraft

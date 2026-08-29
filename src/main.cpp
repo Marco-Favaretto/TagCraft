@@ -59,56 +59,50 @@ void testSmartScan();
 QJsonObject trackToJson(const TrackFileSystemDto&);
 
 int main(int argc, char *argv[]) {
-    QApplication a(argc, argv);
+    // QApplication a(argc, argv);
 
-    // if (!StorageManager::instance().scanForStorage()) {
-    // gestione storage non trovato 
-    // (copia locale db, e sync due versioni una volta riconnesso o copia locale e visualizzazione senza modifiche)
+    // Q_INIT_RESOURCE(resources);
+    // loadProperties();
+
+    // QString command;
+    // QTextStream stream(stdin);
+
+    // while (true) {
+    //     qDebug() << "Comandi disponibili: [dbstorage] [readfile] [writetags] [cleantags] [fullscan] [smartscan] [exit]";
+    //     std::cout << "~ ";
+    //     stream >> command;
+
+    //     if (command == "dbstorage") {
+    //         testDb();
+    //     } 
+    //     else if (command == "readfile") {
+    //         testTagFromFile();
+    //     } 
+    //     else if (command == "writetags") {
+    //         testTagToFile();
+    //     } 
+    //     else if (command == "cleantags") {
+    //         testCleanTags();
+    //     } 
+    //     else if (command == "fullscan") {
+    //         testFullScan();
+    //     } 
+    //     else if (command == "smartscan") {
+    //         testSmartScan();
+    //     } 
+    //     else if (command == "exit") {
+    //         break;
+    //     }
     // }
-    // DatabaseManager::instance().openDatabase(/* path calcolato da StorageManager */);
-    // DatabaseManager::instance().initSchema();
+    // return 0;
 
-    // MainWindow w;
-    // w.show();
-
-    // int ret = QApplication::exec();
-    // DatabaseManager::instance().closeDatabase();
-    // return ret;
-
+    QApplication a(argc, argv);
     Q_INIT_RESOURCE(resources);
-    loadProperties();
 
-    QString command;
-    QTextStream stream(stdin);
+    MainWindow w;
+    w.show();
 
-    while (true) {
-        qDebug() << "Comandi disponibili: [dbstorage] [readfile] [writetags] [cleantags] [fullscan] [smartscan] [exit]";
-        std::cout << "~ ";
-        stream >> command;
-
-        if (command == "dbstorage") {
-            testDb();
-        } 
-        else if (command == "readfile") {
-            testTagFromFile();
-        } 
-        else if (command == "writetags") {
-            testTagToFile();
-        } 
-        else if (command == "cleantags") {
-            testCleanTags();
-        } 
-        else if (command == "fullscan") {
-            testFullScan();
-        } 
-        else if (command == "smartscan") {
-            testSmartScan();
-        } 
-        else if (command == "exit") {
-            break;
-        }
-    }
-    return 0;
+    return QApplication::exec();
 }
 
 void testStorage() {
