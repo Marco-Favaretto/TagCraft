@@ -6,23 +6,28 @@
 #include <QFormLayout>
 
 #include "model/track.h"
+#include "model/album.h"
+#include "model/artist.h"
+#include "model/genre.h"
+#include "controller/librarycontroller.h"
 
 class DetailsPanel : public QWidget {
     Q_OBJECT
 public:
-    explicit DetailsPanel(QWidget* parent = nullptr);
+    explicit DetailsPanel(LibraryController* library, QWidget* parent = nullptr);
 
 public slots:
     void showTrack(const Track& track);
+    void showAlbum(const Album& album);
+    void showArtist(const Artist& artist);
+    void showGenre(const Genre& genre);
     void clear();
 
 private:
-    QLabel* m_titleValue;
-    QLabel* m_artistValue;
-    QLabel* m_albumValue;
-    QLabel* m_genreValue;
-    QLabel* m_yearValue;
-    QLabel* m_pathValue;
+    void rebuildForm(const QList<QPair<QString, QString>>& rows);
+
+    QFormLayout* m_formLayout;
+    LibraryController* m_library;
 };
 
 #endif // DETAILSPANEL_H

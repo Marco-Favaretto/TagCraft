@@ -51,6 +51,11 @@ void AppController::setupConnections() {
             this, &AppController::metadataSaveFailed);
     connect(m_metadataController, &MetadataController::errorOccurred,
             this, &AppController::errorOccurred);
+    connect(m_databaseController, &DatabaseController::persistProgress,
+        this, [this](int current, int total) {
+            int percentage = (total > 0) ? static_cast<int>((current * 100.0) / total) : 0;
+            emit scanProgress(percentage);
+        });
 }
 
 LibraryController* AppController::library() const { return m_libraryController; }

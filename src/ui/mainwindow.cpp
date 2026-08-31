@@ -3,12 +3,14 @@
 #include <QStatusBar>
 #include <QMessageBox>
 
+#include "storage/storagemanager.h"
+
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , m_appController(new AppController(this))
     , m_sidebar(new NavigationSidebar(this))
     , m_trackList(new TrackListView(this))
-    , m_details(new DetailsPanel(this))
+    , m_details(new DetailsPanel(m_appController->library(), this))
 {
     setupUi();
     setupConnections();
@@ -34,16 +36,30 @@ void MainWindow::setupUi() {
     splitter->setStretchFactor(1, 3);
     splitter->setStretchFactor(2, 2);
 
+
     setCentralWidget(splitter);
     statusBar();
+
+    m_smartScanButton = new QPushButton("Smart Scan", this);
+    m_fullScanButton = new QPushButton("Full Rescan", this);
+    statusBar()->addPermanentWidget(m_smartScanButton);
+    statusBar()->addPermanentWidget(m_fullScanButton);
+    m_scanProgressBar = new QProgressBar(this);
+    m_scanProgressBar->setRange(0, 100);
+    m_scanProgressBar->setFixedWidth(150);
+    m_scanProgressBar->setVisible(false); // nascosta finché non parte uno scan
+
+    statusBar()->addPermanentWidget(m_scanProgressBar);
+    statusBar()->addPermanentWidget(m_smartScanButton);
+    statusBar()->addPermanentWidget(m_fullScanButton);
 }
 
 void MainWindow::setupConnections() {
     connect(m_sidebar, &NavigationSidebar::sectionSelected,
             this, &MainWindow::onSectionSelected);
 
-    connect(m_trackList, &TrackListView::trackSelected,
-            this, &MainWindow::onTrackSelected);
+    connect(m_trackList, &TrackListView::itemSelected,
+            this, &MainWindow::onItemSelected);
 
     connect(m_appController, &AppController::libraryUpdated,
             this, &MainWindow::onLibraryUpdated);
@@ -51,6 +67,11 @@ void MainWindow::setupConnections() {
             this, &MainWindow::onErrorOccurred);
     connect(m_appController, &AppController::scanProgress,
             this, &MainWindow::onScanProgress);
+
+    connect(m_smartScanButton, &QPushButton::clicked,
+        this, &MainWindow::onSmartScanClicked);
+    connect(m_fullScanButton, &QPushButton::clicked,
+        this, &MainWindow::onFullScanClicked);
 }
 
 void MainWindow::onSectionSelected(NavigationSection section) {
@@ -63,6 +84,15 @@ void MainWindow::loadCurrentSection() {
         case NavigationSection::AllTracks:
             m_trackList->setTracks(m_appController->library()->getAllTracks());
             break;
+        case NavigationSection::Albums:
+            m_trackList->setAlbums(m_appController->library()->getAllAlbums());
+            break;
+        case NavigationSection::Artists:
+            m_trackList->setArtists(m_appController->library()->getAllArtists());
+            break;
+        case NavigationSection::Genres:
+            m_trackList->setGenres(m_appController->library()->getAllGenres());
+            break;
         default:
             m_trackList->clear();
             statusBar()->showMessage("Sezione non ancora implementata", 3000);
@@ -72,24 +102,54 @@ void MainWindow::loadCurrentSection() {
     m_details->clear();
 }
 
-void MainWindow::onTrackSelected(int trackId) {
-    auto trackOpt = m_appController->library()->getTrackById(trackId);
-    if (trackOpt) {
-        m_details->showTrack(*trackOpt);
-    } else {
-        m_details->clear();
+void MainWindow::onItemSelected(int id) {
+    switch (m_currentSection) {
+        case NavigationSection::AllTracks: {
+            auto opt = m_appController->library()->getTrackById(id);
+            if (opt) m_details->showTrack(*opt); else m_details->clear();
+            break;
+        }
+        case NavigationSection::Albums: {
+            auto opt = m_appController->library()->getAlbumById(id);
+            if (opt) m_details->showAlbum(*opt); else m_details->clear();
+            break;
+        }
+        case NavigationSection::Artists: {
+            auto opt = m_appController->library()->getArtistById(id);
+            if (opt) m_details->showArtist(*opt); else m_details->clear();
+            break;
+        }
+        case NavigationSection::Genres: {
+            auto opt = m_appController->library()->getGenreById(id);
+            if (opt) m_details->showGenre(*opt); else m_details->clear();
+            break;
+        }
+        default:
+            m_details->clear();
     }
 }
 
 void MainWindow::onLibraryUpdated() {
+    m_scanProgressBar->setVisible(false);
     loadCurrentSection();
     statusBar()->showMessage("Libreria aggiornata", 3000);
 }
 
 void MainWindow::onErrorOccurred(const QString& message) {
+    m_scanProgressBar->setVisible(false);
     statusBar()->showMessage(message, 5000);
 }
 
 void MainWindow::onScanProgress(int percentage) {
-    statusBar()->showMessage(QString("Scansione in corso: %1%").arg(percentage));
+    // statusBar()->showMessage(QString("Scansione in corso: %1%").arg(percentage));
+    m_scanProgressBar->setVisible(true);
+    m_scanProgressBar->setValue(percentage);
+}
+
+void MainWindow::onSmartScanClicked() {
+    m_appController->requestScan(StorageManager::instance().musicPoint());
+}
+
+void MainWindow::onFullScanClicked() {
+    m_appController->requestResetAndRebuildDb();
 }

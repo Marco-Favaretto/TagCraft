@@ -16,8 +16,11 @@ bool DatabaseController::insertNewTracks(const QList<TrackFileSystemDto>& list) 
     TransactionManager transaction(db);
     if (!transaction.isStarted()) return false; // Impossibile avviare la transazione
 
+    int total = list.size();
+    int current = 0;
     for (const auto& t : list) {
         if (!insertTrackInternal(t)) return false; // metodo helper di inserimento (converte TrackFileSystemDto in entity Track e poi dao.insert con check per nuovi album, artist e genre)
+        emit persistProgress(++current, total);
     }
 
     return transaction.commit();
@@ -27,10 +30,16 @@ bool DatabaseController::updateNewTracks(const QList<TrackFileSystemDto>& list) 
     auto& db = DatabaseManager::instance();
     TransactionManager transaction(db);
     if (!transaction.isStarted()) return false; // Impossibile avviare la transazione
+    
+    int total = list.size();
+    int current = 0;
 
     // for(auto t : list) getTrackByRelativePath (ma se è cambiato quello?) se cambiato path -> vecchio path in deleted e nuovo path in new
     // entity dao.updateTrack() ed eventualmente artist, genre, album
-    for (const auto& t : list) if (!updateTrackInternal(t)) return false;
+    for (const auto& t : list) {
+        if (!updateTrackInternal(t)) return false;
+        emit persistProgress(++current, total);
+    }
 
     return transaction.commit();
 }
@@ -62,20 +71,15 @@ std::optional<Track> DatabaseController::insertTrackInternal(const TrackFileSyst
     QString absolutePath = StorageManager::instance().toAbsolutePath(fsDto.relativePath);
     TrackDto tagDto = TagMapper::fileToDto(absolutePath, fsDto.relativePath);
 
-    auto artistOpt = ArtistDao::getOrCreate(tagDto.artistName);
-    if (!artistOpt) return std::nullopt;
-
-    auto albumOpt = AlbumDao::getOrCreate(tagDto.albumName, artistOpt->id(), tagDto.year);
-    if (!albumOpt) return std::nullopt;
-
-    auto genreOpt = GenreDao::getOrCreate(tagDto.genreName);
-    if (!genreOpt) return std::nullopt;
+    int artistId = resolveArtistId(tagDto.artistName);
+    int albumId = resolveAlbumId(tagDto.albumName, artistId, tagDto.year);
+    int genreId = resolveGenreId(tagDto.genreName);
 
     Track track;
     track.setTitle(tagDto.title);
-    track.setArtistId(artistOpt->id());
-    track.setAlbumId(albumOpt->id());
-    track.setGenreId(genreOpt->id());
+    track.setArtistId(artistId);
+    track.setAlbumId(albumId);
+    track.setGenreId(genreId);
     track.setYear(tagDto.year);
     track.setTrackNumber(tagDto.trackNumber);
     track.setRelativePath(fsDto.relativePath);
@@ -94,19 +98,14 @@ bool DatabaseController::updateTrackInternal(const TrackFileSystemDto& fsDto) {
     QString absolutePath = StorageManager::instance().toAbsolutePath(fsDto.relativePath);
     TrackDto tagDto = TagMapper::fileToDto(absolutePath, fsDto.relativePath);
 
-    auto artistOpt = ArtistDao::getOrCreate(tagDto.artistName);
-    if (!artistOpt) return false;
-
-    auto albumOpt = AlbumDao::getOrCreate(tagDto.albumName, artistOpt->id(), tagDto.year);
-    if (!albumOpt) return false;
-
-    auto genreOpt = GenreDao::getOrCreate(tagDto.genreName);
-    if (!genreOpt) return false;
+    int artistId = resolveArtistId(tagDto.artistName);
+    int albumId = resolveAlbumId(tagDto.albumName, artistId, tagDto.year);
+    int genreId = resolveGenreId(tagDto.genreName);
 
     track.setTitle(tagDto.title);
-    track.setArtistId(artistOpt->id());
-    track.setAlbumId(albumOpt->id());
-    track.setGenreId(genreOpt->id());
+    track.setArtistId(artistId);
+    track.setAlbumId(albumId);
+    track.setGenreId(genreId);
     track.setYear(tagDto.year);
     track.setTrackNumber(tagDto.trackNumber);
     track.setFileMtimeSecs(fsDto.lastModified);
@@ -133,4 +132,22 @@ bool DatabaseController::updateTrackCoverHash(const QString& relativePath, const
     if (!trackOpt) return false;
 
     return TrackDao::updateCover(trackOpt->id(), hash);
+}
+
+int DatabaseController::resolveArtistId(const QString& name) {
+    if (name.trimmed().isEmpty()) return 1; // Unknown Artist
+    auto artistOpt = ArtistDao::getOrCreate(name);
+    return artistOpt ? artistOpt->id() : 1;
+}
+
+int DatabaseController::resolveAlbumId(const QString& title, int artistId, std::optional<int> year) {
+    if (title.trimmed().isEmpty()) return 1; // Unknown Album
+    auto albumOpt = AlbumDao::getOrCreate(title, artistId, year);
+    return albumOpt ? albumOpt->id() : 1;
+}
+
+int DatabaseController::resolveGenreId(const QString& name) {
+    if (name.trimmed().isEmpty()) return 1; // Unknown Genre
+    auto genreOpt = GenreDao::getOrCreate(name);
+    return genreOpt ? genreOpt->id() : 1;
 }

@@ -27,9 +27,15 @@ public:
 
     bool resetDb();
 
+signals:
+    void persistProgress(int current, int total);
+
 private:
     std::optional<Track> insertTrackInternal(const TrackFileSystemDto&);
     bool updateTrackInternal(const TrackFileSystemDto&);
+    int resolveArtistId(const QString& name);
+    int resolveAlbumId(const QString& title, int artistId, std::optional<int> year);
+    int resolveGenreId(const QString& name);
 };
 
 #endif // DATABASECONTROLLER_H

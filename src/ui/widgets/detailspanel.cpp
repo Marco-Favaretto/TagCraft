@@ -1,42 +1,69 @@
 #include "detailspanel.h"
 
-DetailsPanel::DetailsPanel(QWidget* parent)
+DetailsPanel::DetailsPanel(LibraryController* library, QWidget* parent)
     : QWidget(parent)
-    , m_titleValue(new QLabel(this))
-    , m_artistValue(new QLabel(this))
-    , m_albumValue(new QLabel(this))
-    , m_genreValue(new QLabel(this))
-    , m_yearValue(new QLabel(this))
-    , m_pathValue(new QLabel(this))
+    , m_formLayout(new QFormLayout(this))
+    , m_library(library)
 {
-    auto* layout = new QFormLayout(this);
-    layout->addRow("Title:", m_titleValue);
-    layout->addRow("Artist ID:", m_artistValue);
-    layout->addRow("Album ID:", m_albumValue);
-    layout->addRow("Genre ID:", m_genreValue);
-    layout->addRow("Year:", m_yearValue);
-    layout->addRow("Path:", m_pathValue);
-
-    for (QLabel* label : {m_titleValue, m_artistValue, m_albumValue,
-                           m_genreValue, m_yearValue, m_pathValue}) {
-        label->setWordWrap(true);
-    }
-
     clear();
 }
 
+void DetailsPanel::rebuildForm(const QList<QPair<QString, QString>>& rows) {
+    while (m_formLayout->rowCount() > 0) {
+        m_formLayout->removeRow(0);
+    }
+    for (const auto& row : rows) {
+        auto* valueLabel = new QLabel(row.second.isEmpty() ? "-" : row.second, this);
+        valueLabel->setWordWrap(true);
+        m_formLayout->addRow(row.first, valueLabel);
+    }
+}
+
 void DetailsPanel::showTrack(const Track& track) {
-    m_titleValue->setText(track.title().isEmpty() ? "-" : track.title());
-    m_artistValue->setText(QString::number(track.artistId()));
-    m_albumValue->setText(QString::number(track.albumId()));
-    m_genreValue->setText(track.genreId() ? QString::number(*track.genreId()) : "-");
-    m_yearValue->setText(track.year() ? QString::number(*track.year()) : "-");
-    m_pathValue->setText(track.relativePath());
+    rebuildForm({
+        {"Title:", track.title()},
+        {"Artist ID:", QString::number(track.artistId())},
+        {"Album ID:", QString::number(track.albumId())},
+        {"Genre ID:", track.genreId() ? QString::number(*track.genreId()) : QString()},
+        {"Year:", track.year() ? QString::number(*track.year()) : QString()},
+        {"Path:", track.relativePath()},
+    });
+}
+
+void DetailsPanel::showAlbum(const Album& album) {
+    auto artist = m_library->getArtistById(album.artistId());
+    const int trackCount = m_library->getTracksByAlbum(album.id()).size();
+
+    rebuildForm({
+        {"Name:", album.title()},
+        {"Artist:", artist ? artist->name() : QString()},
+        {"Tracks:", QString::number(trackCount)},
+        {"Year:", album.year() ? QString::number(*album.year()) : QString()},
+    });
+}
+
+void DetailsPanel::showArtist(const Artist& artist) {
+    const int albumCount = m_library->getAlbumsByArtist(artist.id()).size();
+    const int trackCount = m_library->getTracksByArtist(artist.id()).size();
+
+    rebuildForm({
+        {"Name:", artist.name()},
+        {"Albums:", QString::number(albumCount)},
+        {"Tracks:", QString::number(trackCount)},
+    });
+}
+
+void DetailsPanel::showGenre(const Genre& genre) {
+    const int trackCount = m_library->getTracksByGenre(genre.id()).size();
+
+    rebuildForm({
+        {"Name:", genre.name()},
+        {"Artists:", QString()},
+        {"Albums:", QString()},
+        {"Tracks:", QString::number(trackCount)},
+    });
 }
 
 void DetailsPanel::clear() {
-    for (QLabel* label : {m_titleValue, m_artistValue, m_albumValue,
-                           m_genreValue, m_yearValue, m_pathValue}) {
-        label->setText("-");
-    }
+    rebuildForm({});
 }

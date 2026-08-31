@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 #include <QSplitter>
+#include <QPushButton>
+#include <QProgressBar>
 
 #include "controller/appcontroller.h"
 #include "widgets/navigationsidebar.h"
@@ -20,12 +22,14 @@ private slots:
     void onSectionSelected(NavigationSection section);
 
     // TrackListView
-    void onTrackSelected(int trackId);
+    void onItemSelected(int id);
 
     // AppController
     void onLibraryUpdated();
     void onErrorOccurred(const QString& message);
     void onScanProgress(int percentage);
+    void onSmartScanClicked();
+    void onFullScanClicked();
 
 private:
     void setupUi();
@@ -39,6 +43,11 @@ private:
     DetailsPanel* m_details;
 
     NavigationSection m_currentSection = NavigationSection::AllTracks;
+    
+    QPushButton* m_smartScanButton;
+    QPushButton* m_fullScanButton;
+    QProgressBar* m_scanProgressBar;
+
 };
 
 #endif // MAINWINDOW_H
