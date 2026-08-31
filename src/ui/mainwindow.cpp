@@ -60,6 +60,8 @@ void MainWindow::setupConnections() {
 
     connect(m_itemListView, &ItemListView::itemSelected,
             this, &MainWindow::onItemSelected);
+    connect(m_itemListView, &ItemListView::itemActivated, 
+        this, &MainWindow::onItemActivated);
 
     connect(m_appController, &AppController::libraryUpdated,
             this, &MainWindow::onLibraryUpdated);
@@ -103,29 +105,55 @@ void MainWindow::loadCurrentSection() {
 }
 
 void MainWindow::onItemSelected(int id) {
-    switch (m_currentSection) {
-        case NavigationSection::AllTracks: {
+    switch (m_itemListView->currentViewMode()) {
+        case ViewMode::Tracks: {
             auto opt = m_appController->library()->getTrackById(id);
             if (opt) m_details->showTrack(*opt); else m_details->clear();
             break;
         }
-        case NavigationSection::Albums: {
+        case ViewMode::Albums: {
             auto opt = m_appController->library()->getAlbumById(id);
             if (opt) m_details->showAlbum(*opt); else m_details->clear();
             break;
         }
-        case NavigationSection::Artists: {
+        case ViewMode::Artists: {
             auto opt = m_appController->library()->getArtistById(id);
             if (opt) m_details->showArtist(*opt); else m_details->clear();
             break;
         }
-        case NavigationSection::Genres: {
+        case ViewMode::Genres: {
             auto opt = m_appController->library()->getGenreById(id);
             if (opt) m_details->showGenre(*opt); else m_details->clear();
             break;
         }
         default:
             m_details->clear();
+    }
+}
+
+void MainWindow::onItemActivated(int id) {
+    switch (m_itemListView->currentViewMode()) {
+        case ViewMode::Artists: {
+            // Da Artista -> Mostra gli Album di quell'artista
+            QList<Album> albums = m_appController->library()->getAlbumsByArtist(id);
+            m_itemListView->setAlbums(albums);
+            m_details->clear();
+            break;
+        }
+        case ViewMode::Albums: {
+            // Da Album -> Mostra le Tracce di quell'album
+            QList<Track> tracks = m_appController->library()->getTracksByAlbum(id);
+            m_itemListView->setTracks(tracks);
+            m_details->clear();
+            break;
+        }
+        case ViewMode::Tracks: {
+            // Futura apertura player / modale
+            break;
+        }
+        case ViewMode::Genres: {
+            break;
+        }
     }
 }
 

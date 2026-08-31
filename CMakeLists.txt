@@ -92,6 +92,7 @@ qt_add_executable(TagCraft
     src/dto/scanresultdto.h
     src/dto/searchresultdto.h
     src/dto/navigationsection.h
+    src/dto/viewmode.h
 
     src/controller/appcontroller.h
     src/controller/appcontroller.cpp

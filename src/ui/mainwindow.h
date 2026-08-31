@@ -23,6 +23,7 @@ private slots:
 
     // ItemListVIew
     void onItemSelected(int id);
+    void onItemActivated(int id);
 
     // AppController
     void onLibraryUpdated();
