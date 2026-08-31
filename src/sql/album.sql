@@ -16,6 +16,7 @@ SELECT
     id,
     title,
     artist_id,
+    year,
     cover_cache_hash
 FROM album
 WHERE id = :id;
@@ -25,6 +26,7 @@ SELECT
     id,
     title,
     artist_id,
+    year,
     cover_cache_hash
 FROM album;
 
