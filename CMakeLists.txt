@@ -62,8 +62,8 @@ qt_add_executable(TagCraft
     src/ui/widgets/detailspanel.cpp
     src/ui/widgets/navigationsidebar.h
     src/ui/widgets/navigationsidebar.cpp
-    src/ui/widgets/tracklistview.h
-    src/ui/widgets/tracklistview.cpp
+    src/ui/widgets/itemlistview.h
+    src/ui/widgets/itemlistview.cpp
     
     src/db/databasemanager.h
     src/db/databasemanager.cpp

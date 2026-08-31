@@ -8,7 +8,7 @@
 
 #include "controller/appcontroller.h"
 #include "widgets/navigationsidebar.h"
-#include "widgets/tracklistview.h"
+#include "widgets/itemlistview.h"
 #include "widgets/detailspanel.h"
 
 class MainWindow : public QMainWindow {
@@ -21,7 +21,7 @@ private slots:
     // NavigationSidebar
     void onSectionSelected(NavigationSection section);
 
-    // TrackListView
+    // ItemListVIew
     void onItemSelected(int id);
 
     // AppController
@@ -39,7 +39,7 @@ private:
     AppController* m_appController;
 
     NavigationSidebar* m_sidebar;
-    TrackListView* m_trackList;
+    ItemListView* m_itemListView;
     DetailsPanel* m_details;
 
     NavigationSection m_currentSection = NavigationSection::AllTracks;

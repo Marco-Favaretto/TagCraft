@@ -1,5 +1,5 @@
-#ifndef TRACKLISTVIEW_H
-#define TRACKLISTVIEW_H
+#ifndef ITEMLISTVIEW_H
+#define ITEMLISTVIEW_H
 
 #include <QWidget>
 #include <QListWidget>
@@ -11,10 +11,10 @@
 #include "model/artist.h"
 #include "model/genre.h"
 
-class TrackListView : public QWidget {
+class ItemListView : public QWidget {
     Q_OBJECT
 public:
-    explicit TrackListView(QWidget* parent = nullptr);
+    explicit ItemListView(QWidget* parent = nullptr);
 
     void setTracks(const QList<Track>& tracks);
     void setAlbums(const QList<Album>& albums);
@@ -33,4 +33,4 @@ private:
     QListWidget* m_listWidget;
 };
 
-#endif // TRACKLISTVIEW_H
+#endif // ITEMLISTVIEW_H

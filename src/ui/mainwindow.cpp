@@ -9,7 +9,7 @@ MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , m_appController(new AppController(this))
     , m_sidebar(new NavigationSidebar(this))
-    , m_trackList(new TrackListView(this))
+    , m_itemListView(new ItemListView(this))
     , m_details(new DetailsPanel(m_appController->library(), this))
 {
     setupUi();
@@ -29,7 +29,7 @@ void MainWindow::setupUi() {
 
     auto* splitter = new QSplitter(Qt::Horizontal, this);
     splitter->addWidget(m_sidebar);
-    splitter->addWidget(m_trackList);
+    splitter->addWidget(m_itemListView);
     splitter->addWidget(m_details);
 
     splitter->setStretchFactor(0, 1);
@@ -58,7 +58,7 @@ void MainWindow::setupConnections() {
     connect(m_sidebar, &NavigationSidebar::sectionSelected,
             this, &MainWindow::onSectionSelected);
 
-    connect(m_trackList, &TrackListView::itemSelected,
+    connect(m_itemListView, &ItemListView::itemSelected,
             this, &MainWindow::onItemSelected);
 
     connect(m_appController, &AppController::libraryUpdated,
@@ -82,19 +82,19 @@ void MainWindow::onSectionSelected(NavigationSection section) {
 void MainWindow::loadCurrentSection() {
     switch (m_currentSection) {
         case NavigationSection::AllTracks:
-            m_trackList->setTracks(m_appController->library()->getAllTracks());
+            m_itemListView->setTracks(m_appController->library()->getAllTracks());
             break;
         case NavigationSection::Albums:
-            m_trackList->setAlbums(m_appController->library()->getAllAlbums());
+            m_itemListView->setAlbums(m_appController->library()->getAllAlbums());
             break;
         case NavigationSection::Artists:
-            m_trackList->setArtists(m_appController->library()->getAllArtists());
+            m_itemListView->setArtists(m_appController->library()->getAllArtists());
             break;
         case NavigationSection::Genres:
-            m_trackList->setGenres(m_appController->library()->getAllGenres());
+            m_itemListView->setGenres(m_appController->library()->getAllGenres());
             break;
         default:
-            m_trackList->clear();
+            m_itemListView->clear();
             statusBar()->showMessage("Sezione non ancora implementata", 3000);
             break;
     }

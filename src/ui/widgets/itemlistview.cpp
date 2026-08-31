@@ -1,6 +1,6 @@
-#include "tracklistview.h"
+#include "itemlistview.h"
 
-TrackListView::TrackListView(QWidget* parent)
+ItemListView::ItemListView(QWidget* parent)
     : QWidget(parent)
     , m_listWidget(new QListWidget(this))
 {
@@ -9,10 +9,10 @@ TrackListView::TrackListView(QWidget* parent)
     layout->addWidget(m_listWidget);
 
     connect(m_listWidget, &QListWidget::itemClicked,
-            this, &TrackListView::onItemClicked);
+            this, &ItemListView::onItemClicked);
 }
 
-void TrackListView::setTracks(const QList<Track>& tracks) {
+void ItemListView::setTracks(const QList<Track>& tracks) {
     m_listWidget->clear();
 
     for (const Track& track : tracks) {
@@ -26,7 +26,7 @@ void TrackListView::setTracks(const QList<Track>& tracks) {
     }
 }
 
-void TrackListView::setAlbums(const QList<Album>& albums) {
+void ItemListView::setAlbums(const QList<Album>& albums) {
     m_listWidget->clear();
 
     for (const Album& album : albums) {
@@ -37,7 +37,7 @@ void TrackListView::setAlbums(const QList<Album>& albums) {
     }
 }
 
-void TrackListView::setArtists(const QList<Artist>& artists) {
+void ItemListView::setArtists(const QList<Artist>& artists) {
     m_listWidget->clear();
 
     for (const Artist& artist : artists) {
@@ -48,7 +48,7 @@ void TrackListView::setArtists(const QList<Artist>& artists) {
     }
 }
 
-void TrackListView::setGenres(const QList<Genre>& genres) {
+void ItemListView::setGenres(const QList<Genre>& genres) {
     m_listWidget->clear();
 
     for (const Genre& genre : genres) {
@@ -59,10 +59,10 @@ void TrackListView::setGenres(const QList<Genre>& genres) {
     }
 }
 
-void TrackListView::clear() {
+void ItemListView::clear() {
     m_listWidget->clear();
 }
 
-void TrackListView::onItemClicked(QListWidgetItem* item) {
+void ItemListView::onItemClicked(QListWidgetItem* item) {
     emit itemSelected(item->data(Qt::UserRole).toInt());
 }
