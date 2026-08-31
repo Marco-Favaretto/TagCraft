@@ -3,6 +3,9 @@
 
 #include <QString>
 #include <QByteArray>
+
+#include <taglib/tstring.h>
+
 #include "dto/trackdto.h"
 
 class TagMapper {
@@ -18,6 +21,9 @@ public:
     static bool embedCover(const QString& absolutePath, const QString& imagePath);
 
     static bool cleanTags(const QString& absolutePath);
+private:
+    static TagLib::String qStringToTagString(const QString& str);
+    static QString tagStringToQString(const TagLib::String& str);
 };
 
 #endif // TAGMAPPER_H

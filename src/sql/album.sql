@@ -48,13 +48,13 @@ WHERE NOT EXISTS (
 );
 
 -- name: getByArtistId
-SELECT id, title, artist_id, year, cover_hash 
+SELECT id, title, artist_id, year, cover_cache_hash 
 FROM album 
 WHERE artist_id = :artist_id 
 ORDER BY year DESC, title ASC;
 
 -- name: searchByKeyword
-SELECT id, title, artist_id, year, cover_hash 
+SELECT id, title, artist_id, year, cover_cache_hash 
 FROM album 
 WHERE LOWER(title) LIKE LOWER(:keyword) 
 ORDER BY title ASC;

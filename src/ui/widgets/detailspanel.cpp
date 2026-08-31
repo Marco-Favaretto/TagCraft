@@ -32,7 +32,7 @@ void DetailsPanel::showTrack(const Track& track) {
 
 void DetailsPanel::showAlbum(const Album& album) {
     auto artist = m_library->getArtistById(album.artistId());
-    const int trackCount = m_library->getTracksByAlbum(album.id()).size();
+    const int trackCount = m_library->countTracksByAlbum(album.id());
 
     rebuildForm({
         {"Name:", album.title()},
@@ -43,8 +43,8 @@ void DetailsPanel::showAlbum(const Album& album) {
 }
 
 void DetailsPanel::showArtist(const Artist& artist) {
-    const int albumCount = m_library->getAlbumsByArtist(artist.id()).size();
-    const int trackCount = m_library->getTracksByArtist(artist.id()).size();
+    const int albumCount = m_library->countAlbumsByArtist(artist.id());
+    const int trackCount = m_library->countTracksByArtist(artist.id());
 
     rebuildForm({
         {"Name:", artist.name()},
@@ -54,12 +54,14 @@ void DetailsPanel::showArtist(const Artist& artist) {
 }
 
 void DetailsPanel::showGenre(const Genre& genre) {
+    const int artistCount = m_library->countArtistsByGenre(genre.id());
+    const int albumCount = m_library->countAlbumsByGenre(genre.id());
     const int trackCount = m_library->getTracksByGenre(genre.id()).size();
 
     rebuildForm({
         {"Name:", genre.name()},
-        {"Artists:", QString()},
-        {"Albums:", QString()},
+        {"Artists:", QString::number(artistCount)},
+        {"Albums:", QString::number(albumCount)},
         {"Tracks:", QString::number(trackCount)},
     });
 }

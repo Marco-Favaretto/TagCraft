@@ -29,10 +29,11 @@ TrackDto TagMapper::fileToDto(const QString& absolutePath, const QString& relati
 
     TrackDto t;
 
-    t.title = tag->title().toCString();
-    t.artistName = tag->artist().toCString();
-    t.albumName = tag->album().toCString();
-    t.genreName = tag->genre().toCString();
+    t.title      = tagStringToQString(tag->title());
+    t.artistName = tagStringToQString(tag->artist());
+    t.albumName  = tagStringToQString(tag->album());
+    t.genreName  = tagStringToQString(tag->genre());
+
     t.year = tag->year();
     t.trackNumber = tag->track();
     t.relativePath = relativePath;
@@ -96,10 +97,10 @@ bool TagMapper::dtoToFile(const QString& path, const TrackDto& dto) {
     TagLib::ID3v2::Tag *tag = file.ID3v2Tag(true);
 
     // imposta i tag
-    tag->setTitle(dto.title.toStdString());
-    tag->setArtist(dto.artistName.toStdString());
-    tag->setAlbum(dto.albumName.toStdString());
-    tag->setGenre(dto.genreName.toStdString());
+    tag->setTitle(qStringToTagString(dto.title));
+    tag->setArtist(qStringToTagString(dto.artistName));
+    tag->setAlbum(qStringToTagString(dto.albumName));
+    tag->setGenre(qStringToTagString(dto.genreName));
     tag->setTrack(dto.trackNumber);
     tag->setYear(dto.year);
 
@@ -147,4 +148,13 @@ bool TagMapper::cleanTags(const QString& absolutePath) {
     // Rimuove ID3v1, ID3v2 e anche la copertina (APIC)
     file.strip(TagLib::MPEG::File::AllTags);
     return file.save();
+}
+
+QString TagMapper::tagStringToQString(const TagLib::String& str) {
+    return QString::fromUtf8(str.to8Bit(true).c_str());
+}
+
+TagLib::String TagMapper::qStringToTagString(const QString& str) {
+    QByteArray utf8 = str.toUtf8();
+    return TagLib::String(utf8.constData(), TagLib::String::UTF8);
 }

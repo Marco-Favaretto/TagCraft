@@ -39,6 +39,12 @@ public:
     QList<Genre> searchGenres(const QString& keyword) const;
 
     LibrarySearchResult search(const QString& keyword) const;
+
+    int countTracksByAlbum(int albumId) const;
+    int countAlbumsByArtist(int artistId) const;
+    int countTracksByArtist(int artistId) const;
+    int countArtistsByGenre(int genreId) const;
+    int countAlbumsByGenre(int genreId) const;
 };
     
 #endif // LIBRARYCONTROLLER_H

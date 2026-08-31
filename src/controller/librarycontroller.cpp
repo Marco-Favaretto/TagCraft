@@ -5,6 +5,8 @@
 #include "dao/trackdao.h"
 #include "dao/genredao.h"
 
+#include <QSet>
+
 LibraryController::LibraryController(QObject* parent) : QObject(parent) {}
 
 // Artists
@@ -95,4 +97,30 @@ LibrarySearchResult LibraryController::search(const QString& keyword) const {
     result.genres  = GenreDao::searchByKeyword(keyword);
 
     return result;
+}
+
+int LibraryController::countTracksByAlbum(int albumId) const {
+    return TrackDao::getByAlbumId(albumId).size();
+}
+
+int LibraryController::countAlbumsByArtist(int artistId) const {
+    return AlbumDao::getByArtistId(artistId).size();
+}
+
+int LibraryController::countTracksByArtist(int artistId) const {
+    return TrackDao::getByArtistId(artistId).size();
+}
+
+int LibraryController::countArtistsByGenre(int genreId) const {
+    const auto tracks = TrackDao::getByGenreId(genreId);
+    QSet<int> artistIds;
+    for (const auto& t : tracks) artistIds.insert(t.artistId());
+    return artistIds.size();
+}
+
+int LibraryController::countAlbumsByGenre(int genreId) const {
+    const auto tracks = TrackDao::getByGenreId(genreId);
+    QSet<int> albumIds;
+    for (const auto& t : tracks) albumIds.insert(t.albumId());
+    return albumIds.size();
 }
