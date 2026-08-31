@@ -65,7 +65,7 @@ std::optional<Track> DatabaseController::insertTrackInternal(const TrackFileSyst
     auto artistOpt = ArtistDao::getOrCreate(tagDto.artistName);
     if (!artistOpt) return std::nullopt;
 
-    auto albumOpt = AlbumDao::getOrCreate(tagDto.albumName, artistOpt->id());
+    auto albumOpt = AlbumDao::getOrCreate(tagDto.albumName, artistOpt->id(), tagDto.year);
     if (!albumOpt) return std::nullopt;
 
     auto genreOpt = GenreDao::getOrCreate(tagDto.genreName);
@@ -97,7 +97,7 @@ bool DatabaseController::updateTrackInternal(const TrackFileSystemDto& fsDto) {
     auto artistOpt = ArtistDao::getOrCreate(tagDto.artistName);
     if (!artistOpt) return false;
 
-    auto albumOpt = AlbumDao::getOrCreate(tagDto.albumName, artistOpt->id());
+    auto albumOpt = AlbumDao::getOrCreate(tagDto.albumName, artistOpt->id(), tagDto.year);
     if (!albumOpt) return false;
 
     auto genreOpt = GenreDao::getOrCreate(tagDto.genreName);

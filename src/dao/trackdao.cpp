@@ -21,7 +21,10 @@ bool TrackDao::insert(Track& track) {
     }
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return false;
+    }
 
     SqlExecutor::execute(query,{
         {":title", track.title()},
@@ -53,7 +56,10 @@ bool TrackDao::update(const Track& track) {
     }
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return false;
+    }
 
     return SqlExecutor::execute(query, {
         {":id", track.id()},
@@ -82,7 +88,10 @@ bool TrackDao::updateCover(int id, const QString& imagehash) {
     }
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return false;
+    }
 
     return SqlExecutor::execute(query, {
         {":id", id},
@@ -100,7 +109,10 @@ std::optional<Track> TrackDao::findById(int id) {
     }
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return std::nullopt;
+    }
     query.bindValue(":id", id);
 
     if (SqlExecutor::execute(query, { {":id", id} })) {
@@ -122,7 +134,10 @@ std::optional<Track> TrackDao::findByRelativePath(const QString& relativePath) {
     }
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return std::nullopt;
+    }
     query.bindValue(":relative_path", relativePath);
 
     if (SqlExecutor::execute(query, { {":relative_path", relativePath} })) {
@@ -144,7 +159,11 @@ QList<Track> TrackDao::getAll() {
         return tracks;
     }
 
-    QSqlQuery query(queryString);
+    QSqlQuery query;
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return tracks;
+    }
 
     if(SqlExecutor::execute(query, {})) {
         while (query.next()) {
@@ -163,7 +182,11 @@ QHash<QString, TrackFileSystemDto> TrackDao::getAllFileStates() {
         return states;
     }
 
-    QSqlQuery query(queryString);
+    QSqlQuery query;
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return states;
+    }
 
     if(SqlExecutor::execute(query, {})) {
         while (query.next()) {
@@ -186,7 +209,10 @@ bool TrackDao::deleteById(int id) {
     if (queryString.isEmpty()) return false;
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return false;
+    }
     return SqlExecutor::execute(query, {{":id", id}});
 }
 
@@ -196,7 +222,10 @@ bool TrackDao::deleteByRelativePath(const QString& relativePath) {
     if (queryString.isEmpty()) return false;
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return false;
+    }
     return SqlExecutor::execute(query, {{":relative_path", relativePath}});
 }
 
@@ -207,7 +236,10 @@ QList<Track> TrackDao::getByAlbumId(int albumId) {
     if (queryString.isEmpty()) return tracks;
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return tracks;
+    }
     if (SqlExecutor::execute(query, {{":album_id", albumId}})) {
         while (query.next()) {
             tracks.append(EntityMapper::toEntityTrack(query));
@@ -223,7 +255,10 @@ QList<Track> TrackDao::getByArtistId(int artistId) {
     if (queryString.isEmpty()) return tracks;
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return tracks;
+    }
     if (SqlExecutor::execute(query, {{":artist_id", artistId}})) {
         while (query.next()) {
             tracks.append(EntityMapper::toEntityTrack(query));
@@ -239,7 +274,10 @@ QList<Track> TrackDao::getByGenreId(int genreId) {
     if (queryString.isEmpty()) return tracks;
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return tracks;
+    }
     if (SqlExecutor::execute(query, {{":genre_id", genreId}})) {
         while (query.next()) {
             tracks.append(EntityMapper::toEntityTrack(query));
@@ -255,7 +293,10 @@ QList<Track> TrackDao::searchByKeyword(const QString& keyword) {
     if (queryString.isEmpty()) return tracks;
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return tracks;
+    }
     QString pattern = "%" + keyword.trimmed() + "%";
     if (SqlExecutor::execute(query, {{":keyword", pattern}})) {
         while (query.next()) {
@@ -271,6 +312,9 @@ bool TrackDao::drop() {
     if (queryString.isEmpty()) return false;
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return false;
+    }
     return SqlExecutor::execute(query, {});
 }

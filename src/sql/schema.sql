@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS album (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT NOT NULL,
     artist_id INTEGER NOT NULL DEFAULT 1,
+    year INTEGER,
     cover_cache_hash TEXT,
     FOREIGN KEY (artist_id) REFERENCES artist(id) ON DELETE RESTRICT,
     UNIQUE(title, artist_id)

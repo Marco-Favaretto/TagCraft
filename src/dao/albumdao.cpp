@@ -1,8 +1,10 @@
 #include "albumdao.h"
+
 #include "db/sqlparser.h"
 #include "db/sqlexecutor.h"
 #include "utils/dbutils.h"
 #include "db/entitymapper.h"
+
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QVariant>
@@ -21,11 +23,15 @@ bool AlbumDao::insert(Album& album) {
     }
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return false;
+    }
 
     if (!SqlExecutor::execute(query, {
         {":title", album.title()},
         {":artist_id", album.artistId()},
+        {":year", DbUtils::optionalToVariant(album.year())},
         {":cover_cache_hash", DbUtils::optionalToVariant(album.coverCacheHash())}
     })) {
         return false;
@@ -46,12 +52,16 @@ bool AlbumDao::update(const Album& album) {
     }
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return false;
+    }
 
     return SqlExecutor::execute(query, {
         {":id", album.id()},
         {":title", album.title()},
         {":artist_id", album.artistId()},
+        {":year", DbUtils::optionalToVariant(album.year())},
         {":cover_cache_hash", DbUtils::optionalToVariant(album.coverCacheHash())}
     });
 }
@@ -66,7 +76,10 @@ std::optional<Album> AlbumDao::findById(int id) {
     }
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return std::nullopt;
+    }
 
     if (SqlExecutor::execute(query, {
         {":id", id}
@@ -90,7 +103,11 @@ QList<Album> AlbumDao::getAll() {
         return albums;
     }
 
-    QSqlQuery query(queryString);
+    QSqlQuery query;
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return albums;
+    }
 
     if (SqlExecutor::execute(query, {})) {
         while (query.next()) {
@@ -107,7 +124,10 @@ bool AlbumDao::deleteById(int id) {
     if (queryString.isEmpty()) return false;
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return false;
+    }
     return SqlExecutor::execute(query, {{":id", id}});
 }
 
@@ -117,7 +137,10 @@ std::optional<Album> AlbumDao::getByTitleAndArtist(const QString& title, int art
     if (queryString.isEmpty()) return std::nullopt;
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return std::nullopt;
+    }
 
     if (SqlExecutor::execute(query, {{":title", title.trimmed()}, {":artist_id", artistId}})) {
         if (query.next()) {
@@ -127,14 +150,25 @@ std::optional<Album> AlbumDao::getByTitleAndArtist(const QString& title, int art
     return std::nullopt;
 }
 
-std::optional<Album> AlbumDao::getOrCreate(const QString& name, int artistId) {
-    if(auto existing = getByTitleAndArtist(name, artistId)) return *existing;
+std::optional<Album> AlbumDao::getOrCreate(const QString& title, int artistId, std::optional<int> year) {
+    auto existing = getByTitleAndArtist(title, artistId);
+    if (existing) {
+        // Se anno esistente diverso da quello nuovo, album.year diventa null
+        if (existing->year() != year) {
+            if (existing->year().has_value()) {
+                existing->setYear(std::nullopt);
+                if (!update(*existing)) return std::nullopt;
+            }
+        }
+        return existing;
+    }
 
     Album album;
-    album.setTitle(name);
+    album.setTitle(title);
     album.setArtistId(artistId);
-    if(!insert(album)) return std::nullopt;
-    else return album;
+    album.setYear(year);
+    if (!insert(album)) return std::nullopt;
+    return album;
 }
 
 bool AlbumDao::deleteOrphans() {
@@ -143,7 +177,10 @@ bool AlbumDao::deleteOrphans() {
     if (queryString.isEmpty()) return false;
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return false;
+    }
     return SqlExecutor::execute(query, {});
 }
 
@@ -154,7 +191,10 @@ QList<Album> AlbumDao::getByArtistId(int artistId) {
     if (queryString.isEmpty()) return albums;
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return albums;
+    }
     if (SqlExecutor::execute(query, {{":artist_id", artistId}})) {
         while (query.next()) {
             albums.append(EntityMapper::toEntityAlbum(query));
@@ -170,7 +210,10 @@ QList<Album> AlbumDao::searchByKeyword(const QString& keyword) {
     if (queryString.isEmpty()) return albums;
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return albums;
+    }
     QString pattern = "%" + keyword.trimmed() + "%";
     if (SqlExecutor::execute(query, {{":keyword", pattern}})) {
         while (query.next()) {
@@ -186,6 +229,9 @@ bool AlbumDao::drop() {
     if (queryString.isEmpty()) return false;
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return false;
+    }
     return SqlExecutor::execute(query, {});
 }

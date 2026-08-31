@@ -21,7 +21,10 @@ bool GenreDao::insert(Genre& genre) {
     }
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return false;
+    }
 
     if (!SqlExecutor::execute(query, {
         {":name", genre.name()}
@@ -44,7 +47,10 @@ bool GenreDao::update(const Genre& genre) {
     }
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return false;
+    }
 
     return SqlExecutor::execute(query, {
         {":id", genre.id()},
@@ -62,7 +68,10 @@ std::optional<Genre> GenreDao::findById(int id) {
     }
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return std::nullopt;
+    }
 
     if (SqlExecutor::execute(query, {
         {":id", id}
@@ -86,7 +95,11 @@ QList<Genre> GenreDao::getAll() {
         return genres;
     }
 
-    QSqlQuery query(queryString);
+    QSqlQuery query;
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return genres;
+    }
 
     if (SqlExecutor::execute(query, {})) {
         while (query.next()) {
@@ -103,7 +116,10 @@ bool GenreDao::deleteById(int id) {
     if (queryString.isEmpty()) return false;
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return false;
+    }
     return SqlExecutor::execute(query, {{":id", id}});
 }
 
@@ -113,7 +129,10 @@ std::optional<Genre> GenreDao::getByName(const QString& name) {
     if (queryString.isEmpty()) return std::nullopt;
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return std::nullopt;
+    }
 
     if (SqlExecutor::execute(query, {{":name", name.trimmed()}})) {
         if (query.next()) {
@@ -138,7 +157,10 @@ bool GenreDao::deleteOrphans() {
     if (queryString.isEmpty()) return false;
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return false;
+    }
     return SqlExecutor::execute(query, {});
 }
 
@@ -149,7 +171,10 @@ QList<Genre> GenreDao::searchByKeyword(const QString& keyword) {
     if (queryString.isEmpty()) return genres;
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return genres;
+    }
     QString pattern = "%" + keyword.trimmed() + "%";
     if (SqlExecutor::execute(query, {{":keyword", pattern}})) {
         while (query.next()) {
@@ -165,6 +190,9 @@ bool GenreDao::drop() {
     if (queryString.isEmpty()) return false;
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return false;
+    }
     return SqlExecutor::execute(query, {});
 }

@@ -19,11 +19,13 @@ public:
     int id() const;
     QString title() const;
     int artistId() const;
+    std::optional<int> year() const;
     std::optional<QString> coverCacheHash() const;
 
     void setId(int id);
     void setTitle(const QString& title);
     void setArtistId(int artistId);
+    void setYear(std::optional<int> year);
     void setCoverCacheHash(const std::optional<QString>& coverCacheHash);
 
     QString toString() const;
@@ -33,6 +35,7 @@ private:
     QString m_title;
     int m_artistId;
     std::optional<QString> m_coverCacheHash;
+    std::optional<int> m_year;
 };
 
 #endif // ALBUM_H

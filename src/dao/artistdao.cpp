@@ -22,7 +22,10 @@ bool ArtistDao::insert(Artist& artist) {
     }
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return false;
+    }
 
     if (!SqlExecutor::execute(query, {
         {":name", artist.name()}
@@ -45,7 +48,10 @@ bool ArtistDao::update(const Artist& artist) {
     }
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return false;
+    }
 
     return SqlExecutor::execute(query, {
         {":id", artist.id()},
@@ -63,7 +69,10 @@ std::optional<Artist> ArtistDao::findById(int id) {
     }
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return std::nullopt;
+    }
 
     if (SqlExecutor::execute(query, {
         {":id", id}
@@ -87,7 +96,11 @@ QList<Artist> ArtistDao::getAll() {
         return artists;
     }
 
-    QSqlQuery query(queryString);
+    QSqlQuery query;
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return artists;
+    }
 
     if (SqlExecutor::execute(query, {})) {
         while (query.next()) {
@@ -104,7 +117,10 @@ bool ArtistDao::deleteById(int id) {
     if (queryString.isEmpty()) return false;
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return false;
+    }
     return SqlExecutor::execute(query, {{":id", id}});
 }
 
@@ -114,7 +130,10 @@ std::optional<Artist> ArtistDao::getByName(const QString& name) {
     if (queryString.isEmpty()) return std::nullopt;
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return std::nullopt;
+    }
 
     if (SqlExecutor::execute(query, {{":name", name.trimmed()}})) {
         if (query.next()) {
@@ -139,7 +158,10 @@ bool ArtistDao::deleteOrphans() {
     if (queryString.isEmpty()) return false;
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return false;
+    }
     return SqlExecutor::execute(query, {});
 }
 
@@ -150,7 +172,11 @@ QList<Artist> ArtistDao::searchByKeyword(const QString& keyword) {
     if (queryString.isEmpty()) return artists;
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return artists;
+    }
+    
     QString pattern = "%" + keyword.trimmed() + "%";
     if (SqlExecutor::execute(query, {{":keyword", pattern}})) {
         while (query.next()) {
@@ -166,6 +192,9 @@ bool ArtistDao::drop() {
     if (queryString.isEmpty()) return false;
 
     QSqlQuery query;
-    query.prepare(queryString);
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return false;
+    }
     return SqlExecutor::execute(query, {});
 }
