@@ -28,6 +28,10 @@ std::optional<QString> Album::coverCacheHash() const {
     return m_coverCacheHash;
 }
 
+QString Album::relativePath() const { 
+    return m_relativePath;
+}
+
 void Album::setId(int id) {
     m_id = id;
 }
@@ -48,6 +52,9 @@ void Album::setCoverCacheHash(const std::optional<QString>& coverCacheHash) {
     m_coverCacheHash = coverCacheHash;
 }
 
+void Album::setRelativePath(const QString& relativePath) {
+    m_relativePath = relativePath;
+}
 
 QString Album::toString() const {
     return QString("Album{id=%1, title='%2', artistId=%3}")

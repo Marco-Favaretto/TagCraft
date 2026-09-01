@@ -1,8 +1,11 @@
 #include "genredao.h"
+
 #include "db/sqlparser.h"
 #include "db/sqlexecutor.h"
 #include "utils/dbutils.h"
 #include "db/entitymapper.h"
+#include "dto/constants.h"
+
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QVariant>
@@ -12,7 +15,7 @@
 #include <QDebug>
 
 bool GenreDao::insert(Genre& genre) {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/genre.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Genre);
     const QString queryString = queries.value("insert");
 
     if (queryString.isEmpty()) {
@@ -38,7 +41,7 @@ bool GenreDao::insert(Genre& genre) {
 }
 
 bool GenreDao::update(const Genre& genre) {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/genre.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Genre);
     const QString queryString = queries.value("update");
 
     if (queryString.isEmpty()) {
@@ -59,7 +62,7 @@ bool GenreDao::update(const Genre& genre) {
 }
 
 std::optional<Genre> GenreDao::findById(int id) {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/genre.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Genre);
     const QString queryString = queries.value("findById");
 
     if (queryString.isEmpty()) {
@@ -87,7 +90,7 @@ std::optional<Genre> GenreDao::findById(int id) {
 QList<Genre> GenreDao::getAll() {
     QList<Genre> genres;
 
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/genre.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Genre);
     const QString queryString = queries.value("getAll");
 
     if (queryString.isEmpty()) {
@@ -111,7 +114,7 @@ QList<Genre> GenreDao::getAll() {
 }
 
 bool GenreDao::deleteById(int id) {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/genre.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Genre);
     const QString queryString = queries.value("deleteById");
     if (queryString.isEmpty()) return false;
 
@@ -124,7 +127,7 @@ bool GenreDao::deleteById(int id) {
 }
 
 std::optional<Genre> GenreDao::getByName(const QString& name) {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/genre.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Genre);
     const QString queryString = queries.value("getByName");
     if (queryString.isEmpty()) return std::nullopt;
 
@@ -152,7 +155,7 @@ std::optional<Genre> GenreDao::getOrCreate(const QString& name) {
 }
 
 bool GenreDao::deleteOrphans() {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/genre.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Genre);
     const QString queryString = queries.value("deleteOrphans");
     if (queryString.isEmpty()) return false;
 
@@ -166,7 +169,7 @@ bool GenreDao::deleteOrphans() {
 
 QList<Genre> GenreDao::searchByKeyword(const QString& keyword) {
     QList<Genre> genres;
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/genre.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Genre);
     const QString queryString = queries.value("searchByKeyword");
     if (queryString.isEmpty()) return genres;
 
@@ -185,7 +188,7 @@ QList<Genre> GenreDao::searchByKeyword(const QString& keyword) {
 }
 
 bool GenreDao::drop() {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/genre.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Genre);
     const QString queryString = queries.value("drop");
     if (queryString.isEmpty()) return false;
 

@@ -4,6 +4,7 @@
 #include "db/sqlexecutor.h"
 #include "utils/dbutils.h"
 #include "db/entitymapper.h"
+#include "dto/constants.h"
 
 #include <QSqlQuery>
 #include <QSqlError>
@@ -12,9 +13,10 @@
 #include <QTextStream>
 #include <QMap>
 #include <QDebug>
+#include <QFileInfo>
 
 bool AlbumDao::insert(Album& album) {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/album.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Album);
     const QString queryString = queries.value("insert");
 
     if (queryString.isEmpty()) {
@@ -32,6 +34,7 @@ bool AlbumDao::insert(Album& album) {
         {":title", album.title()},
         {":artist_id", album.artistId()},
         {":year", DbUtils::optionalToVariant(album.year())},
+        {":relative_path", album.relativePath()},
         {":cover_cache_hash", DbUtils::optionalToVariant(album.coverCacheHash())}
     })) {
         return false;
@@ -43,7 +46,7 @@ bool AlbumDao::insert(Album& album) {
 }
 
 bool AlbumDao::update(const Album& album) {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/album.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Album);
     const QString queryString = queries.value("update");
 
     if (queryString.isEmpty()) {
@@ -62,12 +65,13 @@ bool AlbumDao::update(const Album& album) {
         {":title", album.title()},
         {":artist_id", album.artistId()},
         {":year", DbUtils::optionalToVariant(album.year())},
+        {":relative_path", album.relativePath()},
         {":cover_cache_hash", DbUtils::optionalToVariant(album.coverCacheHash())}
     });
 }
 
 std::optional<Album> AlbumDao::findById(int id) {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/album.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Album);
     const QString queryString = queries.value("findById");
 
     if (queryString.isEmpty()) {
@@ -95,7 +99,7 @@ std::optional<Album> AlbumDao::findById(int id) {
 QList<Album> AlbumDao::getAll() {
     QList<Album> albums;
 
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/album.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Album);
     const QString queryString = queries.value("getAll");
 
     if (queryString.isEmpty()) {
@@ -119,7 +123,7 @@ QList<Album> AlbumDao::getAll() {
 }
 
 bool AlbumDao::deleteById(int id) {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/album.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Album);
     const QString queryString = queries.value("deleteById");
     if (queryString.isEmpty()) return false;
 
@@ -132,7 +136,7 @@ bool AlbumDao::deleteById(int id) {
 }
 
 std::optional<Album> AlbumDao::getByTitleAndArtist(const QString& title, int artistId) {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/album.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Album);
     const QString queryString = queries.value("getByTitleAndArtist");
     if (queryString.isEmpty()) return std::nullopt;
 
@@ -150,8 +154,28 @@ std::optional<Album> AlbumDao::getByTitleAndArtist(const QString& title, int art
     return std::nullopt;
 }
 
-std::optional<Album> AlbumDao::getOrCreate(const QString& title, int artistId, std::optional<int> year) {
-    auto existing = getByTitleAndArtist(title, artistId);
+std::optional<Album> AlbumDao::getByTitleAndRelativePath(const QString& title, const QString& relativePath) {
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Album);
+    const QString queryString = queries.value("getByTitleAndRelativePath");
+    if (queryString.isEmpty()) return std::nullopt;
+
+    QSqlQuery query;
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return std::nullopt;
+    }
+
+    if (SqlExecutor::execute(query, {{":title", title.trimmed()}, {":relative_path", relativePath}})) {
+        if (query.next()) {
+            return EntityMapper::toEntityAlbum(query);
+        }
+    }
+    return std::nullopt;
+}
+
+std::optional<Album> AlbumDao::getOrCreate(const QString& title, const QString& trackRelativePath, int artistId, std::optional<int> year) {
+    const QString albumRelativePath = QFileInfo(trackRelativePath).path();
+    auto existing = getByTitleAndRelativePath(title, albumRelativePath);
     if (existing) {
         // Se anno esistente diverso da quello nuovo, album.year diventa null
         if (existing->year() != year) {
@@ -160,6 +184,11 @@ std::optional<Album> AlbumDao::getOrCreate(const QString& title, int artistId, s
                 if (!update(*existing)) return std::nullopt;
             }
         }
+        // se l'album esiste e ha artistId != 1 -> imposta default come artista dell'album (mantiene l'artista nella traccia però)
+        if (existing->artistId() != artistId && existing->artistId() != Constants::DefaultValues::ArtistId) {
+            existing->setArtistId(Constants::DefaultValues::ArtistId);
+            if (!update(*existing)) return std::nullopt;
+        }
         return existing;
     }
 
@@ -167,12 +196,13 @@ std::optional<Album> AlbumDao::getOrCreate(const QString& title, int artistId, s
     album.setTitle(title);
     album.setArtistId(artistId);
     album.setYear(year);
+    album.setRelativePath(albumRelativePath);
     if (!insert(album)) return std::nullopt;
     return album;
 }
 
 bool AlbumDao::deleteOrphans() {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/album.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Album);
     const QString queryString = queries.value("deleteOrphans");
     if (queryString.isEmpty()) return false;
 
@@ -186,7 +216,7 @@ bool AlbumDao::deleteOrphans() {
 
 QList<Album> AlbumDao::getByArtistId(int artistId) {
     QList<Album> albums;
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/album.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Album);
     const QString queryString = queries.value("getByArtistId");
     if (queryString.isEmpty()) return albums;
 
@@ -205,7 +235,7 @@ QList<Album> AlbumDao::getByArtistId(int artistId) {
 
 QList<Album> AlbumDao::searchByKeyword(const QString& keyword) {
     QList<Album> albums;
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/album.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Album);
     const QString queryString = queries.value("searchByKeyword");
     if (queryString.isEmpty()) return albums;
 
@@ -224,7 +254,7 @@ QList<Album> AlbumDao::searchByKeyword(const QString& keyword) {
 }
 
 bool AlbumDao::drop() {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/album.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Album);
     const QString queryString = queries.value("drop");
     if (queryString.isEmpty()) return false;
 

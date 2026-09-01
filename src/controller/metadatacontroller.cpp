@@ -5,6 +5,8 @@
 #include "utils/tagmapper.h"
 #include "utils/imageutils.h"
 
+#include "dto/constants.h"
+
 MetadataController::MetadataController(QObject* parent) : QObject(parent) {}
 
 std::optional<TrackDto> MetadataController::readTags(const QString& relativePath) const {
@@ -37,7 +39,7 @@ QByteArray MetadataController::resolveArtwork(const QString& relativePath) const
 
     // 2. cover.jpg nella cartella dell'album
     QString albumDir = QFileInfo(absolutePath).absolutePath();
-    QString coverPath = QDir(albumDir).filePath("cover.jpg");
+    QString coverPath = QDir(albumDir).filePath(Constants::Paths::CoverImageFileName);
     if (QFileInfo::exists(coverPath)) {
         QFile file(coverPath);
         if (file.open(QIODevice::ReadOnly)) return file.readAll();

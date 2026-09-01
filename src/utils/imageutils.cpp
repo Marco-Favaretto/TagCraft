@@ -71,7 +71,7 @@ QString ImageUtils::cacheArtwork(const QImage& image, const QString& artworkCach
     if (thumbnail.isNull()) return {};
     QImageWriter writer(filePath, "jpg");
 
-    writer.setQuality(90);
+    writer.setQuality(Constants::Artwork::JpegQuality);
 
     if (!writer.write(thumbnail)) return {};
 

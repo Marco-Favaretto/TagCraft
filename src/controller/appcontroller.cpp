@@ -5,6 +5,7 @@
 #include "storage/storagemanager.h"
 #include "dao/trackdao.h"
 #include "utils/imageutils.h"
+#include "dto/constants.h"
 
 #include <QImage>
 
@@ -15,7 +16,7 @@ bool AppController::initialize() {
         emit errorOccurred("Storage esterno non trovato");
     }
 
-    QString dbPath = StorageManager::instance().musicAppPoint() + "/music_library.db";
+    QString dbPath = StorageManager::instance().musicAppPoint() + "/" + Constants::Paths::DatabaseFileName;
     if (!DatabaseManager::instance().openDatabase(dbPath)) {
         emit errorOccurred("Impossibile aprire il database");
         return false;

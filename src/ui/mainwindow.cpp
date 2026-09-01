@@ -148,7 +148,7 @@ void MainWindow::onItemActivated(int id) {
             break;
         }
         case ViewMode::Tracks: {
-            // Futura apertura player / modale
+            // Futura apertura modale
             break;
         }
         case ViewMode::Genres: {

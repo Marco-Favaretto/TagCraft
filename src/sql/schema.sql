@@ -10,9 +10,9 @@ CREATE TABLE IF NOT EXISTS album (
     title TEXT NOT NULL,
     artist_id INTEGER NOT NULL DEFAULT 1,
     year INTEGER,
+    relative_path TEXT NOT NULL UNIQUE,
     cover_cache_hash TEXT,
-    FOREIGN KEY (artist_id) REFERENCES artist(id) ON DELETE RESTRICT,
-    UNIQUE(title, artist_id)
+    FOREIGN KEY (artist_id) REFERENCES artist(id) ON DELETE RESTRICT
 );
 
 -- 3. TABELLA GENERI

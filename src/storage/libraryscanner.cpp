@@ -6,11 +6,12 @@
 
 #include "storage/storagemanager.h"
 #include "dao/trackdao.h"
+#include "dto/constants.h"
 
 QList<TrackFileSystemDto> LibraryScanner::scanAudioFiles(const QString& musicFolderPath, ProgressCallback onProgress) {
     int totalFiles = countFile(musicFolderPath);
     QList<TrackFileSystemDto> files;
-    QDirIterator it(musicFolderPath, QStringList() << "*.mp3", QDir::Files, QDirIterator::Subdirectories);
+    QDirIterator it(musicFolderPath, QStringList() << Constants::FileFilters::Mp3Extension, QDir::Files, QDirIterator::Subdirectories);
     int currentFile = 0;
     while (it.hasNext()) {
         it.next();
@@ -36,7 +37,7 @@ QList<TrackFileSystemDto> LibraryScanner::scanAudioFiles(const QString& musicFol
     QSet<QString> foundPaths;
     QDirIterator it(
         musicFolderPath,
-        QStringList() << "*.mp3",
+        QStringList() << Constants::FileFilters::Mp3Extension,
         QDir::Files,
         QDirIterator::Subdirectories
     );
@@ -79,7 +80,7 @@ QList<TrackFileSystemDto> LibraryScanner::scanAudioFiles(const QString& musicFol
 
 int LibraryScanner::countFile(const QString& path) {
     int totalFiles = 0;
-    QDirIterator countIt(path, QStringList() << "*.mp3", QDir::Files, QDirIterator::Subdirectories);
+    QDirIterator countIt(path, QStringList() << Constants::FileFilters::Mp3Extension, QDir::Files, QDirIterator::Subdirectories);
     while (countIt.hasNext()) {
         countIt.next();
         totalFiles++;
@@ -93,7 +94,7 @@ ScanResultDto LibraryScanner::smartScan(const QString& musicFolderPath, Progress
     ScanResultDto dto;
     QSet<QString> foundPaths;
     
-    QDirIterator it(musicFolderPath, QStringList() << "*.mp3", QDir::Files, QDirIterator::Subdirectories);
+    QDirIterator it(musicFolderPath, QStringList() << Constants::FileFilters::Mp3Extension, QDir::Files, QDirIterator::Subdirectories);
     int currentFile = 0;
 
     while (it.hasNext()) {

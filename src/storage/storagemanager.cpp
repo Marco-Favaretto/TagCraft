@@ -1,4 +1,5 @@
 #include "storage/storagemanager.h"
+#include "dto/constants.h"
 
 #include <QDir>
 
@@ -41,7 +42,7 @@ QString StorageManager::musicPoint() const {
     QString musicPoint = "";
     const QFileInfoList entries = rootDir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
     for (const QFileInfo& entry : entries) {
-        if (entry.fileName().compare("Music", Qt::CaseInsensitive) == 0)
+        if (entry.fileName().compare(Constants::Paths::MusicDir, Qt::CaseInsensitive) == 0)
             musicPoint = entry.absoluteFilePath();
     }
 
@@ -49,7 +50,7 @@ QString StorageManager::musicPoint() const {
 }
 
 QString StorageManager::musicAppPoint() const {
-    return this->mountPoint() + "/.music_app";
+    return this->mountPoint() + "/" + Constants::Paths::AppDataDir;
 }
 
 QString StorageManager::toAbsolutePath(const QString& relativePath) const {
@@ -69,17 +70,17 @@ bool StorageManager::isValidMusicStorage(const QStorageInfo& device) const {
     // const QFileInfoList entries = dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
     // for (const QFileInfo& entry : entries) {
     //     const QString name = entry.fileName().toLower();
-    //     if (name == "music") okMusic = true;
-    //     else if (name == ".music_app") okApp = true;
+    //     if (name == Constants::Paths::MusicDir) okMusic = true;
+    //     else if (name == Constants::Paths::AppDataDir) okApp = true;
     //     if (okMusic && okApp) return true;
     // }
     // return false;
 
     QDir rootDir(device.rootPath());
-    return rootDir.exists("Music") && rootDir.exists(".music_app");
+    return rootDir.exists(Constants::Paths::MusicDir) && rootDir.exists(Constants::Paths::AppDataDir);
 }
 
 
 QString StorageManager::artworkCacheDirectory() const {
-    return this->mountPoint() + "./music_app/covers";
+    return this->mountPoint() + "/" + Constants::Paths::AppDataDir + "/" + Constants::Paths::CoversDir;
 }

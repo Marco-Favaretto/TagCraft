@@ -28,6 +28,7 @@ Album EntityMapper::toEntityAlbum(const QSqlQuery& query) {
     album.setTitle(query.value("title").toString());
     album.setArtistId(query.value("artist_id").toInt());
     album.setYear(DbUtils::variantToOptional<int>(query.value("year")));
+    album.setRelativePath(query.value("relative_path").toString());
     album.setCoverCacheHash(
         DbUtils::variantToOptional<QString>(query.value("cover_cache_hash"))
     );

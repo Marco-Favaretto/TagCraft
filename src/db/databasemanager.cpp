@@ -1,6 +1,9 @@
 #include "databasemanager.h"
+
 #include "db/sqlparser.h"
 #include "db/sqlexecutor.h"
+#include "dto/constants.h"
+
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QDebug>
@@ -42,11 +45,11 @@ void DatabaseManager::closeDatabase() {
 }
 
 bool DatabaseManager::initSchema() {
-    if (!executeInitSqlScript(":/sql/schema.sql")) {
+    if (!executeInitSqlScript(Constants::Sql::Schema)) {
         return false;
     }
 
-    if (!executeInitSqlScript(":/sql/startvalues.sql")) {
+    if (!executeInitSqlScript(Constants::Sql::StartValues)) {
         return false;
     }
 
@@ -88,7 +91,7 @@ bool DatabaseManager::rollback() {
 } 
 
 bool DatabaseManager::resetDb() {
-    QString resourcePath = ":sql/resetdb.sql";
+    const QString& resourcePath = Constants::Sql::ResetDb;
     const QStringList statements = SqlParser::parseStatements(resourcePath);
 
     if (statements.isEmpty()) {

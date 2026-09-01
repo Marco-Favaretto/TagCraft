@@ -78,6 +78,7 @@ void DetailsPanel::showAlbum(const Album& album) {
         {"Artist:", artist},
         {"Tracks:", QString::number(trackCount)},
         {"Year:", album.year() ? QString::number(*album.year()) : QString()},
+        {"Relative Path:", album.relativePath()}
     });
 }
 

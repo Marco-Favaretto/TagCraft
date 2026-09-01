@@ -21,12 +21,14 @@ public:
     int artistId() const;
     std::optional<int> year() const;
     std::optional<QString> coverCacheHash() const;
+    QString relativePath() const;
 
     void setId(int id);
     void setTitle(const QString& title);
     void setArtistId(int artistId);
     void setYear(std::optional<int> year);
     void setCoverCacheHash(const std::optional<QString>& coverCacheHash);
+    void setRelativePath(const QString& relativePath);
 
     QString toString() const;
 
@@ -36,6 +38,7 @@ private:
     int m_artistId;
     std::optional<QString> m_coverCacheHash;
     std::optional<int> m_year;
+    QString m_relativePath;
 };
 
 #endif // ALBUM_H

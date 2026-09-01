@@ -1,8 +1,11 @@
 #include "artistdao.h"
+
 #include "db/sqlparser.h"
 #include "db/sqlexecutor.h"
 #include "utils/dbutils.h"
 #include "db/entitymapper.h"
+#include "dto/constants.h"
+
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QVariant>
@@ -13,7 +16,7 @@
 
 
 bool ArtistDao::insert(Artist& artist) {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/artist.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Artist);
     const QString queryString = queries.value("insert");
 
     if (queryString.isEmpty()) {
@@ -39,7 +42,7 @@ bool ArtistDao::insert(Artist& artist) {
 }
 
 bool ArtistDao::update(const Artist& artist) {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/artist.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Artist);
     const QString queryString = queries.value("update");
 
     if (queryString.isEmpty()) {
@@ -60,7 +63,7 @@ bool ArtistDao::update(const Artist& artist) {
 }
 
 std::optional<Artist> ArtistDao::findById(int id) {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/artist.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Artist);
     const QString queryString = queries.value("findById");
 
     if (queryString.isEmpty()) {
@@ -88,7 +91,7 @@ std::optional<Artist> ArtistDao::findById(int id) {
 QList<Artist> ArtistDao::getAll() {
     QList<Artist> artists;
 
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/artist.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Artist);
     const QString queryString = queries.value("getAll");
 
     if (queryString.isEmpty()) {
@@ -112,7 +115,7 @@ QList<Artist> ArtistDao::getAll() {
 }
 
 bool ArtistDao::deleteById(int id) {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/artist.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Artist);
     const QString queryString = queries.value("deleteById");
     if (queryString.isEmpty()) return false;
 
@@ -125,7 +128,7 @@ bool ArtistDao::deleteById(int id) {
 }
 
 std::optional<Artist> ArtistDao::getByName(const QString& name) {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/artist.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Artist);
     const QString queryString = queries.value("getByName");
     if (queryString.isEmpty()) return std::nullopt;
 
@@ -153,7 +156,7 @@ std::optional<Artist> ArtistDao::getOrCreate(const QString& name) {
 }
 
 bool ArtistDao::deleteOrphans() {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/artist.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Artist);
     const QString queryString = queries.value("deleteOrphans");
     if (queryString.isEmpty()) return false;
 
@@ -167,7 +170,7 @@ bool ArtistDao::deleteOrphans() {
 
 QList<Artist> ArtistDao::searchByKeyword(const QString& keyword) {
     QList<Artist> artists;
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/artist.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Artist);
     const QString queryString = queries.value("searchByKeyword");
     if (queryString.isEmpty()) return artists;
 
@@ -187,7 +190,7 @@ QList<Artist> ArtistDao::searchByKeyword(const QString& keyword) {
 }
 
 bool ArtistDao::drop() {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/artist.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Artist);
     const QString queryString = queries.value("drop");
     if (queryString.isEmpty()) return false;
 

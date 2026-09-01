@@ -34,7 +34,7 @@ private:
     std::optional<Track> insertTrackInternal(const TrackFileSystemDto&);
     bool updateTrackInternal(const TrackFileSystemDto&);
     int resolveArtistId(const QString& name);
-    int resolveAlbumId(const QString& title, int artistId, std::optional<int> year);
+    int resolveAlbumId(const QString& title, const QString& relativePath, int artistId, std::optional<int> year);
     int resolveGenreId(const QString& name);
 };
 

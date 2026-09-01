@@ -1,8 +1,11 @@
 #include "trackdao.h"
+
 #include "db/sqlparser.h"
 #include "db/sqlexecutor.h"
 #include "utils/dbutils.h"
 #include "db/entitymapper.h"
+#include "dto/constants.h"
+
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QVariant>
@@ -12,7 +15,7 @@
 #include <QDebug>
 
 bool TrackDao::insert(Track& track) {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Track);
     const QString queryString = queries.value("insert");
 
     if (queryString.isEmpty()) {
@@ -47,7 +50,7 @@ bool TrackDao::insert(Track& track) {
 }
 
 bool TrackDao::update(const Track& track) {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Track);
     const QString queryString = queries.value("update");
 
     if (queryString.isEmpty()) {
@@ -79,7 +82,7 @@ bool TrackDao::update(const Track& track) {
 
 
 bool TrackDao::updateCover(int id, const QString& imagehash) {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Track);
     const QString queryString = queries.value("updateCover");
 
     if (queryString.isEmpty()) {
@@ -100,7 +103,7 @@ bool TrackDao::updateCover(int id, const QString& imagehash) {
 }
 
 std::optional<Track> TrackDao::findById(int id) {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Track);
     const QString queryString = queries.value("findById");
 
     if (queryString.isEmpty()) {
@@ -125,7 +128,7 @@ std::optional<Track> TrackDao::findById(int id) {
 }
 
 std::optional<Track> TrackDao::findByRelativePath(const QString& relativePath) {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Track);
     const QString queryString = queries.value("findByRelativePath");
 
     if (queryString.isEmpty()) {
@@ -151,7 +154,7 @@ std::optional<Track> TrackDao::findByRelativePath(const QString& relativePath) {
 
 QList<Track> TrackDao::getAll() {
     QList<Track> tracks;
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Track);
     const QString queryString = queries.value("getAll");
 
     if (queryString.isEmpty()) {
@@ -175,7 +178,7 @@ QList<Track> TrackDao::getAll() {
 
 QHash<QString, TrackFileSystemDto> TrackDao::getAllFileStates() {
     QHash<QString, TrackFileSystemDto> states;
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Track);
     const QString queryString = queries.value("filesState");
     if (queryString.isEmpty()) {
         qCritical() << "Query 'filesState' non trovata in track.sql";
@@ -204,7 +207,7 @@ QHash<QString, TrackFileSystemDto> TrackDao::getAllFileStates() {
 }
 
 bool TrackDao::deleteById(int id) {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Track);
     const QString queryString = queries.value("deleteById");
     if (queryString.isEmpty()) return false;
 
@@ -217,7 +220,7 @@ bool TrackDao::deleteById(int id) {
 }
 
 bool TrackDao::deleteByRelativePath(const QString& relativePath) {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Track);
     const QString queryString = queries.value("deleteByRelativePath");
     if (queryString.isEmpty()) return false;
 
@@ -231,7 +234,7 @@ bool TrackDao::deleteByRelativePath(const QString& relativePath) {
 
 QList<Track> TrackDao::getByAlbumId(int albumId) {
     QList<Track> tracks;
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Track);
     const QString queryString = queries.value("getByAlbumId");
     if (queryString.isEmpty()) return tracks;
 
@@ -250,7 +253,7 @@ QList<Track> TrackDao::getByAlbumId(int albumId) {
 
 QList<Track> TrackDao::getByArtistId(int artistId) {
     QList<Track> tracks;
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Track);
     const QString queryString = queries.value("getByArtistId");
     if (queryString.isEmpty()) return tracks;
 
@@ -269,7 +272,7 @@ QList<Track> TrackDao::getByArtistId(int artistId) {
 
 QList<Track> TrackDao::getByGenreId(int genreId) {
     QList<Track> tracks;
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Track);
     const QString queryString = queries.value("getByGenreId");
     if (queryString.isEmpty()) return tracks;
 
@@ -288,7 +291,7 @@ QList<Track> TrackDao::getByGenreId(int genreId) {
 
 QList<Track> TrackDao::searchByKeyword(const QString& keyword) {
     QList<Track> tracks;
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Track);
     const QString queryString = queries.value("searchByKeyword");
     if (queryString.isEmpty()) return tracks;
 
@@ -307,7 +310,7 @@ QList<Track> TrackDao::searchByKeyword(const QString& keyword) {
 }
 
 bool TrackDao::drop() {
-    static const auto queries = SqlParser::parseNamedQueries(":/sql/track.sql");
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Track);
     const QString queryString = queries.value("drop");
     if (queryString.isEmpty()) return false;
 

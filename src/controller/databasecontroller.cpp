@@ -9,6 +9,8 @@
 #include "dto/trackdto.h"
 #include "utils/tagmapper.h"
 
+#include "dto/constants.h"
+
 DatabaseController::DatabaseController(QObject* parent) : QObject(parent) {}
 
 bool DatabaseController::insertNewTracks(const QList<TrackFileSystemDto>& list) {
@@ -72,7 +74,7 @@ std::optional<Track> DatabaseController::insertTrackInternal(const TrackFileSyst
     TrackDto tagDto = TagMapper::fileToDto(absolutePath, fsDto.relativePath);
 
     int artistId = resolveArtistId(tagDto.artistName);
-    int albumId = resolveAlbumId(tagDto.albumName, artistId, tagDto.year);
+    int albumId = resolveAlbumId(tagDto.albumName, fsDto.relativePath, artistId, tagDto.year);
     int genreId = resolveGenreId(tagDto.genreName);
 
     Track track;
@@ -99,7 +101,7 @@ bool DatabaseController::updateTrackInternal(const TrackFileSystemDto& fsDto) {
     TrackDto tagDto = TagMapper::fileToDto(absolutePath, fsDto.relativePath);
 
     int artistId = resolveArtistId(tagDto.artistName);
-    int albumId = resolveAlbumId(tagDto.albumName, artistId, tagDto.year);
+    int albumId = resolveAlbumId(tagDto.albumName, fsDto.relativePath, artistId, tagDto.year);
     int genreId = resolveGenreId(tagDto.genreName);
 
     track.setTitle(tagDto.title);
@@ -135,19 +137,19 @@ bool DatabaseController::updateTrackCoverHash(const QString& relativePath, const
 }
 
 int DatabaseController::resolveArtistId(const QString& name) {
-    if (name.trimmed().isEmpty()) return 1; // Unknown Artist
+    if (name.trimmed().isEmpty()) return Constants::DefaultValues::ArtistId; // Unknown Artist
     auto artistOpt = ArtistDao::getOrCreate(name);
-    return artistOpt ? artistOpt->id() : 1;
+    return artistOpt ? artistOpt->id() : Constants::DefaultValues::ArtistId;
 }
 
-int DatabaseController::resolveAlbumId(const QString& title, int artistId, std::optional<int> year) {
-    if (title.trimmed().isEmpty()) return 1; // Unknown Album
-    auto albumOpt = AlbumDao::getOrCreate(title, artistId, year);
-    return albumOpt ? albumOpt->id() : 1;
+int DatabaseController::resolveAlbumId(const QString& title, const QString& relativePath, int artistId, std::optional<int> year) {
+    if (title.trimmed().isEmpty()) return Constants::DefaultValues::AlbumId; // Unknown Album
+    auto albumOpt = AlbumDao::getOrCreate(title, relativePath, artistId, year);
+    return albumOpt ? albumOpt->id() : Constants::DefaultValues::AlbumId;
 }
 
 int DatabaseController::resolveGenreId(const QString& name) {
-    if (name.trimmed().isEmpty()) return 1; // Unknown Genre
+    if (name.trimmed().isEmpty()) return Constants::DefaultValues::GenreId; // Unknown Genre
     auto genreOpt = GenreDao::getOrCreate(name);
-    return genreOpt ? genreOpt->id() : 1;
+    return genreOpt ? genreOpt->id() : Constants::DefaultValues::GenreId;
 }
