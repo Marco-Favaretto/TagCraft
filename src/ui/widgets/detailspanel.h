@@ -11,6 +11,7 @@
 #include "model/genre.h"
 #include "controller/librarycontroller.h"
 
+// per ora sola lettura poi pannello di editing metadati/artwork (§4.2/4.3)
 class DetailsPanel : public QWidget {
     Q_OBJECT
 public:
@@ -23,14 +24,14 @@ public slots:
     void showGenre(const Genre& genre);
     void clear();
 
-protected:
-    void resizeEvent(QResizeEvent* event) override;
 private:
     void rebuildForm(const QList<QPair<QString, QString>>& rows);
+    static QString formatDuration(int totalSeconds);
+    static QString formatFileSize(qint64 bytes);
 
     QFormLayout* m_formLayout;
     int m_lastRowCount = 0;
-    LibraryController* m_library;
+    LibraryController* m_library; // non posseduto, di proprieta' di AppController
 };
 
 #endif // DETAILSPANEL_H

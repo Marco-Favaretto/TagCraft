@@ -5,11 +5,12 @@
 #include <QSplitter>
 #include <QPushButton>
 #include <QProgressBar>
+#include <QEvent>
 
-#include "controller/appcontroller.h"
 #include "widgets/navigationsidebar.h"
-#include "widgets/itemlistview.h"
+#include "widgets/itemtableview.h"
 #include "widgets/detailspanel.h"
+#include "controller/appcontroller.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -18,37 +19,44 @@ public:
     ~MainWindow() override = default;
 
 private slots:
-    // NavigationSidebar
     void onSectionSelected(NavigationSection section);
 
-    // ItemListVIew
+    // Da ItemTableView
     void onItemSelected(int id);
-    void onItemActivated(int id);
+    void onItemActivated(int id); // doppio clic / invio -> naviga giu' un livello
 
-    // AppController
     void onLibraryUpdated();
     void onErrorOccurred(const QString& message);
     void onScanProgress(int percentage);
+
     void onSmartScanClicked();
     void onFullScanClicked();
+    void onResetDbClicked();
+
+protected:
+    bool eventFilter(QObject* watched, QEvent* event) override;
 
 private:
     void setupUi();
     void setupConnections();
     void loadCurrentSection();
+    void navigateUp();
 
     AppController* m_appController;
 
     NavigationSidebar* m_sidebar;
-    ItemListView* m_itemListView;
+    ItemTableView* m_itemTable;
     DetailsPanel* m_details;
 
-    NavigationSection m_currentSection = NavigationSection::AllTracks;
-    
     QPushButton* m_smartScanButton;
     QPushButton* m_fullScanButton;
+    QPushButton* m_resetAndRebuildDb;
     QProgressBar* m_scanProgressBar;
 
+    NavigationSection m_currentSection = NavigationSection::AllTracks;
+
+    std::optional<int> m_drilldownArtistId;
+    std::optional<int> m_drilldownAlbumId;
 };
 
 #endif // MAINWINDOW_H

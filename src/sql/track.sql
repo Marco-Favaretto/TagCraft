@@ -91,6 +91,23 @@ SELECT
     track_cover_hash 
 FROM track;
 
+-- name: getUnknownAlbumOfArtist
+SELECT 
+    id, 
+    title, 
+    artist_id, 
+    album_id, 
+    genre_id, 
+    year, 
+    track_number, 
+    duration_seconds, 
+    relative_path, 
+    file_mtime, 
+    file_size, 
+    track_cover_hash 
+FROM track
+where album_id = 1 AND artist_id = :artist_id;
+
 -- name: filesState
 SELECT 
     relative_path, 

@@ -321,3 +321,22 @@ bool TrackDao::drop() {
     }
     return SqlExecutor::execute(query, {});
 }
+
+QList<Track> TrackDao::getUnknownAlbumOfArtist(int artistId) {
+    QList<Track> tracks;
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Track);
+    const QString queryString = queries.value("getUnknownAlbumOfArtist");
+    if (queryString.isEmpty()) return tracks;
+
+    QSqlQuery query;
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return tracks;
+    }
+    if (SqlExecutor::execute(query, {{":artist_id", artistId}})) {
+        while (query.next()) {
+            tracks.append(EntityMapper::toEntityTrack(query));
+        }
+    }
+    return tracks;
+}

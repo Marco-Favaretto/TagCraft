@@ -58,12 +58,21 @@ qt_add_executable(TagCraft
 
     src/ui/mainwindow.cpp
     src/ui/mainwindow.h
-    src/ui/widgets/detailspanel.h
-    src/ui/widgets/detailspanel.cpp
     src/ui/widgets/navigationsidebar.h
     src/ui/widgets/navigationsidebar.cpp
-    src/ui/widgets/itemlistview.h
-    src/ui/widgets/itemlistview.cpp
+    src/ui/widgets/detailspanel.h
+    src/ui/widgets/detailspanel.cpp
+    src/ui/models/abstractlibrarytablemodel.h
+    src/ui/models/tracktablemodel.h
+    src/ui/models/tracktablemodel.cpp
+    src/ui/models/albumtablemodel.h
+    src/ui/models/albumtablemodel.cpp
+    src/ui/models/artisttablemodel.h
+    src/ui/models/artisttablemodel.cpp
+    src/ui/models/genretablemodel.h
+    src/ui/models/genretablemodel.cpp
+    src/ui/widgets/itemtableview.h
+    src/ui/widgets/itemtableview.cpp
     
     src/db/databasemanager.h
     src/db/databasemanager.cpp

@@ -4,6 +4,7 @@
 #include "dao/albumdao.h"
 #include "dao/trackdao.h"
 #include "dao/genredao.h"
+#include "dto/constants.h"
 
 #include <QSet>
 
@@ -48,6 +49,37 @@ int LibraryController::getAlbumDurationSeconds(int albumId) const {
         if (t.durationSeconds()) total += *t.durationSeconds();
     }
     return total;
+}
+
+QList<Album> LibraryController::getAlbumsForArtist(int artistId) const {
+    QList<Album> albums = AlbumDao::getByArtistId(artistId);
+
+    QList<Track> unknownTracks = TrackDao::getUnknownAlbumOfArtist(artistId);
+    if (!unknownTracks.isEmpty()) {
+        albums.append(createAlbumFromTracks(unknownTracks));
+    }
+
+    return albums;
+}
+
+Album LibraryController::createAlbumFromTracks(const QList<Track>& tracks) const {
+    Album album;
+    album.setId(Constants::DefaultValues::AlbumId);
+    album.setTitle(Constants::DefaultValues::Album);
+    album.setArtistId(tracks.isEmpty() ? Constants::DefaultValues::ArtistId : tracks.first().artistId());
+
+    std::optional<int> year = tracks.isEmpty() ? std::nullopt : tracks.first().year();
+    for (const auto& t : tracks) {
+        if (t.year() != year) { year = std::nullopt; break; }
+    }
+    album.setYear(year);
+
+    return album;
+}
+
+
+QList<Track> LibraryController::getUnknownAlbumOfArtist(int artistId) const {
+    return TrackDao::getUnknownAlbumOfArtist(artistId);
 }
 
 // Tracks

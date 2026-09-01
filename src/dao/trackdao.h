@@ -24,6 +24,7 @@ public:
     static QList<Track> getByGenreId(int genreId);
     static QList<Track> searchByKeyword(const QString& keyword);
     static QHash<QString, TrackFileSystemDto> getAllFileStates();
+    static QList<Track> getUnknownAlbumOfArtist(int artistId);
 };
 
 #endif // TRACKDAO_H

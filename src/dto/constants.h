@@ -6,6 +6,7 @@
 namespace Constants::DefaultValues {
     inline constexpr int AlbumId = 1;
     inline const QString Album = "Unknown Album";
+    inline const QString AlbumPath = "__unknown__";
     inline constexpr int ArtistId = 1;
     inline const QString Artist = "Unknown Artist";
     inline constexpr int GenreId = 1;

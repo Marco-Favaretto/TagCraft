@@ -87,6 +87,7 @@ std::optional<Track> DatabaseController::insertTrackInternal(const TrackFileSyst
     track.setRelativePath(fsDto.relativePath);
     track.setFileMtimeSecs(fsDto.lastModified);
     track.setFileSize(fsDto.fileSize);
+    track.setDurationSeconds(tagDto.durationSeconds);
 
     if (!TrackDao::insert(track)) return std::nullopt;
     return track;
@@ -112,6 +113,7 @@ bool DatabaseController::updateTrackInternal(const TrackFileSystemDto& fsDto) {
     track.setTrackNumber(tagDto.trackNumber);
     track.setFileMtimeSecs(fsDto.lastModified);
     track.setFileSize(fsDto.fileSize);
+    track.setDurationSeconds(tagDto.durationSeconds);
 
     return TrackDao::update(track);
 }
