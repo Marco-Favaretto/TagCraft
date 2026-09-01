@@ -24,6 +24,7 @@ public:
     std::optional<Album> getAlbumById(int albumId) const;
     QList<Album> getAlbumsByArtist(int artistId) const;
     QList<Album> searchAlbums(const QString& keyword) const;
+    int getAlbumDurationSeconds(int albumId) const;
 
     QList<Track> getAllTracks() const;
     std::optional<Track> getTrackById(int trackId) const;

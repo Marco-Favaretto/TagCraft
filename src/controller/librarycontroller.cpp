@@ -41,6 +41,15 @@ QList<Album> LibraryController::searchAlbums(const QString& keyword) const {
     return AlbumDao::searchByKeyword(keyword);
 }
 
+int LibraryController::getAlbumDurationSeconds(int albumId) const {
+    const auto tracks = TrackDao::getByAlbumId(albumId);
+    int total = 0;
+    for (const auto& t : tracks) {
+        if (t.durationSeconds()) total += *t.durationSeconds();
+    }
+    return total;
+}
+
 // Tracks
 
 QList<Track> LibraryController::getAllTracks() const {
