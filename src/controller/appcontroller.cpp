@@ -21,7 +21,10 @@ bool AppController::initialize() {
         emit errorOccurred("Impossibile aprire il database");
         return false;
     }
-    DatabaseManager::instance().initSchema();
+    if(!DatabaseManager::instance().initSchema()) {
+        emit errorOccurred("Impossibile inizializzare il database, errore nella creazione dello schema o dei valori di default.");
+        return false;
+    }
 
     m_storageController = new StorageController(this);
     m_metadataController = new MetadataController(this);
