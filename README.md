@@ -8,6 +8,15 @@ Try to keep the project organized with GitHub Actions, Issues and Project.
 
 ---
 
+## Version 0.2
+The application runs and starts the UI. At the moment, the UI allows the user to navigate the music library following its hierarchy:
+
+Artist → Album → Track
+Genre → Track
+The user can navigate back through the hierarchy by pressing Backspace. A search function is also available, allowing the user to quickly find tracks, albums, artists, or genres.
+
+---
+
 # Installation Guide (Linux only right now)
 
 ## Option 1: Downloading Pre-built Binaries (Release)
