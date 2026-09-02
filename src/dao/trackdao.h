@@ -3,6 +3,7 @@
 
 #include "model/track.h"
 #include "dto/trackfilesystemdto.h"
+#include "dto/firsttrackcovers.h"
 
 #include <optional>
 #include <QList>
@@ -25,6 +26,8 @@ public:
     static QList<Track> searchByKeyword(const QString& keyword);
     static QHash<QString, TrackFileSystemDto> getAllFileStates();
     static QList<Track> getUnknownAlbumOfArtist(int artistId);
+
+    static QList<FirstTrackCovers> getFirstTrackCovers();
 };
 
 #endif // TRACKDAO_H

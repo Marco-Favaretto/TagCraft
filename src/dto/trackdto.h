@@ -15,6 +15,7 @@ struct TrackDto {
     int durationSeconds;
     qint64 fileSize;
     qint64 lastModified;
+    QString coverHash = "NULL";
 
     QString toString() const {
         const auto modified =
@@ -24,7 +25,7 @@ struct TrackDto {
         return QString(
             "TrackDto{title='%1', artist='%2', album='%3', genre='%4', "
             "track=%5, year=%6, duration=%7s, size=%8B, "
-            "modified='%9', path='%10'}"
+            "modified='%9', path='%10', coverHash='%11'}"
         )
         .arg(title)
         .arg(artistName)
@@ -35,7 +36,8 @@ struct TrackDto {
         .arg(durationSeconds)
         .arg(fileSize)
         .arg(modified)
-        .arg(relativePath);
+        .arg(relativePath)
+        .arg(coverHash);
     }
 };  
 

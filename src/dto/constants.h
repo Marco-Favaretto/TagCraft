@@ -19,12 +19,15 @@ namespace Constants::Paths {
     inline const QString DatabaseFileName = "music_library.db";
     inline const QString CoversDir = "covers";
     inline const QString CoverImageFileName = "cover.jpg";
+
 }
 
 namespace Constants::Artwork {
     inline constexpr int ThumbnailMaxWidth = 500;
     inline constexpr int ThumbnailMaxHeight = 500;
     inline constexpr int JpegQuality = 90;
+    inline const QString TrackArtwork = ":/icons/default-track";
+    inline const QString AlbumArtwork = ":/icons/default-album";
 }
 
 namespace Constants::FileFilters {

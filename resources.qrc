@@ -9,4 +9,8 @@
         <file alias="album.sql">src/sql/album.sql</file>
         <file alias="genre.sql">src/sql/genre.sql</file>
     </qresource>
+    <qresource prefix="/icons">
+        <file alias="default-track">src/icons/default-track-icon.jpg</file>
+        <file alias="default-album">src/icons/default-album-icon.jpg</file>
+    </qresource>
 </RCC>

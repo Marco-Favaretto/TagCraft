@@ -10,6 +10,7 @@ class AlbumDao {
 public:
     static bool insert(Album& album);
     static bool update(const Album& album);
+    static bool updateCoverAlbum(const QString& hash, int id);
     static bool deleteById(int id);
     static bool drop();
 

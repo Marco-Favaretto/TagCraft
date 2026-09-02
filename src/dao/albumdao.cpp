@@ -265,3 +265,24 @@ bool AlbumDao::drop() {
     }
     return SqlExecutor::execute(query, {});
 }
+
+bool AlbumDao::updateCoverAlbum(const QString& hash, int id) {
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Album);
+    const QString queryString = queries.value("updateCoverAlbum");
+
+    if (queryString.isEmpty()) {
+        qCritical() << "Query 'update' non trovata in album.sql";
+        return false;
+    }
+
+    QSqlQuery query;
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return false;
+    }
+
+    return SqlExecutor::execute(query, {
+        {":id", id},
+        {":cover_cache_hash", hash}
+    });
+}

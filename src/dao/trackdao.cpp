@@ -340,3 +340,22 @@ QList<Track> TrackDao::getUnknownAlbumOfArtist(int artistId) {
     }
     return tracks;
 }
+
+QList<FirstTrackCovers> TrackDao::getFirstTrackCovers() {
+    QList<FirstTrackCovers> list;
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Track);
+    const QString queryString = queries.value("getFirstTrackCovers");
+    if (queryString.isEmpty()) return list;
+
+    QSqlQuery query;
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return list;
+    }
+    if (SqlExecutor::execute(query, {})) {
+        while (query.next()) {
+            list.append(EntityMapper::toDtoFirstTrackCover(query));
+        }
+    }
+    return list;
+}

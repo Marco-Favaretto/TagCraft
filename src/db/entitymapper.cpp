@@ -73,3 +73,12 @@ TrackFileSystemDto EntityMapper::trackDtoToTFSDto(const TrackDto& trackDto) {
 
     return dto;
 }
+
+FirstTrackCovers EntityMapper::toDtoFirstTrackCover(const QSqlQuery& query) {
+    FirstTrackCovers ftc;
+
+    ftc.albumId = query.value("t.album_id").toInt();
+    ftc.hashCoverFirstTrack = query.value("t.track_cover_hash").toString();
+
+    return ftc;
+}

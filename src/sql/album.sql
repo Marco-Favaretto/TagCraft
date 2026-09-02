@@ -69,3 +69,8 @@ ORDER BY title ASC;
 
 -- name: drop
 DELETE FROM album;
+
+-- name: updateCoverAlbum
+UPDATE album
+SET cover_cache_hash = :cover_cache_hash
+where id = :id;

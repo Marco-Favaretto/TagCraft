@@ -7,6 +7,7 @@
 #include "model/genre.h"
 #include "dto/trackfilesystemdto.h"
 #include "dto/trackdto.h"
+#include "dto/firsttrackcovers.h"
 
 #include <QSqlQuery>
 
@@ -20,6 +21,7 @@ public:
     static Genre toEntityGenre(const QSqlQuery&);
     static TrackFileSystemDto trackToTFSDto(const Track& track);
     static TrackFileSystemDto trackDtoToTFSDto(const TrackDto& trackDto);
+    static FirstTrackCovers toDtoFirstTrackCover(const QSqlQuery&);
 };
 
 #endif // ENTITYMAPPER_H
