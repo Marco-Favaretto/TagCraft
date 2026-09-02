@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget* parent)
 
     m_sidebar = new NavigationSidebar(this);
     m_itemTable = new ItemTableView(m_appController->library(), this);
-    m_details = new DetailsPanel(m_appController->library(), this);
+    m_details = new DetailsPanel(m_appController->library(), m_appController->metadata(), this);
 
     setupUi();
     setupConnections();
