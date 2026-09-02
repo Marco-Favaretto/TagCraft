@@ -26,7 +26,10 @@ ItemTableView::ItemTableView(LibraryController* library, QWidget* parent)
     m_tableView->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_tableView->setSelectionMode(QAbstractItemView::SingleSelection);
     m_tableView->setEditTriggers(QAbstractItemView::NoEditTriggers); // sola lettura
-    m_tableView->horizontalHeader()->setStretchLastSection(true);
+
+    m_tableView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+    // m_tableView->horizontalHeader()->setStretchLastSection(true);
     m_tableView->verticalHeader()->setVisible(false);
     m_tableView->installEventFilter(this);
 
@@ -51,8 +54,8 @@ void ItemTableView::activateModel(AbstractLibraryTableModel* model, ViewMode mod
             this, &ItemTableView::onCurrentRowChanged, Qt::UniqueConnection);
 
     m_tableView->resizeColumnsToContents();
-    m_tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);
-    m_tableView->horizontalHeader()->setStretchLastSection(true);
+    m_tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);  
+    m_tableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
 }
 
 void ItemTableView::setTracks(const QList<Track>& tracks) {
