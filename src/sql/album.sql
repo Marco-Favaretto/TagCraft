@@ -74,3 +74,8 @@ DELETE FROM album;
 UPDATE album
 SET cover_cache_hash = :cover_cache_hash
 where id = :id;
+
+-- name: getByRelativePath
+select id, title, artist_id, year, relative_path, cover_cache_hash
+from album
+where relative_path = :relative_path;

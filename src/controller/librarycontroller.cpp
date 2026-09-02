@@ -77,9 +77,13 @@ Album LibraryController::createAlbumFromTracks(const QList<Track>& tracks) const
     return album;
 }
 
-
 QList<Track> LibraryController::getUnknownAlbumOfArtist(int artistId) const {
     return TrackDao::getUnknownAlbumOfArtist(artistId);
+}
+
+
+std::optional<Album> LibraryController::getAlbumByPath(const QString& relativePath) const {
+    return AlbumDao::getByRelativePath(relativePath);
 }
 
 // Tracks
@@ -111,6 +115,14 @@ QList<Track> LibraryController::getTracksByGenre(int genreId) const {
 
 QList<Track> LibraryController::searchTracks(const QString& keyword) const {
     return TrackDao::searchByKeyword(keyword);
+}
+
+QList<Track> LibraryController::getTracksByAlbumRPath(const QString& albumRelativePath) const {
+    return TrackDao::getTracksByAlbumRPath(albumRelativePath);
+}
+
+QList<QString> LibraryController::getRPathTracksFromAlbumRPath(const QString& albumRelativePath) const {
+    return TrackDao::getRPathTracksFromAlbumRPath(albumRelativePath);
 }
 
 // genre

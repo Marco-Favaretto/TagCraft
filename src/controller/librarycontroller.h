@@ -22,6 +22,7 @@ public:
 
     QList<Album> getAllAlbums() const;
     std::optional<Album> getAlbumById(int albumId) const;
+    std::optional<Album> getAlbumByPath(const QString& relativePath) const;
     QList<Album> getAlbumsByArtist(int artistId) const;
     QList<Album> searchAlbums(const QString& keyword) const;
     int getAlbumDurationSeconds(int albumId) const;
@@ -34,6 +35,8 @@ public:
     std::optional<Track> getTrackByRelativePath(const QString& relativePath) const;
     
     QList<Track> getTracksByAlbum(int albumId) const;
+    QList<Track> getTracksByAlbumRPath(const QString& albumRelativePath) const;
+    QList<QString> getRPathTracksFromAlbumRPath(const QString& albumRelativePath) const;
     QList<Track> getTracksByArtist(int artistId) const;
     QList<Track> getTracksByGenre(int genreId) const;
     QList<Track> searchTracks(const QString& keyword) const;

@@ -15,6 +15,7 @@ public:
     static bool drop();
 
     static std::optional<Album> findById(int id);
+    static std::optional<Album> getByRelativePath(const QString& relativePath);
     static std::optional<Album> getByTitleAndArtist(const QString& title, int artistId);
     static std::optional<Album> getByTitleAndRelativePath(const QString& title, const QString& relativePath);
     static std::optional<Album> getOrCreate(const QString& title, const QString& trackRelativePath, int artistId, std::optional<int> year);

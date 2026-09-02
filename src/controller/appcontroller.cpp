@@ -13,6 +13,8 @@
 #include <QDesktopServices>
 #include <QFileInfo>
 #include <QUrl>
+#include <QDir>
+#include <QFile>
 
 AppController::AppController(QObject* parent) : QObject(parent) {}
 
@@ -276,5 +278,23 @@ void AppController::openFS(const QString& relativePath, bool isAlbum) {
 }
 
 void AppController::deleteFromFS(const QString& relativePath, bool isAlbum) {
-    QString absolutePath = m_storageController->resolveToAbsolutePath(relativePath);
+    const QString absolutePath = m_storageController->resolveToAbsolutePath(relativePath);
+    QList<QString> list;
+    bool success = false;
+    if (isAlbum) {
+        QDir dir(absolutePath);
+        success = dir.removeRecursively();
+        list = m_libraryController->getRPathTracksFromAlbumRPath(relativePath);
+    } else {
+        success = QFile::remove(absolutePath);
+        list.append(relativePath);
+    }
+
+    qDebug() << "Allineamento db";
+    if(!m_databaseController->deleteNewTracks(list)) emit errorOccurred("Sincronizzazione db fallita");
+    else emit libraryUpdated();
+
+    if (!success) {
+        qWarning() << "Impossibile eliminare:" << absolutePath;
+    }
 }

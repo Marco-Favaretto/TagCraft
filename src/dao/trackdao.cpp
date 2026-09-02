@@ -359,3 +359,52 @@ QList<FirstTrackCovers> TrackDao::getFirstTrackCovers() {
     }
     return list;
 }
+
+
+QList<Track> TrackDao::getTracksByAlbumRPath(const QString& relativePath) {
+    QList<Track> tracks;
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Track);
+    const QString queryString = queries.value("getTracksByAlbumRPath");
+
+    if (queryString.isEmpty()) {
+        qCritical() << "Query 'getTracksByAlbumRPath' non trovata in track.sql";
+        return tracks;
+    }
+
+    QSqlQuery query;
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return tracks;
+    }
+
+    if (SqlExecutor::execute(query, { {":relative_path", relativePath} })) {
+        while (query.next()) {
+            tracks.push_back(EntityMapper::toEntityTrack(query));
+        }
+    }
+    return tracks;
+}
+
+QList<QString> TrackDao::getRPathTracksFromAlbumRPath(const QString& albumRelativePath) {
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Track);
+    const QString queryString = queries.value("getRPathTracksFromAlbumRPath");
+
+    if (queryString.isEmpty()) {
+        qCritical() << "Query 'getRPathTracksFromAlbumRPath' non trovata in track.sql";
+        return {};
+    }
+
+    QSqlQuery query;
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return {};
+    }
+
+    QList<QString> paths;
+    if (SqlExecutor::execute(query, { {":relative_path", albumRelativePath} })) {
+        while (query.next()) {
+            paths.append(query.value("relative_path").toString());
+        }
+    }
+    return paths;
+}

@@ -286,3 +286,30 @@ bool AlbumDao::updateCoverAlbum(const QString& hash, int id) {
         {":cover_cache_hash", hash}
     });
 }
+
+
+std::optional<Album> AlbumDao::getByRelativePath(const QString& relativePath) {
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Album);
+    const QString queryString = queries.value("getByRelativePath");
+
+    if (queryString.isEmpty()) {
+        qCritical() << "Query 'findById' non trovata in album.sql";
+        return std::nullopt;
+    }
+
+    QSqlQuery query;
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return std::nullopt;
+    }
+
+    if (SqlExecutor::execute(query, {
+        {":relative_path", relativePath}
+    })) {
+        if (query.next()) {
+            return EntityMapper::toEntityAlbum(query);
+        }
+    }
+
+    return std::nullopt;
+}

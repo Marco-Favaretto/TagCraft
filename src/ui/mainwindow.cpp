@@ -3,6 +3,7 @@
 #include <QStatusBar>
 #include <QMessageBox>
 #include <QKeyEvent>
+
 #include "storage/storagemanager.h"
 #include "dto/constants.h"
 
@@ -236,5 +237,20 @@ void MainWindow::openFS(const QString& relativePath, bool isAlbum) {
 }
 
 void MainWindow::deleteFromFS(const QString& relativePath, bool isAlbum) {
+if (relativePath.isEmpty()) {
+        return;
+    }
 
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(
+        this,
+        tr("Conferma eliminazione"),
+        tr("Stai per cancellare %1. Continuare?").arg(relativePath),
+        QMessageBox::Ok | QMessageBox::Cancel,
+        QMessageBox::Cancel // Pulsante predefinito
+    );
+
+    if (reply == QMessageBox::Ok) {
+        m_appController->deleteFromFS(relativePath, isAlbum);
+    }
 }

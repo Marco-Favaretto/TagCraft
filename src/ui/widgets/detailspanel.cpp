@@ -11,7 +11,16 @@ DetailsPanel::DetailsPanel(LibraryController* library, MetadataController* metad
     , openFileSystemButton(new QPushButton(this))
     , m_library(library)
     , m_metadata(metadata)
-{
+{   
+    setupUI();
+    
+    connect(deleteButton, &QPushButton::clicked, this, &DetailsPanel::deleteFromFSSlot);
+    connect(openFileSystemButton, &QPushButton::clicked, this, &DetailsPanel::openFSSlot);
+
+    clear();
+}
+
+void DetailsPanel::setupUI() {
     setMinimumWidth(250);
     
     m_artworkLabel->setAlignment(Qt::AlignCenter);
@@ -45,11 +54,6 @@ DetailsPanel::DetailsPanel(LibraryController* library, MetadataController* metad
     buttonsLayout->addWidget(deleteButton);
 
     m_mainLayout->addLayout(buttonsLayout);
-
-    connect(deleteButton, &QPushButton::clicked, this, &DetailsPanel::deleteFromFSSlot);
-    connect(openFileSystemButton, &QPushButton::clicked, this, &DetailsPanel::openFSSlot);
-
-    clear();
 }
 
 void DetailsPanel::rebuildForm(const QList<QPair<QString, QString>>& rows) {

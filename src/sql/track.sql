@@ -159,3 +159,13 @@ DELETE FROM track;
 select album_id, track_cover_hash
 from track
 where track_number = 1;
+
+-- name: getTracksByAlbumRPath
+select id, title, artist_id, album_id, genre_id, year, track_number, duration_seconds, relative_path, file_mtime, file_size, track_cover_hash
+from track t join album a on t.album_id = a.id 
+where a.relative_path = :relative_path 
+
+-- name: getRPathTracksFromAlbumRPath
+select relative_path
+from track t join album a on t.album_id = a.id 
+where a.relative_path = :relative_path 

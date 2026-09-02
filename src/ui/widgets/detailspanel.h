@@ -36,6 +36,7 @@ private slots:
     void deleteFromFSSlot();
 
 private:
+    void setupUI();
     void rebuildForm(const QList<QPair<QString, QString>>& rows);
     void showArtwork(const QString& hash, bool isAlbum);
     void showFSButtons(const QString& relativePath, bool isAlbum);
