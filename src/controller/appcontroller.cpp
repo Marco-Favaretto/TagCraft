@@ -188,30 +188,48 @@ void AppController::onFullScanFinished(const QList<TrackFileSystemDto>& list) {
     emit libraryUpdated();
 }
 
-// void AppController::resolveArtworkFor(const QList<TrackFileSystemDto>& tracks) {
-    //     for (const auto& t : tracks) {
-        //         QString hash = m_metadataController->resolveAndCacheArtwork(t.relativePath);
-        //         qDebug() << "path: " << t.relativePath << ", hash: " << hash;
-        //         if (!hash.isEmpty())
-        //             m_databaseController->updateTrackCoverHash(t.relativePath, hash);
-        //     }
-        // }
-        
+// QtConcurrent -> passa da 15m34 per 4k tracce a 4m
 void AppController::resolveArtworkFor(const QList<TrackFileSystemDto>& tracks) {
     struct Result {
         QString path;
         QString hash;
     };
 
+    // Mutex: un "lucchetto" che garantisce che solo UN thread alla volta
+    // possa eseguire il blocco di codice protetto da esso. Senza, se due
+    // thread scrivessero contemporaneamente su `results` (una QList, che
+    // NON è thread-safe), rischieresti corruzione di memoria o crash.
     QMutex mutex;
     QList<Result> results;
+    QThreadPool pool;
+    pool.setMaxThreadCount(qMax(1, QThread::idealThreadCount() - 1));
 
+    // blockingMap: prende la lista `tracks` e applica la lambda a ogni
+    // elemento, distribuendo il lavoro su un pool di thread gestito
+    // automaticamente da Qt (di solito quanti sono i core della CPU).
+    // "blocking" significa che questa chiamata NON ritorna finché TUTTI
+    // gli elementi non sono stati processati — il thread principale (UI)
+    // resta fermo qui ad aspettare, esattamente come una chiamata sincrona
+    // normale, solo che il lavoro viene svolto in parallelo internamente.
     QtConcurrent::blockingMap(
+        &pool,
         tracks,
+        // Questa lambda viene eseguita N volte in parallelo (una per
+        // traccia), CIASCUNA su un thread diverso del pool. Non hai
+        // controllo su quale traccia va su quale thread, né sull'ordine.
         [this, &mutex, &results](const TrackFileSystemDto& track) {
-            const QString hash =
-                m_metadataController->resolveAndCacheArtwork(track.relativePath);
+            // Questa parte è quella "costosa" (I/O su disco, TagLib,
+            // calcolo hash, scrittura file thumbnail) — è il motivo per
+            // cui vale la pena parallelizzarla: ogni traccia è indipendente
+            // dalle altre, nessuna ha bisogno del risultato di un'altra.
+            const QString hash = m_metadataController->resolveAndCacheArtwork(track.relativePath);
 
+            // QMutexLocker: acquisisce il lucchetto (mutex) all'inizio
+            // dello scope e lo rilascia automaticamente alla fine dello
+            // scope (fine del blocco `if`) — stesso principio RAII di
+            // TransactionManager che avevamo usato per le transazioni DB.
+            // Qui è indispensabile perché stiamo per modificare
+            // `results`, che è condivisa da tutti i thread.
             if (!hash.isEmpty()) {
                 QMutexLocker locker(&mutex);
                 results.append({track.relativePath, hash});
