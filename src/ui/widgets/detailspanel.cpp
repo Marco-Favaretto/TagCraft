@@ -7,6 +7,8 @@ DetailsPanel::DetailsPanel(LibraryController* library, MetadataController* metad
     , m_mainLayout(new QVBoxLayout(this))
     , m_formLayout(new QFormLayout(this))
     , m_artworkLabel(new QLabel(this))
+    , deleteButton(new QPushButton(this))
+    , openFileSystemButton(new QPushButton(this))
     , m_library(library)
     , m_metadata(metadata)
 {
@@ -27,6 +29,25 @@ DetailsPanel::DetailsPanel(LibraryController* library, MetadataController* metad
 
     m_mainLayout->addLayout(m_formLayout);
     m_mainLayout->addStretch();
+    
+    openFileSystemButton->setIcon(QIcon(":/icons/folder"));
+    openFileSystemButton->setIconSize(QSize(24, 24));
+    openFileSystemButton->setToolTip("Apri nel File System");
+
+    deleteButton->setIcon(QIcon(":/icons/trash"));
+    deleteButton->setIconSize(QSize(24, 24));
+    deleteButton->setToolTip("Elimina");
+
+    QHBoxLayout* buttonsLayout = new QHBoxLayout();
+    buttonsLayout->setContentsMargins(0, 0, 0, 0);
+    buttonsLayout->setSpacing(10);
+    buttonsLayout->addWidget(openFileSystemButton);
+    buttonsLayout->addWidget(deleteButton);
+
+    m_mainLayout->addLayout(buttonsLayout);
+
+    connect(deleteButton, &QPushButton::clicked, this, &DetailsPanel::deleteFromFSSlot);
+    connect(openFileSystemButton, &QPushButton::clicked, this, &DetailsPanel::openFSSlot);
 
     clear();
 }
@@ -62,6 +83,7 @@ void DetailsPanel::showTrack(const Track& track) {
         {"Duration:", formatDuration(track.durationSeconds().value_or(0))},
         {"File size:", formatFileSize(track.fileSize())},
     });
+    showFSButtons(track.relativePath(), false);
 }
 
 void DetailsPanel::showAlbum(const Album& album) {
@@ -74,6 +96,7 @@ void DetailsPanel::showAlbum(const Album& album) {
         {"Duration:", formatDuration(durationSeconds)},
         {"Path:", album.relativePath() == Constants::DefaultValues::AlbumPath ? "-" : album.relativePath() }
     });
+    showFSButtons(album.relativePath(), true);
 }
 
 void DetailsPanel::showArtist(const Artist& artist) {
@@ -107,6 +130,7 @@ void DetailsPanel::showGenre(const Genre& genre) {
 void DetailsPanel::clear() {
     m_artworkLabel->clear();
     m_artworkLabel->setVisible(false);
+    hideFSButtons();
     rebuildForm({});
 }
 
@@ -129,5 +153,32 @@ void DetailsPanel::showArtwork(const QString& hash, bool isAlbum) {
     } else {
         m_artworkLabel->clear();
         m_artworkLabel->setVisible(false);
+    }
+}
+
+void DetailsPanel::showFSButtons(const QString& relativePath, bool isAlbum) {
+    m_currentRelativePath = relativePath;
+    m_currentIsAlbum = isAlbum;
+
+    deleteButton->setVisible(true);
+    openFileSystemButton->setVisible(true);
+}
+
+void DetailsPanel::hideFSButtons() {
+    m_currentRelativePath.clear();
+    
+    deleteButton->setVisible(false);
+    openFileSystemButton->setVisible(false);
+}
+
+void DetailsPanel::openFSSlot() {
+    if (!m_currentRelativePath.isEmpty()) {
+        emit openFS(m_currentRelativePath, m_currentIsAlbum);
+    }
+}
+
+void DetailsPanel::deleteFromFSSlot() {
+    if (!m_currentRelativePath.isEmpty()) {
+        emit deleteFromFS(m_currentRelativePath, m_currentIsAlbum);
     }
 }

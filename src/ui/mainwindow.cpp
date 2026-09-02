@@ -78,6 +78,9 @@ void MainWindow::setupConnections() {
             this, &MainWindow::onFullScanClicked);
     connect(m_resetAndRebuildDb, &QPushButton::clicked,
             this, &MainWindow::onResetDbClicked);
+
+    connect(m_details, &DetailsPanel::openFS, this, &MainWindow::openFS);
+    connect(m_details, &DetailsPanel::deleteFromFS, this, &MainWindow::deleteFromFS);
 }
 
 void MainWindow::onSectionSelected(NavigationSection section) {
@@ -226,4 +229,12 @@ void MainWindow::navigateUp() {
         default:
             break;
     }
+}
+
+void MainWindow::openFS(const QString& relativePath, bool isAlbum) {
+    m_appController->openFS(relativePath, isAlbum);
+}
+
+void MainWindow::deleteFromFS(const QString& relativePath, bool isAlbum) {
+
 }

@@ -32,7 +32,9 @@ private slots:
     void onSmartScanClicked();
     void onFullScanClicked();
     void onResetDbClicked();
-
+    
+    void openFS(const QString& relativePath, bool isAlbum);
+    void deleteFromFS(const QString& relativePath, bool isAlbum);
 protected:
     bool eventFilter(QObject* watched, QEvent* event) override;
 

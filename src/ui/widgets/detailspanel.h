@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QFormLayout>
 #include <QVBoxLayout>
+#include <QPushButton>
 
 #include "model/track.h"
 #include "model/album.h"
@@ -19,6 +20,10 @@ class DetailsPanel : public QWidget {
 public:
     explicit DetailsPanel(LibraryController* library, MetadataController* metadata, QWidget* parent = nullptr);
 
+signals:
+    void openFS(const QString& relativePath, bool isAlbum);
+    void deleteFromFS(const QString& relativePath, bool isAlbum);
+
 public slots:
     void showTrack(const Track& track);
     void showAlbum(const Album& album);
@@ -26,18 +31,32 @@ public slots:
     void showGenre(const Genre& genre);
     void clear();
 
+private slots:
+    void openFSSlot();
+    void deleteFromFSSlot();
+
 private:
     void rebuildForm(const QList<QPair<QString, QString>>& rows);
     void showArtwork(const QString& hash, bool isAlbum);
+    void showFSButtons(const QString& relativePath, bool isAlbum);
+    void hideFSButtons();
+
     static QString formatDuration(int totalSeconds);
     static QString formatFileSize(qint64 bytes);
+
+    LibraryController* m_library; // non posseduto, di proprieta' di AppController
+    MetadataController* m_metadata;
 
     QVBoxLayout* m_mainLayout;
     QFormLayout* m_formLayout;
     QLabel* m_artworkLabel;
+    QPushButton* deleteButton;
+    QPushButton* openFileSystemButton;
+
+    QString m_currentRelativePath;
+    bool m_currentIsAlbum = false;
     int m_lastRowCount = 0;
-    LibraryController* m_library; // non posseduto, di proprieta' di AppController
-    MetadataController* m_metadata;
+
 };
 
 #endif // DETAILSPANEL_H

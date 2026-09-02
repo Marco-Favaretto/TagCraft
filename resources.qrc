@@ -12,5 +12,7 @@
     <qresource prefix="/icons">
         <file alias="default-track">src/icons/default-track-icon.jpg</file>
         <file alias="default-album">src/icons/default-album-icon.jpg</file>
+        <file alias="trash">src/icons/iamtrash.jpg</file>
+        <file alias="folder">src/icons/folder-icon.jpg</file>
     </qresource>
 </RCC>

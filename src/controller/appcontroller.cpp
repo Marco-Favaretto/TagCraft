@@ -10,6 +10,9 @@
 #include <QImage>
 #include <QMutex>
 #include <QtConcurrent>
+#include <QDesktopServices>
+#include <QFileInfo>
+#include <QUrl>
 
 AppController::AppController(QObject* parent) : QObject(parent) {}
 
@@ -242,4 +245,36 @@ void AppController::resolveArtworkFor(const QList<TrackFileSystemDto>& tracks) {
             result.path,
             result.hash);
     }
+}
+
+void AppController::openFS(const QString& relativePath, bool isAlbum) {
+    const QString absolutePath = m_storageController->resolveToAbsolutePath(relativePath);
+    QFileInfo fileInfo(absolutePath);
+    if (!fileInfo.exists()) {
+        qWarning() << "Path non esiste:" << absolutePath;
+        return;
+    }
+
+    QString directoryPath;
+    if (isAlbum) {
+        if (!fileInfo.isDir()) {
+            qWarning() << "errore nel path:" << absolutePath;
+            return;
+        }
+        directoryPath = fileInfo.absoluteFilePath();
+    } else {
+        if (!fileInfo.isFile()) {
+            qWarning() << "Expected file, got:" << absolutePath;
+            return;
+        }
+        directoryPath = fileInfo.absolutePath();
+    }
+
+    if (!QDesktopServices::openUrl(QUrl::fromLocalFile(directoryPath))) {
+        qWarning() << "Impossibile aprire file manager:" << directoryPath;
+    }
+}
+
+void AppController::deleteFromFS(const QString& relativePath, bool isAlbum) {
+    QString absolutePath = m_storageController->resolveToAbsolutePath(relativePath);
 }

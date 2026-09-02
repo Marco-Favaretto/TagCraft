@@ -32,6 +32,9 @@ public slots:
     void requestResetDb();
     void requestResetAndRebuildDb();
 
+    void openFS(const QString& relativePath, bool isAlbum);
+    void deleteFromFS(const QString& relativePath, bool isAlbum);
+
     // void requestDownload(const QString& url);
 
 signals:
