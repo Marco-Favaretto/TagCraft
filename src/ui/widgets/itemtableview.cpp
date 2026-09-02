@@ -53,9 +53,22 @@ void ItemTableView::activateModel(AbstractLibraryTableModel* model, ViewMode mod
     connect(m_tableView->selectionModel(), &QItemSelectionModel::currentRowChanged,
             this, &ItemTableView::onCurrentRowChanged, Qt::UniqueConnection);
 
-    m_tableView->resizeColumnsToContents();
-    m_tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);  
-    m_tableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    // m_tableView->resizeColumnsToContents();
+    // m_tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);  
+    // m_tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    
+    // m_tableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+
+    
+    QHeaderView* header = m_tableView->horizontalHeader();
+    header->setSectionResizeMode(QHeaderView::Interactive);
+
+    if (mode == ViewMode::Tracks) {
+        header->setSectionResizeMode(3, QHeaderView::ResizeToContents); // Column #
+        header->setSectionResizeMode(4, QHeaderView::ResizeToContents); // Column Year
+    }
+
+    header->setSectionResizeMode(0, QHeaderView::Stretch);
 }
 
 void ItemTableView::setTracks(const QList<Track>& tracks) {
