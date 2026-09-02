@@ -29,7 +29,6 @@ ItemTableView::ItemTableView(LibraryController* library, QWidget* parent)
 
     m_tableView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    // m_tableView->horizontalHeader()->setStretchLastSection(true);
     m_tableView->verticalHeader()->setVisible(false);
     m_tableView->installEventFilter(this);
 
@@ -52,13 +51,6 @@ void ItemTableView::activateModel(AbstractLibraryTableModel* model, ViewMode mod
 
     connect(m_tableView->selectionModel(), &QItemSelectionModel::currentRowChanged,
             this, &ItemTableView::onCurrentRowChanged, Qt::UniqueConnection);
-
-    // m_tableView->resizeColumnsToContents();
-    // m_tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Interactive);  
-    // m_tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-    
-    // m_tableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
-
     
     QHeaderView* header = m_tableView->horizontalHeader();
     header->setSectionResizeMode(QHeaderView::Interactive);
