@@ -22,6 +22,7 @@ public:
     bool updateNewTracks(const QList<TrackFileSystemDto>&);
     bool deleteNewTracks(const QList<QString>&);
     bool deleteOrphans();
+    bool syncAlbumCovers();
 
     bool updateTrackCoverHash(const QString& relativePath, const QString& hash);
 

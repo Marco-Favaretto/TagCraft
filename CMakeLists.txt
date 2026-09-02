@@ -8,7 +8,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-find_package(Qt6 6.5 REQUIRED COMPONENTS Core Gui Sql Widgets)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Gui Sql Widgets Concurrent)
 
 # Gestione TagLib (su Arch Linux la configurazione CMake/PkgConfig è nativa)
 find_package(TagLib NO_MODULE QUIET)
@@ -127,6 +127,7 @@ target_include_directories(TagCraft
 target_link_libraries(TagCraft
     PRIVATE
         Qt6::Core
+        Qt6::Concurrent
         Qt6::Gui
         Qt6::Sql
         Qt6::Widgets

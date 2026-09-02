@@ -8,6 +8,8 @@
 #include "dto/constants.h"
 
 #include <QImage>
+#include <QMutex>
+#include <QtConcurrent>
 
 AppController::AppController(QObject* parent) : QObject(parent) {}
 
@@ -63,6 +65,8 @@ void AppController::setupConnections() {
 }
 
 LibraryController* AppController::library() const { return m_libraryController; }
+
+MetadataController* AppController::metadata() const { return m_metadataController; }
 
 void AppController::requestScan(const QString& path) {
     m_storageController->runScan(path);
@@ -122,11 +126,15 @@ void AppController::requestSetCoverBatch(const QList<QString>& relativePaths, co
 }
 
 void AppController::onScanFinished(const ScanResultDto& result) {
+    qDebug() << "SmartScan Terminata, sincronizzazione DB";
+
     if (!result.newTracks.isEmpty()) {
         if (!m_databaseController->insertNewTracks(result.newTracks))
             emit errorOccurred("Inserimento nuove tracce fallito");
-        else
+        else{
+            qDebug() << "Risoluzione copertine tracce nuove";
             resolveArtworkFor(result.newTracks);
+        }
     }
 
     if (!result.modifiedTracks.isEmpty()) {
@@ -138,6 +146,10 @@ void AppController::onScanFinished(const ScanResultDto& result) {
 
     if (!result.deletedTracks.isEmpty() && !m_databaseController->deleteNewTracks(result.deletedTracks))
         emit errorOccurred("Eliminazione tracce fallito");
+
+    qDebug() << "Associazione copertina prima traccia con copertina album";
+    if(!m_databaseController->syncAlbumCovers())
+        emit errorOccurred("Sincronizzazione cover album fallita");
 
     emit libraryUpdated();
 }
@@ -163,16 +175,53 @@ void AppController::requestResetAndRebuildDb() {
 }
 
 void AppController::onFullScanFinished(const QList<TrackFileSystemDto>& list) {
-    if (!m_databaseController->insertNewTracks(list))
+    if (!m_databaseController->insertNewTracks(list)) {
         emit errorOccurred("Ricostruzione database fallita");
-    else
-        emit libraryUpdated();
+    } else {
+        qDebug() << "Risoluzione copertine tracce nuove";
+        resolveArtworkFor(list);
+        qDebug() << "Associazione copertina prima traccia con copertina album";
+        if (!m_databaseController->syncAlbumCovers())
+            emit errorOccurred("Sincronizzazione cover album fallita");
+    }
+    
+    emit libraryUpdated();
 }
 
+// void AppController::resolveArtworkFor(const QList<TrackFileSystemDto>& tracks) {
+    //     for (const auto& t : tracks) {
+        //         QString hash = m_metadataController->resolveAndCacheArtwork(t.relativePath);
+        //         qDebug() << "path: " << t.relativePath << ", hash: " << hash;
+        //         if (!hash.isEmpty())
+        //             m_databaseController->updateTrackCoverHash(t.relativePath, hash);
+        //     }
+        // }
+        
 void AppController::resolveArtworkFor(const QList<TrackFileSystemDto>& tracks) {
-    for (const auto& t : tracks) {
-        QString hash = m_metadataController->resolveAndCacheArtwork(t.relativePath);
-        if (!hash.isEmpty())
-            m_databaseController->updateTrackCoverHash(t.relativePath, hash);
+    struct Result {
+        QString path;
+        QString hash;
+    };
+
+    QMutex mutex;
+    QList<Result> results;
+
+    QtConcurrent::blockingMap(
+        tracks,
+        [this, &mutex, &results](const TrackFileSystemDto& track) {
+            const QString hash =
+                m_metadataController->resolveAndCacheArtwork(track.relativePath);
+
+            if (!hash.isEmpty()) {
+                QMutexLocker locker(&mutex);
+                results.append({track.relativePath, hash});
+            }
+        }
+    );
+
+    for (const auto& result : results) {
+        m_databaseController->updateTrackCoverHash(
+            result.path,
+            result.hash);
     }
 }

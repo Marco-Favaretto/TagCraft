@@ -7,6 +7,7 @@
 #include <QString>
 #include <QList>
 #include <QByteArray>
+#include <QImage>
 
 class MetadataController : public QObject {
     Q_OBJECT
@@ -23,10 +24,16 @@ public:
     
     QByteArray resolveArtwork(const QString& relativePath) const;
     QString resolveAndCacheArtwork(const QString& relativePath);
+
+    std::optional<QImage> loadFromCache(const QString& hash) const;
+
 signals:
     void metadataSaved(const QString& relativePath);
     void metadataSaveFailed(const QString& relativePath, const QString& reason);
     void errorOccurred(const QString& message);
+
+private:
+    QString cachedArtworkPath(const QString& hash) const;
 };
 
 #endif // METADATACONTROLLER_H

@@ -8,8 +8,8 @@
 #include "dao/trackdao.h"
 #include "dto/trackdto.h"
 #include "utils/tagmapper.h"
-
 #include "dto/constants.h"
+#include "dto/firsttrackcovers.h"
 
 DatabaseController::DatabaseController(QObject* parent) : QObject(parent) {}
 
@@ -88,6 +88,7 @@ std::optional<Track> DatabaseController::insertTrackInternal(const TrackFileSyst
     track.setFileMtimeSecs(fsDto.lastModified);
     track.setFileSize(fsDto.fileSize);
     track.setDurationSeconds(tagDto.durationSeconds);
+    track.setTrackCoverHash(tagDto.coverHash);
 
     if (!TrackDao::insert(track)) return std::nullopt;
     return track;
@@ -154,4 +155,23 @@ int DatabaseController::resolveGenreId(const QString& name) {
     if (name.trimmed().isEmpty()) return Constants::DefaultValues::GenreId; // Unknown Genre
     auto genreOpt = GenreDao::getOrCreate(name);
     return genreOpt ? genreOpt->id() : Constants::DefaultValues::GenreId;
+}
+
+bool DatabaseController::syncAlbumCovers() {
+    auto& db = DatabaseManager::instance();
+    TransactionManager transaction(db);
+    if (!transaction.isStarted()) return false; // Impossibile avviare la transazione
+    
+    QList<FirstTrackCovers> list = TrackDao::getFirstTrackCovers();
+
+    int total = list.size();
+    int current = 0;
+
+    for (const auto& t : list) {
+        qDebug() << "id_album: " << t.albumId << ", hash: " << t.hashCoverFirstTrack;
+        if(!AlbumDao::updateCoverAlbum(t.hashCoverFirstTrack, t.albumId)) qDebug() << "errore nell'update della cover dell'album";
+        // emit persistProgress(++current, total);
+    }
+
+    return transaction.commit();
 }

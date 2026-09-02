@@ -33,11 +33,9 @@ bool MetadataController::cleanTags(const QString& relativePath) {
 QByteArray MetadataController::resolveArtwork(const QString& relativePath) const {
     QString absolutePath = StorageManager::instance().toAbsolutePath(relativePath);
 
-    // 1. APIC embedded nel file
     QByteArray embedded = TagMapper::extractEmbeddedCover(absolutePath);
     if (!embedded.isEmpty()) return embedded;
 
-    // 2. cover.jpg nella cartella dell'album
     QString albumDir = QFileInfo(absolutePath).absolutePath();
     QString coverPath = QDir(albumDir).filePath(Constants::Paths::CoverImageFileName);
     if (QFileInfo::exists(coverPath)) {
@@ -45,7 +43,6 @@ QByteArray MetadataController::resolveArtwork(const QString& relativePath) const
         if (file.open(QIODevice::ReadOnly)) return file.readAll();
     }
 
-    // 3. placeholder applicativo (nessun dato — la UI userà l'icona di default)
     return QByteArray();
 }
 
@@ -62,4 +59,23 @@ QString MetadataController::resolveAndCacheArtwork(const QString& relativePath) 
     ImageUtils::cacheArtwork(image, StorageManager::instance().artworkCacheDirectory());
 
     return hash;
+}
+
+
+std::optional<QImage> MetadataController::loadFromCache(const QString& hash) const {
+    if (hash.isEmpty()) return std::nullopt; // per ora, poi icona di default
+    const QString cacheDir = StorageManager::instance().artworkCacheDirectory();
+    const QString path = cachedArtworkPath(hash);
+    QImage image(path);
+    if (image.isNull()) return std::nullopt; // per ora, poi icona di default
+    return image;
+}
+
+QString MetadataController::cachedArtworkPath(const QString& hash) const {
+    const QString cacheDir = StorageManager::instance().artworkCacheDirectory();
+    const QString artworkPath = QDir(cacheDir).filePath(hash + ".jpg");
+
+    if (QFileInfo::exists(artworkPath)) return artworkPath;
+
+    return {};
 }

@@ -17,6 +17,7 @@ public:
     ~AppController() override = default;
 
     LibraryController* library() const;
+    MetadataController* metadata() const;
 
     bool initialize();
 

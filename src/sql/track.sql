@@ -156,6 +156,6 @@ WHERE id = :id;
 DELETE FROM track;
 
 -- name: getFirstTrackCovers
-select t.album_id, t.track_cover_hash
-from track t 
-where t.track_number = 1;
+select album_id, track_cover_hash
+from track
+where track_number = 1;
