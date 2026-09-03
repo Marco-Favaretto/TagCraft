@@ -27,6 +27,7 @@ public slots:
     void requestSaveMetadata(const QString& relativePath, const TrackDto& newValues);
     void requestSaveMetadataBatch(const QList<QString>& relativePaths, const TrackDto& newValues);
     void requestSetCover(const QString& relativePath, const QString& imagePath);
+    void requestCleanTags(const QString& relativePath);
     void requestRemoveCover(const QString& relativePath);
     void requestSetCoverBatch(const QList<QString>& relativePaths, const QString& imagePath);
 

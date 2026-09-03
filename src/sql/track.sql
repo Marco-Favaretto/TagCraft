@@ -169,3 +169,15 @@ where a.relative_path = :relative_path
 select relative_path
 from track t join album a on t.album_id = a.id 
 where a.relative_path = :relative_path 
+
+-- name: cleanTags
+UPDATE track
+SET 
+    title = '',
+    artist_id = 1,
+    album_id = 1,
+    genre_id = 1,
+    year = NULL,
+    track_number = NULL,
+    track_cover_hash = NULL
+where id = :id;

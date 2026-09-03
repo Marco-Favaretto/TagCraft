@@ -408,3 +408,23 @@ QList<QString> TrackDao::getRPathTracksFromAlbumRPath(const QString& albumRelati
     }
     return paths;
 }
+
+bool TrackDao::cleanTags(int id) {
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Track);
+    const QString queryString = queries.value("cleanTags");
+
+    if (queryString.isEmpty()) {
+        qCritical() << "Query 'updateCover' non trovata in track.sql";
+        return false;
+    }
+
+    QSqlQuery query;
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return false;
+    }
+
+    return SqlExecutor::execute(query, {
+        {":id", id}
+    });   
+}

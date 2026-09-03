@@ -267,11 +267,14 @@ void MainWindow::onEditRequested(ViewMode mode, int id) {
             EditMetadataDialog dialog(&model, m_appController->metadata(), this);
             if (dialog.exec() == QDialog::Accepted) {
                 const TrackDto dto = model.buildDto(dialog.changedValues());
-                m_appController->requestSaveMetadata(dto.relativePath, dto);
-                if (!dialog.stagedArtworkPath().isEmpty()) {
-                    m_appController->requestSetCover(dto.relativePath, dialog.stagedArtworkPath());
-                } else if (dialog.artworkRemoved()) {
-                    m_appController->requestRemoveCover(dto.relativePath);
+                if(dialog.cleanTags()) m_appController->requestCleanTags(dto.relativePath);
+                else {
+                    m_appController->requestSaveMetadata(dto.relativePath, dto);
+                    if (!dialog.stagedArtworkPath().isEmpty()) {
+                        m_appController->requestSetCover(dto.relativePath, dialog.stagedArtworkPath());
+                    } else if (dialog.artworkRemoved()) {
+                        m_appController->requestRemoveCover(dto.relativePath);
+                    }
                 }
             }
             break;

@@ -29,12 +29,14 @@ public:
     QHash<QString, QVariant> changedValues() const;
     QString stagedArtworkPath() const;
     bool artworkRemoved() const;
+    bool cleanTags() const;
 
 private slots:
     void onAnyFieldChanged();
     void onSaveClicked();
     void onChangeArtworkClicked();
     void onRemoveArtworkClicked();
+    void onCleanTagsClicked();
 
 private:
     void setupUi();
@@ -42,6 +44,7 @@ private:
     void showArtwork();
     bool hasChanges() const;
     QHash<QString, QVariant> collectChangedValues() const;
+    QHash<QString, QVariant> collectCleanTags() const;
 
     AbstractEditModel* m_model;
     MetadataController* m_metadata;
@@ -58,9 +61,11 @@ private:
 
     QPushButton* m_changeArtworkButton;
     QPushButton* m_removeArtworkButton;
+    QPushButton* m_cleanTagsButton;
 
     QString m_stagedArtworkPath;
     bool m_artworkRemoved = false;
+    bool m_cleanTags = false;
 };
 
 #endif // EDITMETADATADIALOG_H

@@ -15,6 +15,7 @@ EditMetadataDialog::EditMetadataDialog(AbstractEditModel* model,
     , m_artworkLabel(new QLabel(this))
     , m_changeArtworkButton(new QPushButton(tr("Cambia artwork"), this))
     , m_removeArtworkButton(new QPushButton(tr("Elimina artwork"), this))
+    , m_cleanTagsButton(new QPushButton(tr("Elimina tutti i metadati"), this))
     , m_formLayout(new QFormLayout())
     , m_buttonBox(new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel, this))
 {
@@ -26,8 +27,6 @@ EditMetadataDialog::EditMetadataDialog(AbstractEditModel* model,
 }
 
 void EditMetadataDialog::setupUi() {
-    // setMinimumWidth(360);
-
     switch(m_model->viewMode()) {
         case ViewMode::Tracks:
             setMinimumSize(QSize(500, 700));
@@ -65,12 +64,16 @@ void EditMetadataDialog::setupUi() {
     m_formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
     mainLayout->addLayout(m_formLayout);
 
-    mainLayout->addWidget(m_buttonBox);
-
+    auto* bottomButtonsLayout = new QHBoxLayout();
+    bottomButtonsLayout->addWidget(m_cleanTagsButton);
+    bottomButtonsLayout->addWidget(m_buttonBox);
     m_buttonBox->button(QDialogButtonBox::Save)->setEnabled(false);
+
+    mainLayout->addLayout(bottomButtonsLayout);
 
     connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
     connect(m_buttonBox, &QDialogButtonBox::accepted, this, &EditMetadataDialog::onSaveClicked);
+    connect(m_cleanTagsButton, &QPushButton::clicked, this, &EditMetadataDialog::onCleanTagsClicked);
 }
 
 void EditMetadataDialog::showArtwork() {
@@ -144,6 +147,8 @@ void EditMetadataDialog::buildForm() {
 }
 
 bool EditMetadataDialog::hasChanges() const {
+    if(cleanTags()) return true;
+
     if (!m_stagedArtworkPath.isEmpty() || m_artworkRemoved) return true;
 
     for (auto it = m_textEditors.constBegin(); it != m_textEditors.constEnd(); ++it) {
@@ -180,7 +185,9 @@ void EditMetadataDialog::onAnyFieldChanged() {
 }
 
 void EditMetadataDialog::onSaveClicked() {
-    const QHash<QString, QVariant> changed = collectChangedValues();
+    QHash<QString, QVariant> changed;
+    if (cleanTags()) changed = collectCleanTags();
+    else changed = collectChangedValues();
     const bool artworkChanged = !m_stagedArtworkPath.isEmpty() || m_artworkRemoved;
  
     if (changed.isEmpty() && !artworkChanged) return; // Non dovrebbe succedere (Save e' disabilitato), ma per sicurezza
@@ -264,4 +271,27 @@ QString EditMetadataDialog::stagedArtworkPath() const {
  
 bool EditMetadataDialog::artworkRemoved() const {
     return m_artworkRemoved;
+}
+
+void EditMetadataDialog::onCleanTagsClicked() {
+    m_cleanTags = true;
+    onAnyFieldChanged();
+}
+
+bool EditMetadataDialog::cleanTags() const {
+    return m_cleanTags;
+}
+
+QHash<QString, QVariant> EditMetadataDialog::collectCleanTags() const {
+    QHash<QString, QVariant> cleaned;
+
+    for (auto it = m_textEditors.constBegin(); it != m_textEditors.constEnd(); ++it) {
+        cleaned.insert(it.key(), QString());
+    }
+
+    for (auto it = m_intEditors.constBegin(); it != m_intEditors.constEnd(); ++it) {
+        cleaned.insert(it.key(), 0);
+    }
+
+    return cleaned;
 }

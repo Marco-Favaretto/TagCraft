@@ -13,6 +13,7 @@ public:
     static bool insert(Track& track);
     static bool update(const Track& track);
     static bool updateCover(int id, const QString& imagehash);
+    static bool cleanTags(int id);
     static bool deleteById(int id);
     static bool deleteByRelativePath(const QString& relativePath);
     static bool drop();
