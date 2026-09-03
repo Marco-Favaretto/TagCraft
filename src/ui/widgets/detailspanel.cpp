@@ -37,8 +37,11 @@ void DetailsPanel::setupUI() {
     m_formLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
 
     m_mainLayout->addLayout(m_formLayout);
-    m_mainLayout->addStretch();
-    
+    // m_mainLayout->addStretch();
+
+    openFileSystemButton->setFixedSize(42, 42);
+    deleteButton->setFixedSize(42, 42);
+
     openFileSystemButton->setIcon(QIcon(":/icons/folder"));
     openFileSystemButton->setIconSize(QSize(24, 24));
     openFileSystemButton->setToolTip("Apri nel File System");
@@ -54,6 +57,8 @@ void DetailsPanel::setupUI() {
     buttonsLayout->addWidget(deleteButton);
 
     m_mainLayout->addLayout(buttonsLayout);
+
+    m_mainLayout->addStretch();
 }
 
 void DetailsPanel::rebuildForm(const QList<QPair<QString, QString>>& rows) {
