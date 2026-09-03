@@ -8,12 +8,25 @@ Try to keep the project organized with GitHub Actions, Issues and Project.
 
 ---
 
-## Version 0.2
+## Version history
+### version 0.1
+Core application functionalities implemented:
+- read tags
+- edit single track and multiple tracks
+- edit and read artwork
+### version 0.2
 The application runs and starts the UI. At the moment, the UI allows the user to navigate the music library following its hierarchy:
 
 Artist → Album → Track
 Genre → Track
 The user can navigate back through the hierarchy by pressing Backspace. A search function is also available, allowing the user to quickly find tracks, albums, artists, or genres.
+### version [0.3 - MVP](../../releases)
+UI displays artwork and three buttons on the Tracks view:
+1. Edit dialog (single track only): opens a dialog that allow user to edit: title, album name, artist name, genre, track number, year and artwork, or remove all tags
+2. Open the localtion of the track or album in the file system
+3. delete the location of the track or album selected from the file system
+
+The library updates automatically after these changes are done.
 
 ---
 
