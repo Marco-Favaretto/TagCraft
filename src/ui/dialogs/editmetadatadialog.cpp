@@ -4,6 +4,8 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 
+#include "dto/constants.h"
+
 EditMetadataDialog::EditMetadataDialog(AbstractEditModel* model,
                                        MetadataController* metadata,
                                        QWidget* parent)
@@ -79,13 +81,24 @@ void EditMetadataDialog::showArtwork() {
         imagePtr = m_metadata->loadFromCache(hash);
     }
 
-    if (!imagePtr) {
-        m_artworkLabel->clear();
-        m_artworkLabel->setVisible(false);
-        return;
+    QImage image;
+    switch(m_model->viewMode()) {
+        case ViewMode::Albums:
+            if(!imagePtr) image.load(Constants::Artwork::Album);
+            else image = *imagePtr;
+            break;
+        case ViewMode::Tracks:
+            if(!imagePtr) image.load(Constants::Artwork::Track);
+            else image = *imagePtr;
+            break;
+        case ViewMode::Artists:
+            image.load(Constants::Artwork::Artist);
+            break;
+        case ViewMode::Genres:
+            image.load(Constants::Artwork::Genre);
     }
 
-    QPixmap pixmap = QPixmap::fromImage(*imagePtr).scaled(
+    QPixmap pixmap = QPixmap::fromImage(image).scaled(
         QSize(160, 160),
         Qt::KeepAspectRatio,
         Qt::SmoothTransformation
