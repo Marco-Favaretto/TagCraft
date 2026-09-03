@@ -3,9 +3,7 @@
 * **GUI Framework:** Qt
 * **Database:** SQLite
 * **Database Interface:** Qt SQL
-* **Markup and Styling:** HTML, CSS
 * **Build System:** CMake
-* **Audio Downloader:** `yt-dlp`
 * **Metadata Library:** TagLib
 * **Target Platform:** Arch Linux (Maybe W11 in future)
 
@@ -69,10 +67,6 @@ Rules:
 * Identify cached images using a content hash.
 * Store only the artwork hash/reference in SQLite.
 
-## 2.4 File name patterns
-1. Depending of which tags are valued, the file name pattern is: `{track_numer} - {artist name} - {album name} - {title}.mp3`
-2. if the file name does not respect the tags' values, the application will ask if it can rename the file
-
 # 3. Functional Requirements
 ## 3.1 Library Scanning
 The application must:
@@ -95,7 +89,7 @@ Users must be able to:
 * Search and filter the library.
 * Sort tracks by title, artist, album, track number, or year.
 * Open a file's location in the system file manager.
-* Rename, move, and delete files.
+* Delete single file or whole album.
 * Refresh the library after external filesystem changes.
 
 ## 3.3 Metadata Management
@@ -103,7 +97,6 @@ The application must support reading and editing common ID3 metadata:
 * Title
 * Artist
 * Album
-* Album Artist
 * Genre
 * Year
 * Track number
@@ -111,7 +104,6 @@ The application must support reading and editing common ID3 metadata:
 
 Users must be able to:
 * View and edit metadata.
-* Save changes directly to the MP3.
 * Preserve metadata that was not modified.
 * Identify missing metadata.
 
@@ -126,32 +118,9 @@ Batch operations should include:
 * Editing metadata.
 * Changing artist, album, genre, year, etc.
 * Applying or removing artwork.
-* Renaming files using the pattern defined in `#2.4`.
 * Automatically extracting metadata from filenames.
 
 Before applying a batch operation, the application must clearly indicate which fields and files will be affected.
-
-## 3.5 Album and Track Ordering
-* Tracks within an album must have an explicit order based primarily on their track number.
-* If the track number is missing, fall back to alphanumeric filename/title ordering.
-* Users must be able to reorder tracks.
-* Reordering must update the track number in the ID3 metadata.
-* If filenames follow the configured naming pattern, affected filenames must be updated as well.
-
-Example:
-```text
-01 - Intro.mp3
-02 - Song A.mp3
-03 - Song B.mp3
-04 - Outro.mp3
-```
-After reordering:
-```text
-01 - Intro.mp3
-02 - Song B.mp3
-03 - Song A.mp3
-04 - Outro.mp3
-```
 
 ## 3.6 Album Artwork Management
 Users must be able to:
@@ -165,23 +134,11 @@ Users must be able to:
 ## 3.7 File Management
 Users must be able to:
 * Open files in the system file manager.
-* Rename files.
 * Delete files.
 * Perform these operations on multiple selected files where applicable.
 
 The library index must be updated after filesystem operations. \
 Destructive operations require confirmation.
-
-## 3.8 MP3 Download
-The application must integrate with `yt-dlp`. \
-Users must be able to:
-* Enter a supported URL.
-* Download one or multiple tracks.
-* Monitor download progress and logs.
-* Cancel downloads.
-
-Downloaded files must be automatically added to the library. \
-Download failures must be reported without crashing the application.
 
 # 4. UI Requirements
 ## 4.1 Main Layout
@@ -253,7 +210,6 @@ The metadata editor must:
 
 ## 4.3 Artwork Interaction
 The artwork preview must support
-* Click to view artwork.
 * Changing artwork by choosing it from the file system
 * Removing artwork.
 * Applying artwork to multiple selected tracks.
@@ -284,7 +240,6 @@ Each item in the central box will have a small button to open a modal that:
 * For multiple selected tracks
     * Batch edit metadata
     * Batch artwork operation
-    * Move
     * Delete
     * Save/Drop changes
 
@@ -294,7 +249,6 @@ The application must provide clear feedback for
 * Metadata changes.
 * Artwork changes.
 * File operations.
-* Downloads.
 * Database operations.
 
 Long-running operations must
@@ -326,16 +280,62 @@ The main objective would be to make the **library and application portable betwe
 Development would still be performed on the main machine. \
 The main unresolved dependency is `yt-dlp`, which may remain a system requirement rather than being bundled with the application.
 
-## 6.2 Drag and Drop Feature
+## 6.2 Edit Feature
+### Drag n Drop
 1. Drag and Drop Artwork feature (sidebar and modal):
     * Dragging an image onto an album.
     * Dragging an image onto a track.
     * Dropping an image directly onto the artwork preview.
     * Replacing existing artwork through drag and drop.
 2. Reordering tracks in list using drag and drop feature and visual indication of the drop position.
+### Excel like
+User can edit metadata directly from the table cells.
 
 ## 6.3 Sync with mp3
 Add data in model to keep track of which mp3 file is in the mp3. 
 
 ## 6.4 Dark mode
 Possibility to change with a toggle between light and dark mode, maybe using current system mode as default
+
+## 6.5 File name patterns
+1. Depending of which tags are valued, the file name pattern is (yet to be confirmed): `{track_numer} - {artist name} - {album name} - {title}.mp3` or `{artist} - {album} - {number} - {title}.mp3` (if track not part of album -> no `{track}`)
+2. if the file name does not respect the tags' values, the application will ask if it can rename the file
+3. include this feature in batch operations
+
+### 6.5.1 Album and Track Ordering
+* Tracks within an album must have an explicit order based primarily on their track number.
+* If the track number is missing, fall back to alphanumeric filename/title ordering.
+* Users must be able to reorder tracks.
+* Reordering must update the track number in the ID3 metadata.
+* If filenames follow the configured naming pattern, affected filenames must be updated as well.
+
+Example:
+```text
+01 - Intro.mp3
+02 - Song A.mp3
+03 - Song B.mp3
+04 - Outro.mp3
+```
+After reordering:
+```text
+01 - Intro.mp3
+02 - Song B.mp3
+03 - Song A.mp3
+04 - Outro.mp3
+```
+
+## 6.6 MP3 Download
+The application must integrate with `yt-dlp`. \
+Users must be able to:
+* Enter a supported URL.
+* Download one or multiple tracks.
+* Monitor download progress and logs.
+* Cancel downloads.
+
+Downloaded files must be automatically added to the library. \
+Download failures must be reported without crashing the application.
+
+This implies `yt-dlp` as a system requirement.
+
+## 6.7
+Users can open tracks in `Audacity` directly from the application for editing purposes. This feature requires `Audacity` to be installed on the host system.

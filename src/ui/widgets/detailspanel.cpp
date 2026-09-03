@@ -37,7 +37,6 @@ void DetailsPanel::setupUI() {
     m_formLayout->setRowWrapPolicy(QFormLayout::DontWrapRows);
 
     m_mainLayout->addLayout(m_formLayout);
-    // m_mainLayout->addStretch();
 
     openFileSystemButton->setFixedSize(42, 42);
     deleteButton->setFixedSize(42, 42);
