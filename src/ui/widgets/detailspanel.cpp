@@ -9,6 +9,7 @@ DetailsPanel::DetailsPanel(LibraryController* library, MetadataController* metad
     , m_artworkLabel(new QLabel(this))
     , deleteButton(new QPushButton(this))
     , openFileSystemButton(new QPushButton(this))
+    , openEditModalButton(new QPushButton(this))
     , m_library(library)
     , m_metadata(metadata)
 {   
@@ -16,6 +17,7 @@ DetailsPanel::DetailsPanel(LibraryController* library, MetadataController* metad
     
     connect(deleteButton, &QPushButton::clicked, this, &DetailsPanel::deleteFromFSSlot);
     connect(openFileSystemButton, &QPushButton::clicked, this, &DetailsPanel::openFSSlot);
+    connect(openEditModalButton, &QPushButton::clicked, this, &DetailsPanel::openEditModal);
 
     clear();
 }
@@ -40,6 +42,7 @@ void DetailsPanel::setupUI() {
 
     openFileSystemButton->setFixedSize(42, 42);
     deleteButton->setFixedSize(42, 42);
+    openEditModalButton->setFixedSize(42, 42);
 
     openFileSystemButton->setIcon(QIcon(":/icons/folder"));
     openFileSystemButton->setIconSize(QSize(24, 24));
@@ -49,11 +52,16 @@ void DetailsPanel::setupUI() {
     deleteButton->setIconSize(QSize(24, 24));
     deleteButton->setToolTip("Elimina");
 
+    openEditModalButton->setIcon(QIcon(":/icons/edit"));
+    openEditModalButton->setIconSize(QSize(24, 24));
+    openEditModalButton->setToolTip("Edit Metadata");
+
     QHBoxLayout* buttonsLayout = new QHBoxLayout();
     buttonsLayout->setContentsMargins(0, 0, 0, 0);
     buttonsLayout->setSpacing(10);
     buttonsLayout->addWidget(openFileSystemButton);
     buttonsLayout->addWidget(deleteButton);
+    buttonsLayout->addWidget(openEditModalButton);
 
     m_mainLayout->addLayout(buttonsLayout);
 

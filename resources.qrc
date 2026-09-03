@@ -16,5 +16,6 @@
         <file alias="genre">src/icons/genre-icon.jpg</file>
         <file alias="trash">src/icons/iamtrash.jpg</file>
         <file alias="folder">src/icons/folder-icon.jpg</file>
+        <file alias="edit">src/icons/edit-icon.jpg</file>
     </qresource>
 </RCC>

@@ -24,6 +24,7 @@ public:
 signals:
     void openFS(const QString& relativePath, bool isAlbum);
     void deleteFromFS(const QString& relativePath, bool isAlbum);
+    void openEditModal();
 
 public slots:
     void showTrack(const Track& track);
@@ -54,6 +55,7 @@ private:
     QLabel* m_artworkLabel;
     QPushButton* deleteButton;
     QPushButton* openFileSystemButton;
+    QPushButton* openEditModalButton;
 
     QString m_currentRelativePath;
     bool m_currentIsAlbum = false;
