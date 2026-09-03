@@ -11,6 +11,7 @@
 #include "model/album.h"
 #include "model/artist.h"
 #include "model/genre.h"
+#include "dto/viewmode.h"
 #include "controller/librarycontroller.h"
 #include "controller/metadatacontroller.h"
 
@@ -38,7 +39,7 @@ private slots:
 private:
     void setupUI();
     void rebuildForm(const QList<QPair<QString, QString>>& rows);
-    void showArtwork(const QString& hash, bool isAlbum);
+    void showArtwork(const QString& hash, ViewMode viewMode);
     void showFSButtons(const QString& relativePath, bool isAlbum);
     void hideFSButtons();
 

@@ -26,8 +26,10 @@ namespace Constants::Artwork {
     inline constexpr int ThumbnailMaxWidth = 500;
     inline constexpr int ThumbnailMaxHeight = 500;
     inline constexpr int JpegQuality = 90;
-    inline const QString TrackArtwork = ":/icons/default-track";
-    inline const QString AlbumArtwork = ":/icons/default-album";
+    inline const QString Track  = ":/icons/track";
+    inline const QString Artist = ":/icons/artist";
+    inline const QString Album  = ":/icons/album";
+    inline const QString Genre  = ":/icons/genre";
 }
 
 namespace Constants::FileFilters {

@@ -10,8 +10,10 @@
         <file alias="genre.sql">src/sql/genre.sql</file>
     </qresource>
     <qresource prefix="/icons">
-        <file alias="default-track">src/icons/default-track-icon.jpg</file>
-        <file alias="default-album">src/icons/default-album-icon.jpg</file>
+        <file alias="track">src/icons/track-icon.jpg</file>
+        <file alias="album">src/icons/album-icon.jpg</file>
+        <file alias="artist">src/icons/artist-icon.jpg</file>
+        <file alias="genre">src/icons/genre-icon.jpg</file>
         <file alias="trash">src/icons/iamtrash.jpg</file>
         <file alias="folder">src/icons/folder-icon.jpg</file>
     </qresource>

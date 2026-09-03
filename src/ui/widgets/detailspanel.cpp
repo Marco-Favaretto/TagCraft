@@ -86,7 +86,7 @@ QString DetailsPanel::formatFileSize(qint64 bytes) {
 }
 
 void DetailsPanel::showTrack(const Track& track) {
-    showArtwork(track.trackCoverHash() ? *(track.trackCoverHash()) : "", false);
+    showArtwork(track.trackCoverHash() ? *(track.trackCoverHash()) : "", ViewMode::Tracks);
     rebuildForm({
         {"Path:", track.relativePath()},
         {"Duration:", formatDuration(track.durationSeconds().value_or(0))},
@@ -96,7 +96,7 @@ void DetailsPanel::showTrack(const Track& track) {
 }
 
 void DetailsPanel::showAlbum(const Album& album) {
-    showArtwork(album.coverCacheHash() ? *(album.coverCacheHash()) : "", true);
+    showArtwork(album.coverCacheHash() ? *(album.coverCacheHash()) : "", ViewMode::Albums);
     const int trackCount = m_library->countTracksByAlbum(album.id());
     const int durationSeconds = m_library->getAlbumDurationSeconds(album.id());
 
@@ -109,9 +109,7 @@ void DetailsPanel::showAlbum(const Album& album) {
 }
 
 void DetailsPanel::showArtist(const Artist& artist) {
-    m_artworkLabel->clear();
-    m_artworkLabel->setVisible(false);
-
+    showArtwork("", ViewMode::Artists);
     const int albumCount = m_library->countAlbumsByArtist(artist.id());
     const int trackCount = m_library->countTracksByArtist(artist.id());
 
@@ -122,9 +120,7 @@ void DetailsPanel::showArtist(const Artist& artist) {
 }
 
 void DetailsPanel::showGenre(const Genre& genre) {
-    m_artworkLabel->clear();
-    m_artworkLabel->setVisible(false);
-
+    showArtwork("", ViewMode::Genres);
     const int artistCount = m_library->countArtistsByGenre(genre.id());
     const int albumCount = m_library->countAlbumsByGenre(genre.id());
     const int trackCount = m_library->getTracksByGenre(genre.id()).size();
@@ -143,13 +139,24 @@ void DetailsPanel::clear() {
     rebuildForm({});
 }
 
-void DetailsPanel::showArtwork(const QString& hash, bool isAlbum) {
+void DetailsPanel::showArtwork(const QString& hash, ViewMode viewMode) {
     QImage image;
     std::optional<QImage> imagePtr = m_metadata->loadFromCache(hash);
-    if(!imagePtr) {
-        if(isAlbum) image.load(Constants::Artwork::AlbumArtwork);
-        else image.load(Constants::Artwork::TrackArtwork);
-    } else image = *imagePtr;
+    switch(viewMode) {
+        case ViewMode::Albums:
+            if(!imagePtr) image.load(Constants::Artwork::Album);
+            else image = *imagePtr;
+            break;
+        case ViewMode::Tracks:
+            if(!imagePtr) image.load(Constants::Artwork::Track);
+            else image = *imagePtr;
+            break;
+        case ViewMode::Artists:
+            image.load(Constants::Artwork::Artist);
+            break;
+        case ViewMode::Genres:
+            image.load(Constants::Artwork::Genre);
+    }
 
     if (!image.isNull()) {
         QPixmap pixmap = QPixmap::fromImage(image).scaled(
