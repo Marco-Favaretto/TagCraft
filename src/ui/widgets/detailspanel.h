@@ -45,9 +45,6 @@ private:
     void showFSButtons(const QString& relativePath, bool isAlbum);
     void hideFSButtons();
 
-    static QString formatDuration(int totalSeconds);
-    static QString formatFileSize(qint64 bytes);
-
     LibraryController* m_library; // non posseduto, di proprieta' di AppController
     MetadataController* m_metadata;
 

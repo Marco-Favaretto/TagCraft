@@ -6,6 +6,8 @@
 
 #include "storage/storagemanager.h"
 #include "dto/constants.h"
+#include "ui/editmodels/trackeditmodel.h"
+#include "ui/dialogs/editmetadatadialog.h"
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
@@ -82,6 +84,7 @@ void MainWindow::setupConnections() {
 
     connect(m_details, &DetailsPanel::openFS, this, &MainWindow::openFS);
     connect(m_details, &DetailsPanel::deleteFromFS, this, &MainWindow::deleteFromFS);
+    connect(m_details, &DetailsPanel::editRequested, this, &MainWindow::onEditRequested);
 }
 
 void MainWindow::onSectionSelected(NavigationSection section) {
@@ -252,5 +255,27 @@ if (relativePath.isEmpty()) {
 
     if (reply == QMessageBox::Ok) {
         m_appController->deleteFromFS(relativePath, isAlbum);
+    }
+}
+
+void MainWindow::onEditRequested(ViewMode mode, int id) {
+    switch (mode) {
+        case ViewMode::Tracks:{
+            auto opt = m_appController->library()->getTrackById(id);
+            if (!opt) return;
+            TrackEditModel model(*opt, m_appController->library());
+            EditMetadataDialog dialog(&model, m_appController->metadata(), this);
+            if (dialog.exec() == QDialog::Accepted) {
+                const TrackDto dto = model.buildDto(dialog.changedValues());
+                m_appController->requestSaveMetadata(dto.relativePath, dto);
+            }
+            break;
+        }
+        case ViewMode::Albums:
+        case ViewMode::Artists:
+        case ViewMode::Genres:
+            // TODO: batch editing, non ancora implementato.
+            statusBar()->showMessage("Editing non ancora disponibile per questa vista", 3000);
+            break;
     }
 }

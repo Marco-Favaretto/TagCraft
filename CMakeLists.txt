@@ -73,6 +73,11 @@ qt_add_executable(TagCraft
     src/ui/models/genretablemodel.cpp
     src/ui/widgets/itemtableview.h
     src/ui/widgets/itemtableview.cpp
+    src/ui/editmodels/abstracteditmodel.h
+    src/ui/editmodels/trackeditmodel.h
+    src/ui/editmodels/trackeditmodel.cpp
+    src/ui/dialogs/editmetadatadialog.h
+    src/ui/dialogs/editmetadatadialog.cpp
     
     src/db/databasemanager.h
     src/db/databasemanager.cpp
@@ -102,6 +107,7 @@ qt_add_executable(TagCraft
     src/dto/searchresultdto.h
     src/dto/navigationsection.h
     src/dto/viewmode.h
+    src/dto/editfield.h
 
     src/controller/appcontroller.h
     src/controller/appcontroller.cpp
@@ -115,6 +121,8 @@ qt_add_executable(TagCraft
     src/controller/librarycontroller.cpp
     src/dto/constants.h
     src/dto/firsttrackcovers.h
+    src/utils/formatter.h
+    src/utils/formatter.cpp
 )
 
 target_include_directories(TagCraft

@@ -35,6 +35,8 @@ private slots:
     
     void openFS(const QString& relativePath, bool isAlbum);
     void deleteFromFS(const QString& relativePath, bool isAlbum);
+
+    void onEditRequested(ViewMode mode, int id);
 protected:
     bool eventFilter(QObject* watched, QEvent* event) override;
 

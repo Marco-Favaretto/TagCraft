@@ -1,6 +1,7 @@
 #include "detailspanel.h"
 
 #include "dto/constants.h"
+#include "utils/formatter.h"
 
 DetailsPanel::DetailsPanel(LibraryController* library, MetadataController* metadata, QWidget* parent)
     : QWidget(parent)
@@ -79,19 +80,6 @@ void DetailsPanel::rebuildForm(const QList<QPair<QString, QString>>& rows) {
     }
 }
 
-QString DetailsPanel::formatDuration(int totalSeconds) {
-    if (totalSeconds <= 0) return QString();
-    const int minutes = totalSeconds / 60;
-    const int seconds = totalSeconds % 60;
-    return QString("%1:%2").arg(minutes).arg(seconds, 2, 10, QChar('0'));
-}
-
-QString DetailsPanel::formatFileSize(qint64 bytes) {
-    if (bytes <= 0) return QString();
-    const double mb = bytes / (1024.0 * 1024.0);
-    return QString("%1 MB").arg(mb, 0, 'f', 2);
-}
-
 void DetailsPanel::showTrack(const Track& track) {
     m_ViewMode = ViewMode::Tracks;
     m_currentId = track.id();
@@ -99,8 +87,8 @@ void DetailsPanel::showTrack(const Track& track) {
     showArtwork(track.trackCoverHash() ? *(track.trackCoverHash()) : "", m_ViewMode);
     rebuildForm({
         {"Path:", track.relativePath()},
-        {"Duration:", formatDuration(track.durationSeconds().value_or(0))},
-        {"File size:", formatFileSize(track.fileSize())},
+        {"Duration:", Formatter::formatDuration(track.durationSeconds().value_or(0))},
+        {"File size:", Formatter::formatFileSize(track.fileSize())},
     });
     showFSButtons(track.relativePath(), false);
 }
@@ -115,7 +103,7 @@ void DetailsPanel::showAlbum(const Album& album) {
 
     rebuildForm({
         {"Tracks:", QString::number(trackCount)},
-        {"Duration:", formatDuration(durationSeconds)},
+        {"Duration:", Formatter::formatDuration(durationSeconds)},
         {"Path:", album.relativePath() == Constants::DefaultValues::AlbumPath ? "-" : album.relativePath() }
     });
     showFSButtons(album.relativePath(), true);

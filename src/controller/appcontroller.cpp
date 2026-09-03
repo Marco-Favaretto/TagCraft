@@ -82,7 +82,8 @@ void AppController::requestSaveMetadata(const QString& relativePath, const Track
         QFileInfo info(StorageManager::instance().toAbsolutePath(relativePath));
         QList<TrackFileSystemDto> list;
         list.append({relativePath, info.size(), info.lastModified().toSecsSinceEpoch()});
-        m_databaseController->updateNewTracks(list);
+        if(m_databaseController->updateNewTracks(list)) emit libraryUpdated();
+        else emit errorOccurred("errore nell'aggiornamento della traccia");
     }
 }
 
