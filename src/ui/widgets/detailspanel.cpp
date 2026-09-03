@@ -59,9 +59,9 @@ void DetailsPanel::setupUI() {
     QHBoxLayout* buttonsLayout = new QHBoxLayout();
     buttonsLayout->setContentsMargins(0, 0, 0, 0);
     buttonsLayout->setSpacing(10);
+    buttonsLayout->addWidget(openEditModalButton);
     buttonsLayout->addWidget(openFileSystemButton);
     buttonsLayout->addWidget(deleteButton);
-    buttonsLayout->addWidget(openEditModalButton);
 
     m_mainLayout->addLayout(buttonsLayout);
 
@@ -93,7 +93,10 @@ QString DetailsPanel::formatFileSize(qint64 bytes) {
 }
 
 void DetailsPanel::showTrack(const Track& track) {
-    showArtwork(track.trackCoverHash() ? *(track.trackCoverHash()) : "", ViewMode::Tracks);
+    m_ViewMode = ViewMode::Tracks;
+    m_currentId = track.id();
+    openEditModalButton->setVisible(true);
+    showArtwork(track.trackCoverHash() ? *(track.trackCoverHash()) : "", m_ViewMode);
     rebuildForm({
         {"Path:", track.relativePath()},
         {"Duration:", formatDuration(track.durationSeconds().value_or(0))},
@@ -103,7 +106,10 @@ void DetailsPanel::showTrack(const Track& track) {
 }
 
 void DetailsPanel::showAlbum(const Album& album) {
-    showArtwork(album.coverCacheHash() ? *(album.coverCacheHash()) : "", ViewMode::Albums);
+    m_ViewMode = ViewMode::Albums;
+    m_currentId = album.id();
+    openEditModalButton->setVisible(true);
+    showArtwork(album.coverCacheHash() ? *(album.coverCacheHash()) : "", m_ViewMode);
     const int trackCount = m_library->countTracksByAlbum(album.id());
     const int durationSeconds = m_library->getAlbumDurationSeconds(album.id());
 
@@ -116,7 +122,10 @@ void DetailsPanel::showAlbum(const Album& album) {
 }
 
 void DetailsPanel::showArtist(const Artist& artist) {
-    showArtwork("", ViewMode::Artists);
+    m_ViewMode = ViewMode::Artists;
+    m_currentId = artist.id();
+    openEditModalButton->setVisible(true);
+    showArtwork("", m_ViewMode);
     const int albumCount = m_library->countAlbumsByArtist(artist.id());
     const int trackCount = m_library->countTracksByArtist(artist.id());
 
@@ -127,7 +136,10 @@ void DetailsPanel::showArtist(const Artist& artist) {
 }
 
 void DetailsPanel::showGenre(const Genre& genre) {
-    showArtwork("", ViewMode::Genres);
+    m_ViewMode = ViewMode::Genres;
+    m_currentId = genre.id();
+    openEditModalButton->setVisible(true);
+    showArtwork("", m_ViewMode);
     const int artistCount = m_library->countArtistsByGenre(genre.id());
     const int albumCount = m_library->countAlbumsByGenre(genre.id());
     const int trackCount = m_library->getTracksByGenre(genre.id()).size();
@@ -140,8 +152,10 @@ void DetailsPanel::showGenre(const Genre& genre) {
 }
 
 void DetailsPanel::clear() {
+    m_currentId = -1;
     m_artworkLabel->clear();
     m_artworkLabel->setVisible(false);
+    openEditModalButton->setVisible(false);
     hideFSButtons();
     rebuildForm({});
 }
@@ -204,4 +218,9 @@ void DetailsPanel::deleteFromFSSlot() {
     if (!m_currentRelativePath.isEmpty()) {
         emit deleteFromFS(m_currentRelativePath, m_currentIsAlbum);
     }
+}
+
+void DetailsPanel::openEditModal() {
+    if (m_currentId < 0) return;
+    emit editRequested(m_ViewMode, m_currentId);
 }

@@ -24,7 +24,7 @@ public:
 signals:
     void openFS(const QString& relativePath, bool isAlbum);
     void deleteFromFS(const QString& relativePath, bool isAlbum);
-    void openEditModal();
+    void editRequested(ViewMode mode, int id);
 
 public slots:
     void showTrack(const Track& track);
@@ -36,6 +36,7 @@ public slots:
 private slots:
     void openFSSlot();
     void deleteFromFSSlot();
+    void openEditModal();
 
 private:
     void setupUI();
@@ -59,7 +60,9 @@ private:
 
     QString m_currentRelativePath;
     bool m_currentIsAlbum = false;
+    ViewMode m_ViewMode;
     int m_lastRowCount = 0;
+    int m_currentId = -1;
 
 };
 
