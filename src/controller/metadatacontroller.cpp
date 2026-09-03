@@ -26,6 +26,10 @@ bool MetadataController::setCover(const QString& relativePath, const QString& im
     return TagMapper::embedCover(StorageManager::instance().toAbsolutePath(relativePath), imagePath);
 }
 
+bool MetadataController::removeCover(const QString& relativePath) {
+    return TagMapper::removeCover(StorageManager::instance().toAbsolutePath(relativePath));
+}
+
 bool MetadataController::cleanTags(const QString& relativePath) {
     return TagMapper::cleanTags(StorageManager::instance().toAbsolutePath(relativePath));
 }

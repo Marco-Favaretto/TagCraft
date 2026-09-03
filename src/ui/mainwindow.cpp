@@ -268,6 +268,11 @@ void MainWindow::onEditRequested(ViewMode mode, int id) {
             if (dialog.exec() == QDialog::Accepted) {
                 const TrackDto dto = model.buildDto(dialog.changedValues());
                 m_appController->requestSaveMetadata(dto.relativePath, dto);
+                if (!dialog.stagedArtworkPath().isEmpty()) {
+                    m_appController->requestSetCover(dto.relativePath, dialog.stagedArtworkPath());
+                } else if (dialog.artworkRemoved()) {
+                    m_appController->requestRemoveCover(dto.relativePath);
+                }
             }
             break;
         }

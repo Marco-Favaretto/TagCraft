@@ -1,17 +1,8 @@
 #include "ui/dialogs/editmetadatadialog.h"
 
-#include <QDialogButtonBox>
-#include <QFormLayout>
-#include <QLabel>
-#include <QLineEdit>
-#include <QMessageBox>
-#include <QPixmap>
-#include <QSpinBox>
+#include <QFileDialog>
 #include <QVBoxLayout>
-#include <QPushButton>
-
-#include "controller/metadatacontroller.h"
-#include "ui/editmodels/abstracteditmodel.h"
+#include <QHBoxLayout>
 
 EditMetadataDialog::EditMetadataDialog(AbstractEditModel* model,
                                        MetadataController* metadata,
@@ -20,6 +11,8 @@ EditMetadataDialog::EditMetadataDialog(AbstractEditModel* model,
     , m_model(model)
     , m_metadata(metadata)
     , m_artworkLabel(new QLabel(this))
+    , m_changeArtworkButton(new QPushButton(tr("Cambia artwork"), this))
+    , m_removeArtworkButton(new QPushButton(tr("Elimina artwork"), this))
     , m_formLayout(new QFormLayout())
     , m_buttonBox(new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel, this))
 {
@@ -55,6 +48,15 @@ void EditMetadataDialog::setupUi() {
     m_artworkLabel->setAlignment(Qt::AlignCenter);
     m_artworkLabel->setFixedHeight(160);
     mainLayout->addWidget(m_artworkLabel, 0, Qt::AlignCenter);
+ 
+    auto* artworkButtonsLayout = new QHBoxLayout();
+    artworkButtonsLayout->setSpacing(8);
+    artworkButtonsLayout->addWidget(m_changeArtworkButton);
+    artworkButtonsLayout->addWidget(m_removeArtworkButton);
+    mainLayout->addLayout(artworkButtonsLayout);
+ 
+    connect(m_changeArtworkButton, &QPushButton::clicked, this, &EditMetadataDialog::onChangeArtworkClicked);
+    connect(m_removeArtworkButton, &QPushButton::clicked, this, &EditMetadataDialog::onRemoveArtworkClicked);
 
     m_formLayout->setSpacing(8);
     m_formLayout->setLabelAlignment(Qt::AlignRight | Qt::AlignVCenter);
@@ -129,6 +131,8 @@ void EditMetadataDialog::buildForm() {
 }
 
 bool EditMetadataDialog::hasChanges() const {
+    if (!m_stagedArtworkPath.isEmpty() || m_artworkRemoved) return true;
+
     for (auto it = m_textEditors.constBegin(); it != m_textEditors.constEnd(); ++it) {
         if (!it.value()->text().isEmpty()) return true;
     }
@@ -164,19 +168,19 @@ void EditMetadataDialog::onAnyFieldChanged() {
 
 void EditMetadataDialog::onSaveClicked() {
     const QHash<QString, QVariant> changed = collectChangedValues();
-    if (changed.isEmpty()) {
-        return;
-    }
-
+    const bool artworkChanged = !m_stagedArtworkPath.isEmpty() || m_artworkRemoved;
+ 
+    if (changed.isEmpty() && !artworkChanged) return; // Non dovrebbe succedere (Save e' disabilitato), ma per sicurezza
+ 
     // Riepilogo "vecchio -> nuovo"
     QStringList lines;
     const QList<EditField> fields = m_model->fields();
     for (const EditField& field : fields) {
         if (!changed.contains(field.key)) continue;
-
+ 
         QString oldDisplay = field.value.toString();
         QString newDisplay = changed.value(field.key).toString();
-
+ 
         if (field.type == EditField::Type::Int) {
             const int oldValue = field.value.toInt();
             const int newValue = changed.value(field.key).toInt();
@@ -185,10 +189,16 @@ void EditMetadataDialog::onSaveClicked() {
         } else if (oldDisplay.isEmpty()) {
             oldDisplay = "-";
         }
-
+ 
         lines << QString("%1 %2 -> %3").arg(field.label, oldDisplay, newDisplay);
     }
-
+ 
+    if (!m_stagedArtworkPath.isEmpty()) {
+        lines << tr("Artwork: modificata");
+    } else if (m_artworkRemoved) {
+        lines << tr("Artwork: rimossa");
+    }
+ 
     const QMessageBox::StandardButton reply = QMessageBox::question(
         this,
         tr("Conferma modifiche"),
@@ -196,13 +206,49 @@ void EditMetadataDialog::onSaveClicked() {
         QMessageBox::Ok | QMessageBox::Cancel,
         QMessageBox::Cancel
     );
-
+ 
     if (reply != QMessageBox::Ok) return;
-
+ 
     m_changedValues = changed;
     accept();
 }
 
 QHash<QString, QVariant> EditMetadataDialog::changedValues() const {
     return m_changedValues;
+}
+
+void EditMetadataDialog::onChangeArtworkClicked() {
+    const QString path = QFileDialog::getOpenFileName(
+        this,
+        tr("Seleziona artwork"),
+        QString(),
+        tr("Immagini (*.jpg *.jpeg *.png)")
+    );
+    if (path.isEmpty()) return;
+ 
+    QImage test;
+    if (!test.load(path)) {
+        QMessageBox::warning(this, tr("Errore"), tr("Impossibile caricare l'immagine selezionata."));
+        return;
+    }
+ 
+    m_stagedArtworkPath = path;
+    m_artworkRemoved = false;
+    showArtwork();
+    onAnyFieldChanged();
+}
+ 
+void EditMetadataDialog::onRemoveArtworkClicked() {
+    m_stagedArtworkPath.clear();
+    m_artworkRemoved = true;
+    showArtwork();
+    onAnyFieldChanged();
+}
+
+QString EditMetadataDialog::stagedArtworkPath() const {
+    return m_stagedArtworkPath;
+}
+ 
+bool EditMetadataDialog::artworkRemoved() const {
+    return m_artworkRemoved;
 }

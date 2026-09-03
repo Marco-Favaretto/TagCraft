@@ -20,6 +20,8 @@ public:
     
     static bool embedCover(const QString& absolutePath, const QString& imagePath);
 
+    static bool removeCover(const QString& path);
+
     static bool cleanTags(const QString& absolutePath);
 private:
     static TagLib::String qStringToTagString(const QString& str);

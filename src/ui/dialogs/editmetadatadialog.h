@@ -4,15 +4,17 @@
 #include <QDialog>
 #include <QHash>
 #include <QVariant>
+#include <QDialogButtonBox>
+#include <QFormLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QMessageBox>
+#include <QPixmap>
+#include <QSpinBox>
+#include <QPushButton>
 
-class QFormLayout;
-class QLabel;
-class QDialogButtonBox;
-class QLineEdit;
-class QSpinBox;
-
-class AbstractEditModel;
-class MetadataController;
+#include "controller/metadatacontroller.h"
+#include "ui/editmodels/abstracteditmodel.h"
 
 // Dialog generico di editing metadati: costruisce il form a partire da un
 // AbstractEditModel (fields())
@@ -25,10 +27,14 @@ public:
                                  QWidget* parent = nullptr);
 
     QHash<QString, QVariant> changedValues() const;
+    QString stagedArtworkPath() const;
+    bool artworkRemoved() const;
 
 private slots:
     void onAnyFieldChanged();
     void onSaveClicked();
+    void onChangeArtworkClicked();
+    void onRemoveArtworkClicked();
 
 private:
     void setupUi();
@@ -49,6 +55,12 @@ private:
     QHash<QString, QSpinBox*> m_intEditors;
 
     QHash<QString, QVariant> m_changedValues;
+
+    QPushButton* m_changeArtworkButton;
+    QPushButton* m_removeArtworkButton;
+
+    QString m_stagedArtworkPath;
+    bool m_artworkRemoved = false;
 };
 
 #endif // EDITMETADATADIALOG_H

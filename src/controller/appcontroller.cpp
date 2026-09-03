@@ -127,6 +127,22 @@ void AppController::requestSetCover(const QString& relativePath, const QString& 
     }
 }
 
+
+void AppController::requestRemoveCover(const QString& relativePath) {
+    std::optional<Track> t = TrackDao::findByRelativePath(relativePath);
+    if(!t) {
+        emit errorOccurred("Errore nel recupero della traccia " + relativePath);
+        return;
+    }
+    if(m_metadataController->removeCover(relativePath)) {
+        if(!TrackDao::updateCover(t->id(), "NULL")) {
+            emit errorOccurred("errore nell'update della cover a db");
+            return;
+        }
+    } else emit errorOccurred("Errore nell'eliminazione della traccia");
+}
+
+
 void AppController::requestSetCoverBatch(const QList<QString>& relativePaths, const QString& imagePath) {
     for(auto path : relativePaths) this->requestSetCover(path, imagePath);
 }

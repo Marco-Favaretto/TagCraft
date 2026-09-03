@@ -141,6 +141,14 @@ bool TagMapper::embedCover(const QString& path, const QString& coverPath) {
     return file.save();
 }
 
+bool TagMapper::removeCover(const QString& path) {
+    TagLib::MPEG::File file(path.toStdString().c_str());
+    TagLib::ID3v2::Tag* tag = file.ID3v2Tag(true);
+    TagLib::ID3v2::FrameList frames = tag->frameList("APIC");
+    for (auto it = frames.begin(); it != frames.end(); ++it) tag->removeFrame(*it, true);
+    return file.save();
+}
+
 bool TagMapper::cleanTags(const QString& absolutePath) {
     const QByteArray path = QFile::encodeName(absolutePath);
     TagLib::MPEG::File file(path.constData(), false);

@@ -21,6 +21,7 @@ public:
     bool setCover(const QString& relativePath, const QString& imagePath);
     
     bool cleanTags(const QString& absolutePath);
+    bool removeCover(const QString& relativePah);
     
     QByteArray resolveArtwork(const QString& relativePath) const;
     QString resolveAndCacheArtwork(const QString& relativePath);
