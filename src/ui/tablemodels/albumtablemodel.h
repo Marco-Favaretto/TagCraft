@@ -14,6 +14,7 @@ public:
         QString title;
         QString artistName; // "Various Artists" se compilation (artist_id = Unknown)
         int year;            // 0 se assente/misto (poi corretto in - nella vista)
+        QString genreName;
     };
 
     explicit AlbumTableModel(QObject* parent = nullptr);
@@ -28,7 +29,7 @@ public:
     int idAt(int row) const override;
 
 private:
-    enum Column { Title = 0, Artist, Year, ColumnCount };
+    enum Column { Title = 0, Artist, Year, Genre, ColumnCount };
 
     QList<Row> m_rows;
 };

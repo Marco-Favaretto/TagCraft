@@ -34,6 +34,7 @@ bool AlbumDao::insert(Album& album) {
         {":title", album.title()},
         {":artist_id", album.artistId()},
         {":year", DbUtils::optionalToVariant(album.year())},
+        {":genre_id", DbUtils::optionalToVariant(album.genreId())},
         {":relative_path", album.relativePath()},
         {":cover_cache_hash", DbUtils::optionalToVariant(album.coverCacheHash())}
     })) {
@@ -65,6 +66,7 @@ bool AlbumDao::update(const Album& album) {
         {":title", album.title()},
         {":artist_id", album.artistId()},
         {":year", DbUtils::optionalToVariant(album.year())},
+        {":genre_id", DbUtils::optionalToVariant(album.genreId())},
         {":relative_path", album.relativePath()},
         {":cover_cache_hash", DbUtils::optionalToVariant(album.coverCacheHash())}
     });
@@ -173,7 +175,7 @@ std::optional<Album> AlbumDao::getByTitleAndRelativePath(const QString& title, c
     return std::nullopt;
 }
 
-std::optional<Album> AlbumDao::getOrCreate(const QString& title, const QString& trackRelativePath, int artistId, std::optional<int> year) {
+std::optional<Album> AlbumDao::getOrCreate(const QString& title, const QString& trackRelativePath, int artistId, std::optional<int> year, std::optional<int> genreId) {
     const QString albumRelativePath = QFileInfo(trackRelativePath).path();
     auto existing = getByTitleAndRelativePath(title, albumRelativePath);
     if (existing) {
@@ -189,6 +191,13 @@ std::optional<Album> AlbumDao::getOrCreate(const QString& title, const QString& 
             existing->setArtistId(Constants::DefaultValues::ArtistId);
             if (!update(*existing)) return std::nullopt;
         }
+        if(existing->genreId() != genreId) {
+            if (existing->genreId().has_value()) {
+                existing->setGenreId(std::nullopt);
+                if (!update(*existing)) return std::nullopt;
+            }
+        }
+
         return existing;
     }
 
@@ -196,6 +205,7 @@ std::optional<Album> AlbumDao::getOrCreate(const QString& title, const QString& 
     album.setTitle(title);
     album.setArtistId(artistId);
     album.setYear(year);
+    album.setGenreId(genreId);
     album.setRelativePath(albumRelativePath);
     if (!insert(album)) return std::nullopt;
     return album;
@@ -226,6 +236,25 @@ QList<Album> AlbumDao::getByArtistId(int artistId) {
         return albums;
     }
     if (SqlExecutor::execute(query, {{":artist_id", artistId}})) {
+        while (query.next()) {
+            albums.append(EntityMapper::toEntityAlbum(query));
+        }
+    }
+    return albums;
+}
+
+QList<Album> AlbumDao::getByGenreId(int genreId) {
+    QList<Album> albums;
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Album);
+    const QString queryString = queries.value("getByGenreId");
+    if (queryString.isEmpty()) return albums;
+
+    QSqlQuery query;
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return albums;
+    }
+    if (SqlExecutor::execute(query, {{":genre_id", genreId}})) {
         while (query.next()) {
             albums.append(EntityMapper::toEntityAlbum(query));
         }

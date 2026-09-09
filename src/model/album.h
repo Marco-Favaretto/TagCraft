@@ -19,6 +19,7 @@ public:
     int id() const;
     QString title() const;
     int artistId() const;
+    std::optional<int> genreId() const;
     std::optional<int> year() const;
     std::optional<QString> coverCacheHash() const;
     QString relativePath() const;
@@ -26,6 +27,7 @@ public:
     void setId(int id);
     void setTitle(const QString& title);
     void setArtistId(int artistId);
+    void setGenreId(std::optional<int> genreId);
     void setYear(std::optional<int> year);
     void setCoverCacheHash(const std::optional<QString>& coverCacheHash);
     void setRelativePath(const QString& relativePath);
@@ -36,6 +38,7 @@ private:
     int m_id;
     QString m_title;
     int m_artistId;
+    std::optional<int> m_genreId;
     std::optional<QString> m_coverCacheHash;
     std::optional<int> m_year;
     QString m_relativePath;

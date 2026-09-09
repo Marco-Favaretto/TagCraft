@@ -20,6 +20,10 @@ int Album::artistId() const {
     return m_artistId;
 }
 
+std::optional<int> Album::genreId() const {
+    return m_genreId;
+}
+
 std::optional<int> Album::year() const {
     return m_year;
 }
@@ -46,6 +50,10 @@ void Album::setTitle(const QString& title) {
 
 void Album::setArtistId(int artistId) {
     m_artistId = artistId;
+}
+
+void Album::setGenreId(std::optional<int> genreId) {
+    m_genreId = genreId;
 }
 
 void Album::setCoverCacheHash(const std::optional<QString>& coverCacheHash) {

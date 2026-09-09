@@ -8,10 +8,10 @@
 #include <QVBoxLayout>
 
 #include "controller/librarycontroller.h"
-#include "ui/models/tracktablemodel.h"
-#include "ui/models/albumtablemodel.h"
-#include "ui/models/artisttablemodel.h"
-#include "ui/models/genretablemodel.h"
+#include "ui/tablemodels/tracktablemodel.h"
+#include "ui/tablemodels/albumtablemodel.h"
+#include "ui/tablemodels/artisttablemodel.h"
+#include "ui/tablemodels/genretablemodel.h"
 #include "dto/viewmode.h"
 
 // per ora sola lettura

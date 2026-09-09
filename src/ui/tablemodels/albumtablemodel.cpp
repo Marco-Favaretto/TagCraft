@@ -31,6 +31,8 @@ QVariant AlbumTableModel::data(const QModelIndex& index, int role) const {
                 return row.title;
             case Artist:
                 return row.artistName;
+            case Genre:
+                return row.genreName;
             case Year:
                 if (role == Qt::EditRole) return row.year;
                 return row.year > 0 ? QString::number(row.year) : QStringLiteral("-");
@@ -50,6 +52,7 @@ QVariant AlbumTableModel::headerData(int section, Qt::Orientation orientation, i
     switch (section) {
         case Title: return "Title";
         case Artist: return "Artist";
+        case Genre: return "Genre";
         case Year: return "Year";
         default: return {};
     }
