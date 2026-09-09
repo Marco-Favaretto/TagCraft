@@ -92,12 +92,14 @@ void ItemTableView::setAlbums(const QList<Album>& albums) {
 
     for (const Album& a : albums) {
         auto artist = m_library->getArtistById(a.artistId());
+        auto genre = m_library->getGenreById(a.genreId());
 
         AlbumTableModel::Row row;
         row.id = a.id();
         row.title = a.title();
         row.artistName = artist ? artist->name() : QString();
         row.year = a.year().value_or(0);
+        row.genreName = genre ? genre->name() : QString();
         rows.append(row);
     }
 

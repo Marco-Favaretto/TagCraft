@@ -5,7 +5,7 @@
 
 #include "abstractlibrarytablemodel.h"
 
-// Colonne: Title | Artist | Year
+// Colonne: Title | Artist | Year | Genre
 class AlbumTableModel : public AbstractLibraryTableModel {
     Q_OBJECT
 public:

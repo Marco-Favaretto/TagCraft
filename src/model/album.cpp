@@ -20,7 +20,7 @@ int Album::artistId() const {
     return m_artistId;
 }
 
-std::optional<int> Album::genreId() const {
+int Album::genreId() const {
     return m_genreId;
 }
 
@@ -52,7 +52,7 @@ void Album::setArtistId(int artistId) {
     m_artistId = artistId;
 }
 
-void Album::setGenreId(std::optional<int> genreId) {
+void Album::setGenreId(int genreId) {
     m_genreId = genreId;
 }
 

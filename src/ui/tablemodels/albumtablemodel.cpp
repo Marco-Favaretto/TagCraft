@@ -52,8 +52,8 @@ QVariant AlbumTableModel::headerData(int section, Qt::Orientation orientation, i
     switch (section) {
         case Title: return "Title";
         case Artist: return "Artist";
-        case Genre: return "Genre";
         case Year: return "Year";
+        case Genre: return "Genre";
         default: return {};
     }
 }

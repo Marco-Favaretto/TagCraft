@@ -28,7 +28,7 @@ QList<EditField> AlbumEditModel::fields() const {
     QList<EditField> result;
 
     auto artistOpt = m_library ? m_library->getArtistById(m_album.artistId()) : std::nullopt;
-    auto genreOpt = m_library ? m_library->getGenreById(m_album.genreId().value_or(1)) : std::nullopt;
+    auto genreOpt = m_library ? m_library->getGenreById(m_album.genreId()) : std::nullopt;
 
     EditField title;
     title.key = KeyTitle;
@@ -83,7 +83,7 @@ QHash<QString, QVariant> AlbumEditModel::buildResult(const QHash<QString, QVaria
     if (changedValues.contains(KeyGenre)) {
         result.insert(KeyGenre, changedValues.value(KeyGenre));
     } else {
-        auto genreOpt = m_library ? m_library->getGenreById(m_album.genreId().value_or(1)) : std::nullopt;
+        auto genreOpt = m_library ? m_library->getGenreById(m_album.genreId()) : std::nullopt;
         result.insert(KeyGenre, genreOpt ? genreOpt->name() : QString("Unknown Genre"));
     }
 

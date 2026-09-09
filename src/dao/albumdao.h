@@ -18,7 +18,7 @@ public:
     static std::optional<Album> getByRelativePath(const QString& relativePath);
     static std::optional<Album> getByTitleAndArtist(const QString& title, int artistId);
     static std::optional<Album> getByTitleAndRelativePath(const QString& title, const QString& relativePath);
-    static std::optional<Album> getOrCreate(const QString& title, const QString& trackRelativePath, int artistId, std::optional<int> year, std::optional<int> genreId);
+    static std::optional<Album> getOrCreate(const QString& title, const QString& trackRelativePath, int artistId, std::optional<int> year, int genreId);
     static QList<Album> getAll();
     static QList<Album> getByArtistId(int);
     QList<Album> getByGenreId(int genreId);

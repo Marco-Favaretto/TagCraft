@@ -33,8 +33,8 @@ bool AlbumDao::insert(Album& album) {
     if (!SqlExecutor::execute(query, {
         {":title", album.title()},
         {":artist_id", album.artistId()},
+        {":genre_id", album.genreId()},
         {":year", DbUtils::optionalToVariant(album.year())},
-        {":genre_id", DbUtils::optionalToVariant(album.genreId())},
         {":relative_path", album.relativePath()},
         {":cover_cache_hash", DbUtils::optionalToVariant(album.coverCacheHash())}
     })) {
@@ -65,8 +65,8 @@ bool AlbumDao::update(const Album& album) {
         {":id", album.id()},
         {":title", album.title()},
         {":artist_id", album.artistId()},
+        {":genre_id", album.genreId()},
         {":year", DbUtils::optionalToVariant(album.year())},
-        {":genre_id", DbUtils::optionalToVariant(album.genreId())},
         {":relative_path", album.relativePath()},
         {":cover_cache_hash", DbUtils::optionalToVariant(album.coverCacheHash())}
     });
@@ -175,7 +175,7 @@ std::optional<Album> AlbumDao::getByTitleAndRelativePath(const QString& title, c
     return std::nullopt;
 }
 
-std::optional<Album> AlbumDao::getOrCreate(const QString& title, const QString& trackRelativePath, int artistId, std::optional<int> year, std::optional<int> genreId) {
+std::optional<Album> AlbumDao::getOrCreate(const QString& title, const QString& trackRelativePath, int artistId, std::optional<int> year, int genreId) {
     const QString albumRelativePath = QFileInfo(trackRelativePath).path();
     auto existing = getByTitleAndRelativePath(title, albumRelativePath);
     if (existing) {
@@ -191,11 +191,9 @@ std::optional<Album> AlbumDao::getOrCreate(const QString& title, const QString& 
             existing->setArtistId(Constants::DefaultValues::ArtistId);
             if (!update(*existing)) return std::nullopt;
         }
-        if(existing->genreId() != genreId) {
-            if (existing->genreId().has_value()) {
-                existing->setGenreId(std::nullopt);
-                if (!update(*existing)) return std::nullopt;
-            }
+        if(existing->genreId() != genreId && existing->genreId() != Constants::DefaultValues::GenreId) {
+            existing->setGenreId(Constants::DefaultValues::GenreId);
+            if (!update(*existing)) return std::nullopt;
         }
 
         return existing;

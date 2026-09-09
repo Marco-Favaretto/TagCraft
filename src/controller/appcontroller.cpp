@@ -6,6 +6,7 @@
 #include "dao/trackdao.h"
 #include "utils/imageutils.h"
 #include "dto/constants.h"
+#include "ui/editmodels/trackeditmodel.h"
 
 #include <QImage>
 #include <QMutex>
@@ -163,27 +164,62 @@ void AppController::requestSetCoverBatch(const QList<QString>& relativePaths, co
     for(auto path : relativePaths) this->requestSetCover(path, imagePath);
 }
 
-// result["id"], result["title"], result["artistName"], result["genreName"]
-void AppController::requestSaveAlbumMetadata(const QHash<QString, QVariant>& albumChanges) {
-    
+void AppController::applyMetadataToTracks(const QList<Track>& tracks, const QHash<QString, QVariant>& changedValues) {
+    QList<TrackFileSystemDto> updatedFiles;
+
+    for (const Track& t : tracks) {
+        TrackEditModel model(t, m_libraryController);
+        const TrackDto dto = model.buildDto(changedValues);
+
+        if (!m_metadataController->saveMetadata(t.relativePath(), dto)) {
+            emit errorOccurred("Errore nel salvataggio di " + t.relativePath());
+            continue;
+        }
+
+        QFileInfo info(StorageManager::instance().toAbsolutePath(t.relativePath()));
+        updatedFiles.append({t.relativePath(), info.size(), info.lastModified().toSecsSinceEpoch()});
+    }
+
+    if (updatedFiles.isEmpty()) return;
+
+    if (m_databaseController->updateNewTracks(updatedFiles)) emit libraryUpdated();
+    else emit errorOccurred("errore nell'aggiornamento delle tracce");
 }
 
 void AppController::requestSetAlbumCover(int id, const QString& imagePath) {
+    QList<QString> trackPaths;
+    for(auto t : m_libraryController->getTracksByAlbum(id)) trackPaths.append(t.relativePath());
 
+    this->requestSetCoverBatch(trackPaths, imagePath);
 }
 
 void AppController::requestRemoveAlbumCover(int id) {
+    for(auto t : m_libraryController->getTracksByAlbum(id)) this->requestRemoveCover(t.relativePath());
+}
 
+// result["id"], result["title"], result["artistName"], result["genreName"]
+void AppController::requestSaveAlbumMetadata(const QHash<QString, QVariant>& albumChanges) {
+    const int albumId = albumChanges.value("id").toInt();
+
+    QHash<QString, QVariant> changed;
+    changed.insert(TrackEditModel::KeyAlbum, albumChanges.value("title"));
+    changed.insert(TrackEditModel::KeyArtist, albumChanges.value("artistName"));
+    changed.insert(TrackEditModel::KeyGenre, albumChanges.value("genreName"));
+
+    applyMetadataToTracks(m_libraryController->getTracksByAlbum(albumId), changed);
 }
 
 void AppController::requestRenameArtist(int id, const QString& newName) {
-
+    QHash<QString, QVariant> changed;
+    changed.insert(TrackEditModel::KeyArtist, newName);
+    applyMetadataToTracks(m_libraryController->getTracksByArtist(id), changed);
 }
 
 void AppController::requestRenameGenre(int id, const QString& newName) {
-
+    QHash<QString, QVariant> changed;
+    changed.insert(TrackEditModel::KeyGenre, newName);
+    applyMetadataToTracks(m_libraryController->getTracksByGenre(id), changed);
 }
-
 
 void AppController::onScanFinished(const ScanResultDto& result) {
     qDebug() << "SmartScan Terminata, sincronizzazione DB";

@@ -71,6 +71,7 @@ private slots:
 private:
     void setupConnections();
     void resolveArtworkFor(const QList<TrackFileSystemDto>& tracks);
+    void applyMetadataToTracks(const QList<Track>& tracks, const QHash<QString, QVariant>& changedValues);
 
     StorageController* m_storageController;
     MetadataController* m_metadataController;

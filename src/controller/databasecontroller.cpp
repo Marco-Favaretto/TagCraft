@@ -145,9 +145,9 @@ int DatabaseController::resolveArtistId(const QString& name) {
     return artistOpt ? artistOpt->id() : Constants::DefaultValues::ArtistId;
 }
 
-int DatabaseController::resolveAlbumId(const QString& title, const QString& relativePath, int artistId, std::optional<int> year, std::optional<int> genreId) {
+int DatabaseController::resolveAlbumId(const QString& title, const QString& relativePath, int artistId, std::optional<int> year, int genreId) {
     if (title.trimmed().isEmpty()) return Constants::DefaultValues::AlbumId; // Unknown Album
-    auto albumOpt = AlbumDao::getOrCreate(title, relativePath, artistId, genreId, year);
+    auto albumOpt = AlbumDao::getOrCreate(title, relativePath, artistId, year, genreId);
     return albumOpt ? albumOpt->id() : Constants::DefaultValues::AlbumId;
 }
 
