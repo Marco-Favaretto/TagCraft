@@ -18,6 +18,8 @@ public:
     QString windowTitle() const override;
     QString artworkHash() const override;
     QList<EditField> fields() const override;
+    bool supportsArtwork() const override;
+    bool supportsCleanTags() const override;
 
     TrackDto buildDto(const QHash<QString, QVariant>& changedValues) const;
 

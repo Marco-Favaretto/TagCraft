@@ -30,6 +30,11 @@ public slots:
     void requestCleanTags(const QString& relativePath);
     void requestRemoveCover(const QString& relativePath);
     void requestSetCoverBatch(const QList<QString>& relativePaths, const QString& imagePath);
+    void requestSaveAlbumMetadata(const QHash<QString, QVariant>& albumChanges);
+    void requestSetAlbumCover(int id, const QString& imagePath);
+    void requestRemoveAlbumCover(int id);
+    void requestRenameArtist(int id, const QString& newName);
+    void requestRenameGenre(int id, const QString& newName);
 
     void requestResetDb();
     void requestResetAndRebuildDb();

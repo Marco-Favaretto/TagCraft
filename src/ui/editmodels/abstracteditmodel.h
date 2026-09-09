@@ -22,6 +22,10 @@ public:
     virtual QString artworkHash() const = 0;
 
     virtual QList<EditField> fields() const = 0;
+
+    virtual bool supportsArtwork() const = 0;
+    
+    virtual bool supportsCleanTags() const = 0;
 };
 
 #endif // ABSTRACTEDITMODEL_H

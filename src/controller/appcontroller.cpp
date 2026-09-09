@@ -163,6 +163,28 @@ void AppController::requestSetCoverBatch(const QList<QString>& relativePaths, co
     for(auto path : relativePaths) this->requestSetCover(path, imagePath);
 }
 
+// result["id"], result["title"], result["artistName"], result["genreName"]
+void AppController::requestSaveAlbumMetadata(const QHash<QString, QVariant>& albumChanges) {
+    
+}
+
+void AppController::requestSetAlbumCover(int id, const QString& imagePath) {
+
+}
+
+void AppController::requestRemoveAlbumCover(int id) {
+
+}
+
+void AppController::requestRenameArtist(int id, const QString& newName) {
+
+}
+
+void AppController::requestRenameGenre(int id, const QString& newName) {
+
+}
+
+
 void AppController::onScanFinished(const ScanResultDto& result) {
     qDebug() << "SmartScan Terminata, sincronizzazione DB";
 

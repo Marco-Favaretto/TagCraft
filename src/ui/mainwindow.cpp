@@ -6,7 +6,12 @@
 
 #include "storage/storagemanager.h"
 #include "dto/constants.h"
+#include "ui/dialogs/editmetadatadialog.h"
 #include "ui/editmodels/trackeditmodel.h"
+#include "ui/editmodels/trackeditmodel.h"
+#include "ui/editmodels/albumeditmodel.h"
+#include "ui/editmodels/artisteditmodel.h"
+#include "ui/editmodels/genreeditmodel.h"
 #include "ui/dialogs/editmetadatadialog.h"
 
 MainWindow::MainWindow(QWidget* parent)
@@ -279,11 +284,51 @@ void MainWindow::onEditRequested(ViewMode mode, int id) {
             }
             break;
         }
-        case ViewMode::Albums:
-        case ViewMode::Artists:
-        case ViewMode::Genres:
-            // TODO: batch editing, non ancora implementato.
-            statusBar()->showMessage("Editing non ancora disponibile per questa vista", 3000);
+        case ViewMode::Albums: {
+            auto opt = m_appController->library()->getAlbumById(id);
+            if (!opt) return;
+
+            AlbumEditModel model(*opt, m_appController->library());
+            EditMetadataDialog dialog(&model, m_appController->metadata(), this);
+
+            if (dialog.exec() == QDialog::Accepted) {
+                const QHash<QString, QVariant> result = model.buildResult(dialog.changedValues());
+                // result["id"], result["title"], result["artistName"], result["genreName"]
+                m_appController->requestSaveAlbumMetadata(result);
+
+                if (!dialog.stagedArtworkPath().isEmpty()) {
+                    m_appController->requestSetAlbumCover(opt->id(), dialog.stagedArtworkPath());
+                } else if (dialog.artworkRemoved()) {
+                    m_appController->requestRemoveAlbumCover(opt->id());
+                }
+            }
             break;
+        }
+        case ViewMode::Artists: {
+            auto opt = m_appController->library()->getArtistById(id);
+            if (!opt) return;
+
+            ArtistEditModel model(*opt);
+            EditMetadataDialog dialog(&model, m_appController->metadata(), this);
+
+            if (dialog.exec() == QDialog::Accepted) {
+                const QString newName = model.buildName(dialog.changedValues());
+                m_appController->requestRenameArtist(model.entityId(), newName);
+            }
+            break;
+        }
+        case ViewMode::Genres: {
+            auto opt = m_appController->library()->getGenreById(id);
+            if (!opt) return;
+
+            GenreEditModel model(*opt);
+            EditMetadataDialog dialog(&model, m_appController->metadata(), this);
+
+            if (dialog.exec() == QDialog::Accepted) {
+                const QString newName = model.buildName(dialog.changedValues());
+                m_appController->requestRenameGenre(model.entityId(), newName);
+            }
+            break;
+        }
     }
 }

@@ -53,16 +53,15 @@ private:
     QFormLayout* m_formLayout;
     QDialogButtonBox* m_buttonBox;
 
-    // Per ogni field editabile: il widget di input associato.
-    QHash<QString, QLineEdit*> m_textEditors;
-    QHash<QString, QSpinBox*> m_intEditors;
-
-    QHash<QString, QVariant> m_changedValues;
-
     QPushButton* m_changeArtworkButton;
     QPushButton* m_removeArtworkButton;
     QPushButton* m_cleanTagsButton;
 
+    // Per ogni field editabile: il widget di input associato.
+    QHash<QString, QLineEdit*> m_textEditors;
+    QHash<QString, QSpinBox*> m_intEditors;
+    
+    QHash<QString, QVariant> m_changedValues;
     QString m_stagedArtworkPath;
     bool m_artworkRemoved = false;
     bool m_cleanTags = false;

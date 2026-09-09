@@ -30,6 +30,14 @@ QString TrackEditModel::artworkHash() const {
     return m_track.trackCoverHash() ? *m_track.trackCoverHash() : QString();
 }
 
+bool TrackEditModel::supportsArtwork() const { 
+    return true;
+}
+
+bool TrackEditModel::supportsCleanTags() const { 
+    return true;
+}
+
 QList<EditField> TrackEditModel::fields() const {
     auto artistOpt = library->getArtistById(m_track.artistId());
     QString artistName = artistOpt.has_value() ? artistOpt->name() : Constants::DefaultValues::Artist;
