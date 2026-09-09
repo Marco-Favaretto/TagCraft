@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS album (
     relative_path TEXT NOT NULL UNIQUE,
     cover_cache_hash TEXT,
     FOREIGN KEY (artist_id) REFERENCES artist(id) ON DELETE RESTRICT,
-    FOREIGN KEY (genre_id) REFERENCES genre(id) ON DELETE RESTRICT,
+    FOREIGN KEY (genre_id) REFERENCES genre(id) ON DELETE RESTRICT
 );
 
 -- 4. TABELLA TRACCE
