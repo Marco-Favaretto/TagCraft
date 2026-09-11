@@ -20,7 +20,7 @@ The application runs and starts the UI. At the moment, the UI allows the user to
 Artist → Album → Track
 Genre → Track
 The user can navigate back through the hierarchy by pressing Backspace. A search function is also available, allowing the user to quickly find tracks, albums, artists, or genres.
-### version [0.3 - MVP](../../releases)
+### version 0.3 - MVP
 UI displays artwork and three buttons on the Tracks view:
 1. Edit dialog (single track only): opens a dialog that allow user to edit: title, album name, artist name, genre, track number, year and artwork, or remove all tags
 2. Open the localtion of the track or album in the file system
@@ -28,6 +28,8 @@ UI displays artwork and three buttons on the Tracks view:
 
 The library updates automatically after these changes are done.
 
+### version [0.4](../../releases)
+The User can now edit album's artist, genre, title and artwork, artist's name and genre's name. These new values updates files' metadata and db.
 ---
 
 # Installation Guide (Linux only right now)
