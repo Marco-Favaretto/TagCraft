@@ -340,3 +340,26 @@ std::optional<Album> AlbumDao::getByRelativePath(const QString& relativePath) {
 
     return std::nullopt;
 }
+
+bool AlbumDao::updateMetadata(int id, const QString& title, int artistId, int genreId) {
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Album);
+    const QString queryString = queries.value("updateMetadata");
+
+    if (queryString.isEmpty()) {
+        qCritical() << "Query 'updateMetadata' non trovata in album.sql";
+        return false;
+    }
+
+    QSqlQuery query;
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return false;
+    }
+
+    return SqlExecutor::execute(query, {
+        {":id", id},
+        {":title", title},
+        {":artist_id", artistId},
+        {":genre_id", genreId}
+    });
+}

@@ -175,3 +175,10 @@ bool DatabaseController::syncAlbumCovers() {
 
     return transaction.commit();
 }
+
+bool DatabaseController::syncAlbumToTracks(int id, const QList<Track>& trackList) {
+    Album album;
+    album.setId(id);
+
+    return AlbumDao::update(album);
+}

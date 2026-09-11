@@ -201,3 +201,24 @@ bool ArtistDao::drop() {
     }
     return SqlExecutor::execute(query, {});
 }
+
+bool ArtistDao::rename(int id, const QString& newName) {
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Artist);
+    const QString queryString = queries.value("rename");
+
+    if (queryString.isEmpty()) {
+        qCritical() << "Query 'rename' non trovata in artist.sql";
+        return false;
+    }
+
+    QSqlQuery query;
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return false;
+    }
+
+    return SqlExecutor::execute(query, {
+        {":id", id},
+        {":name", newName}
+    });
+}

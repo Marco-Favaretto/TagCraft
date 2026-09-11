@@ -10,6 +10,7 @@ class ArtistDao {
 public:
     static bool insert(Artist& artist);
     static bool update(const Artist& artist);
+    static bool rename(int id, const QString& newName);
     static bool deleteById(int id);
     static bool drop();
 

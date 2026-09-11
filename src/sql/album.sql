@@ -88,3 +88,10 @@ where id = :id;
 select id, title, artist_id, genre_id, year, relative_path, cover_cache_hash
 from album
 where relative_path = :relative_path;
+
+-- name: updateMetadata
+UPDATE album
+SET title = :title,
+    artist_id = :artist_id,
+    genre_id = :genre_id
+WHERE id = :id;

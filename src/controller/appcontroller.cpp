@@ -4,6 +4,9 @@
 #include "db/entitymapper.h"
 #include "storage/storagemanager.h"
 #include "dao/trackdao.h"
+#include "dao/albumdao.h"
+#include "dao/artistdao.h"
+#include "dao/genredao.h"
 #include "utils/imageutils.h"
 #include "dto/constants.h"
 #include "ui/editmodels/trackeditmodel.h"
@@ -200,25 +203,50 @@ void AppController::requestRemoveAlbumCover(int id) {
 // result["id"], result["title"], result["artistName"], result["genreName"]
 void AppController::requestSaveAlbumMetadata(const QHash<QString, QVariant>& albumChanges) {
     const int albumId = albumChanges.value("id").toInt();
+    const QString newTitle = albumChanges.value("title").toString();
+    const QString newArtistName = albumChanges.value("artistName").toString();
+    const QString newGenreName = albumChanges.value("genreName").toString();
 
     QHash<QString, QVariant> changed;
-    changed.insert(TrackEditModel::KeyAlbum, albumChanges.value("title"));
-    changed.insert(TrackEditModel::KeyArtist, albumChanges.value("artistName"));
-    changed.insert(TrackEditModel::KeyGenre, albumChanges.value("genreName"));
+    changed.insert(TrackEditModel::KeyAlbum, newTitle);
+    changed.insert(TrackEditModel::KeyArtist, newArtistName);
+    changed.insert(TrackEditModel::KeyGenre, newGenreName);
 
     applyMetadataToTracks(m_libraryController->getTracksByAlbum(albumId), changed);
+
+    const int artistId = m_databaseController->resolveArtistId(newArtistName);
+    const int genreId = m_databaseController->resolveGenreId(newGenreName);
+
+    if (!AlbumDao::updateMetadata(albumId, newTitle, artistId, genreId)) {
+        emit errorOccurred("errore nell'aggiornamento dell'album a db");
+        return;
+    }
+
+    emit libraryUpdated();
 }
 
 void AppController::requestRenameArtist(int id, const QString& newName) {
     QHash<QString, QVariant> changed;
     changed.insert(TrackEditModel::KeyArtist, newName);
     applyMetadataToTracks(m_libraryController->getTracksByArtist(id), changed);
+    if (!ArtistDao::rename(id, newName)) {
+        emit errorOccurred("errore nell'aggiornamento dell'artista a db");
+        return;
+    }
+
+    emit libraryUpdated();
 }
 
 void AppController::requestRenameGenre(int id, const QString& newName) {
     QHash<QString, QVariant> changed;
     changed.insert(TrackEditModel::KeyGenre, newName);
     applyMetadataToTracks(m_libraryController->getTracksByGenre(id), changed);
+    if (!GenreDao::rename(id, newName)) {
+        emit errorOccurred("errore nell'aggiornamento del genere a db");
+        return;
+    }
+
+    emit libraryUpdated();
 }
 
 void AppController::onScanFinished(const ScanResultDto& result) {

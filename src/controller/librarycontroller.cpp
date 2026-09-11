@@ -67,6 +67,11 @@ Album LibraryController::createAlbumFromTracks(const QList<Track>& tracks) const
     album.setId(Constants::DefaultValues::AlbumId);
     album.setTitle(Constants::DefaultValues::Album);
     album.setArtistId(tracks.isEmpty() ? Constants::DefaultValues::ArtistId : tracks.first().artistId());
+    album.setGenreId(tracks.isEmpty() 
+        ? Constants::DefaultValues::GenreId 
+        : (tracks.first().genreId() ? *(tracks.first().genreId()) : Constants::DefaultValues::GenreId)
+    );
+    album.setCoverCacheHash(tracks.isEmpty() ? Constants::Artwork::Album : tracks.first().trackCoverHash());
 
     std::optional<int> year = tracks.isEmpty() ? std::nullopt : tracks.first().year();
     for (const auto& t : tracks) {

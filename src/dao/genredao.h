@@ -10,6 +10,7 @@ class GenreDao {
 public:
     static bool insert(Genre& genre);
     static bool update(const Genre& genre);
+    static bool rename(int id, const QString& newName); 
     static bool deleteById(int id);
     static bool drop();
 

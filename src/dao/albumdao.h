@@ -11,6 +11,7 @@ public:
     static bool insert(Album& album);
     static bool update(const Album& album);
     static bool updateCoverAlbum(const QString& hash, int id);
+    static bool updateMetadata(int id, const QString& title, int artistId, int genreId);
     static bool deleteById(int id);
     static bool drop();
 

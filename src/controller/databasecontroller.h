@@ -23,8 +23,13 @@ public:
     bool deleteNewTracks(const QList<QString>&);
     bool deleteOrphans();
     bool syncAlbumCovers();
+    bool syncAlbumToTracks(int id, const QList<Track>& album);
 
     bool updateTrackCoverHash(const QString& relativePath, const QString& hash);
+
+    int resolveArtistId(const QString& name);
+    int resolveAlbumId(const QString& title, const QString& relativePath, int artistId, std::optional<int> year, int genreId);
+    int resolveGenreId(const QString& name);
 
     bool resetDb();
 
@@ -34,9 +39,6 @@ signals:
 private:
     std::optional<Track> insertTrackInternal(const TrackFileSystemDto&);
     bool updateTrackInternal(const TrackFileSystemDto&);
-    int resolveArtistId(const QString& name);
-    int resolveAlbumId(const QString& title, const QString& relativePath, int artistId, std::optional<int> year, int genreId);
-    int resolveGenreId(const QString& name);
 };
 
 #endif // DATABASECONTROLLER_H

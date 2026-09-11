@@ -46,3 +46,8 @@ SELECT id, name FROM genre WHERE LOWER(name) LIKE LOWER(:keyword) ORDER BY name 
 
 -- name: drop
 DELETE FROM genre;
+
+-- name: rename
+UPDATE genre
+SET name = :name
+WHERE id = :id;

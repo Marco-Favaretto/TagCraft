@@ -46,3 +46,8 @@ SELECT id, name FROM artist WHERE LOWER(name) LIKE LOWER(:keyword) ORDER BY name
 
 -- name: drop
 DELETE FROM artist;
+
+-- name: rename
+UPDATE artist
+SET name = :name
+WHERE id = :id;

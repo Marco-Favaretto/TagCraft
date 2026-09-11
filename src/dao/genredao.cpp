@@ -199,3 +199,24 @@ bool GenreDao::drop() {
     }
     return SqlExecutor::execute(query, {});
 }
+
+bool GenreDao::rename(int id, const QString& newName) {
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Genre);
+    const QString queryString = queries.value("rename");
+
+    if (queryString.isEmpty()) {
+        qCritical() << "Query 'rename' non trovata in genre.sql";
+        return false;
+    }
+
+    QSqlQuery query;
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return false;
+    }
+
+    return SqlExecutor::execute(query, {
+        {":id", id},
+        {":name", newName}
+    });
+}
