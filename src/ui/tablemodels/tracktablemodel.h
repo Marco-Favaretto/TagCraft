@@ -2,6 +2,7 @@
 #define TRACKTABLEMODEL_H
 
 #include <QList>
+#include <QSet>
 
 #include "abstractlibrarytablemodel.h"
 #include "model/track.h"
@@ -30,10 +31,23 @@ public:
 
     int idAt(int row) const override;
 
+    void setSelectionModeEnabled(bool enabled);
+    bool selectionModeEnabled() const;
+    QList<int> selectedIds() const;
+    void setIdChecked(int id, bool checked);
+    bool isIdChecked(int id) const;
+    void selectAllVisible();
+    void deselectAll();
+
+    Qt::ItemFlags flags(const QModelIndex& index) const override;
+    bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
+
 private:
     enum Column { Title = 0, Artist, Album, TrackNumber, Year, ColumnCount };
 
     QList<Row> m_rows;
+    bool m_selectionMode = false;
+    QSet<int> m_selectedIds;
 };
 
 #endif // TRACKTABLEMODEL_H

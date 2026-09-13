@@ -30,9 +30,17 @@ public:
 
     void clear();
 
+    void setSelectionModeEnabled(bool enabled);
+    bool selectionModeEnabled() const;
+    QList<int> selectedTrackIds() const; // vuota se != ViewMode::Tracks
+    void selectAllVisible();
+    void deselectAllVisible();
+
 signals:
     void itemSelected(int id);  // Singolo clic (aggiorna il DetailsPanel)
     void itemActivated(int id); // Doppio clic / Invio (naviga al livello successivo)
+    void selectionChanged(int count);
+    void viewModeChanged(ViewMode mode);
 
 protected:
     bool eventFilter(QObject* watched, QEvent* event) override;
@@ -59,6 +67,9 @@ private:
 
     AbstractLibraryTableModel* m_activeModel = nullptr;
     ViewMode m_currentMode = ViewMode::Tracks;
+
+    int m_selectionAnchorRow = -1;
+    void handleSelectionClick(const QModelIndex& proxyIndex, Qt::KeyboardModifiers modifiers);
 };
 
 #endif // ITEMTABLEVIEW_H

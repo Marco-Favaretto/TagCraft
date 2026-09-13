@@ -76,6 +76,8 @@ qt_add_executable(TagCraft
     src/ui/editmodels/abstracteditmodel.h
     src/ui/editmodels/trackeditmodel.h
     src/ui/editmodels/trackeditmodel.cpp
+    src/ui/editmodels/batchtrackeditmodel.h
+    src/ui/editmodels/batchtrackeditmodel.cpp
     src/ui/editmodels/albumeditmodel.h
     src/ui/editmodels/albumeditmodel.cpp
     src/ui/editmodels/artisteditmodel.h

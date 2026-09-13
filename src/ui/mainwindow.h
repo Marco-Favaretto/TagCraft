@@ -36,6 +36,13 @@ private slots:
     void openFS(const QString& relativePath, bool isAlbum);
     void deleteFromFS(const QString& relativePath, bool isAlbum);
 
+    void onSelectModeToggled();
+    void onSelectAllClicked();
+    void onDeselectAllClicked();
+    void onBatchEditClicked();
+    void onSelectionChanged(int count);
+    void onViewModeChanged(ViewMode mode);
+
     void onEditRequested(ViewMode mode, int id);
 protected:
     bool eventFilter(QObject* watched, QEvent* event) override;
@@ -55,6 +62,12 @@ private:
     QPushButton* m_smartScanButton;
     QPushButton* m_fullScanButton;
     QPushButton* m_resetAndRebuildDb;
+
+    QPushButton* m_selectModeButton;
+    QPushButton* m_selectAllButton;
+    QPushButton* m_deselectAllButton;
+    QPushButton* m_batchEditButton;
+
     QProgressBar* m_scanProgressBar;
 
     NavigationSection m_currentSection = NavigationSection::AllTracks;

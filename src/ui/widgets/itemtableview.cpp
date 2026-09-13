@@ -45,6 +45,8 @@ ItemTableView::ItemTableView(LibraryController* library, QWidget* parent)
 }
 
 void ItemTableView::activateModel(AbstractLibraryTableModel* model, ViewMode mode) {
+    if (m_trackModel->selectionModeEnabled()) m_trackModel->setSelectionModeEnabled(false);
+    m_selectionAnchorRow = -1;
     m_activeModel = model;
     m_currentMode = mode;
     m_proxyModel->setSourceModel(model);
@@ -61,6 +63,8 @@ void ItemTableView::activateModel(AbstractLibraryTableModel* model, ViewMode mod
     }
 
     header->setSectionResizeMode(0, QHeaderView::Stretch);
+
+    emit viewModeChanged(mode);
 }
 
 void ItemTableView::setTracks(const QList<Track>& tracks) {
@@ -174,6 +178,15 @@ void ItemTableView::onDoubleClicked(const QModelIndex& index) {
 }
 
 bool ItemTableView::eventFilter(QObject* watched, QEvent* event) {
+    if (watched == m_tableView && selectionModeEnabled() && event->type() == QEvent::MouseButtonPress) {
+        auto* mouseEvent = static_cast<QMouseEvent*>(event);
+        const QModelIndex proxyIndex = m_tableView->indexAt(mouseEvent->pos());
+        if (proxyIndex.isValid()) {
+            handleSelectionClick(proxyIndex, mouseEvent->modifiers());
+            return true;
+        }
+    }
+
     if (watched == m_tableView && event->type() == QEvent::KeyPress) {
         auto* keyEvent = static_cast<QKeyEvent*>(event);
         if (keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter) {
@@ -189,4 +202,60 @@ bool ItemTableView::eventFilter(QObject* watched, QEvent* event) {
 
 void ItemTableView::sortByColumn(int column, Qt::SortOrder order) {
     m_tableView->sortByColumn(column, order);
+}
+
+void ItemTableView::setSelectionModeEnabled(bool enabled) {
+    if (m_currentMode != ViewMode::Tracks) return;
+    m_trackModel->setSelectionModeEnabled(enabled);
+    m_selectionAnchorRow = -1;
+    emit selectionChanged(m_trackModel->selectedIds().size());
+}
+
+bool ItemTableView::selectionModeEnabled() const {
+    return m_currentMode == ViewMode::Tracks && m_trackModel->selectionModeEnabled();
+}
+
+QList<int> ItemTableView::selectedTrackIds() const {
+    return m_currentMode == ViewMode::Tracks ? m_trackModel->selectedIds() : QList<int>();
+}
+
+void ItemTableView::selectAllVisible() {
+    if (m_currentMode != ViewMode::Tracks) return;
+    // "Visibili" = righe che passano il filtro di ricerca attuale
+    for (int r = 0; r < m_proxyModel->rowCount(); ++r) {
+        const int id = idForProxyIndex(m_proxyModel->index(r, 0));
+        if (id >= 0) m_trackModel->setIdChecked(id, true);
+    }
+    emit selectionChanged(m_trackModel->selectedIds().size());
+}
+
+void ItemTableView::deselectAllVisible() {
+    if (m_currentMode != ViewMode::Tracks) return;
+    for (int r = 0; r < m_proxyModel->rowCount(); ++r) {
+        const int id = idForProxyIndex(m_proxyModel->index(r, 0));
+        if (id >= 0) m_trackModel->setIdChecked(id, false);
+    }
+    emit selectionChanged(m_trackModel->selectedIds().size());
+}
+
+void ItemTableView::handleSelectionClick(const QModelIndex& proxyIndex, Qt::KeyboardModifiers modifiers) {
+    const int row = proxyIndex.row();
+    const int id = idForProxyIndex(proxyIndex);
+    if (id < 0) return;
+
+    if ((modifiers & Qt::ShiftModifier) && m_selectionAnchorRow >= 0) {
+        const int from = qMin(m_selectionAnchorRow, row);
+        const int to = qMax(m_selectionAnchorRow, row);
+        for (int r = from; r <= to; ++r) {
+            const int rowId = idForProxyIndex(m_proxyModel->index(r, 0));
+            if (rowId >= 0) m_trackModel->setIdChecked(rowId, true);
+        }
+    } else {
+        const bool newState = !m_trackModel->isIdChecked(id);
+        m_trackModel->setIdChecked(id, newState);
+        m_selectionAnchorRow = row;
+    }
+
+    emit itemSelected(id); // aggiornamento DetailsPanel 
+    emit selectionChanged(m_trackModel->selectedIds().size());
 }

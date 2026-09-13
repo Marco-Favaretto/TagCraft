@@ -13,6 +13,7 @@
 #include "ui/editmodels/artisteditmodel.h"
 #include "ui/editmodels/genreeditmodel.h"
 #include "ui/dialogs/editmetadatadialog.h"
+#include "ui/editmodels/batchtrackeditmodel.h"
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
@@ -53,6 +54,23 @@ void MainWindow::setupUi() {
     m_fullScanButton = new QPushButton("Full Rescan", this);
     m_resetAndRebuildDb = new QPushButton("Rebuild DB", this);
 
+    m_selectModeButton = new QPushButton("Seleziona", this);
+    m_selectModeButton->setCheckable(true);
+    m_selectModeButton->setVisible(false); // visibile solo in ViewMode::Tracks
+
+    m_selectAllButton = new QPushButton("Seleziona tutto", this);
+    m_deselectAllButton = new QPushButton("Deseleziona tutto", this);
+    m_batchEditButton = new QPushButton("Modifica selezione", this);
+    m_selectAllButton->setVisible(false);
+    m_deselectAllButton->setVisible(false);
+    m_batchEditButton->setVisible(false);
+    m_batchEditButton->setEnabled(false);
+
+    statusBar()->addPermanentWidget(m_selectModeButton);
+    statusBar()->addPermanentWidget(m_selectAllButton);
+    statusBar()->addPermanentWidget(m_deselectAllButton);
+    statusBar()->addPermanentWidget(m_batchEditButton);
+
     m_scanProgressBar = new QProgressBar(this);
     m_scanProgressBar->setRange(0, 100);
     m_scanProgressBar->setFixedWidth(150);
@@ -65,31 +83,29 @@ void MainWindow::setupUi() {
 }
 
 void MainWindow::setupConnections() {
-    connect(m_sidebar, &NavigationSidebar::sectionSelected,
-            this, &MainWindow::onSectionSelected);
+    connect(m_sidebar, &NavigationSidebar::sectionSelected, this, &MainWindow::onSectionSelected);
 
-    connect(m_itemTable, &ItemTableView::itemSelected,
-            this, &MainWindow::onItemSelected);
-    connect(m_itemTable, &ItemTableView::itemActivated,
-            this, &MainWindow::onItemActivated);
+    connect(m_itemTable, &ItemTableView::itemSelected, this, &MainWindow::onItemSelected);
+    connect(m_itemTable, &ItemTableView::itemActivated, this, &MainWindow::onItemActivated);
 
-    connect(m_appController, &AppController::libraryUpdated,
-            this, &MainWindow::onLibraryUpdated);
-    connect(m_appController, &AppController::errorOccurred,
-            this, &MainWindow::onErrorOccurred);
-    connect(m_appController, &AppController::scanProgress,
-            this, &MainWindow::onScanProgress);
+    connect(m_appController, &AppController::libraryUpdated, this, &MainWindow::onLibraryUpdated);
+    connect(m_appController, &AppController::errorOccurred, this, &MainWindow::onErrorOccurred);
+    connect(m_appController, &AppController::scanProgress, this, &MainWindow::onScanProgress);
 
-    connect(m_smartScanButton, &QPushButton::clicked,
-            this, &MainWindow::onSmartScanClicked);
-    connect(m_fullScanButton, &QPushButton::clicked,
-            this, &MainWindow::onFullScanClicked);
-    connect(m_resetAndRebuildDb, &QPushButton::clicked,
-            this, &MainWindow::onResetDbClicked);
+    connect(m_smartScanButton, &QPushButton::clicked, this, &MainWindow::onSmartScanClicked);
+    connect(m_fullScanButton, &QPushButton::clicked,this, &MainWindow::onFullScanClicked);
+    connect(m_resetAndRebuildDb, &QPushButton::clicked, this, &MainWindow::onResetDbClicked);
 
     connect(m_details, &DetailsPanel::openFS, this, &MainWindow::openFS);
     connect(m_details, &DetailsPanel::deleteFromFS, this, &MainWindow::deleteFromFS);
     connect(m_details, &DetailsPanel::editRequested, this, &MainWindow::onEditRequested);
+
+    connect(m_selectModeButton, &QPushButton::toggled, this, &MainWindow::onSelectModeToggled);
+    connect(m_selectAllButton, &QPushButton::clicked, this, &MainWindow::onSelectAllClicked);
+    connect(m_deselectAllButton, &QPushButton::clicked, this, &MainWindow::onDeselectAllClicked);
+    connect(m_batchEditButton, &QPushButton::clicked, this, &MainWindow::onBatchEditClicked);
+    connect(m_itemTable, &ItemTableView::selectionChanged, this, &MainWindow::onSelectionChanged);
+    connect(m_itemTable, &ItemTableView::viewModeChanged, this, &MainWindow::onViewModeChanged);
 }
 
 void MainWindow::onSectionSelected(NavigationSection section) {
@@ -172,7 +188,7 @@ void MainWindow::onItemActivated(int id) {
             m_details->clear();
             break;
         case ViewMode::Tracks:
-            break; // nessun livello successivo
+            break; // nessun livello successivo, magari apertura dialog modifica
     }
 }
 
@@ -331,4 +347,70 @@ void MainWindow::onEditRequested(ViewMode mode, int id) {
             break;
         }
     }
+}
+
+void MainWindow::onViewModeChanged(ViewMode mode) {
+    const bool isTracks = (mode == ViewMode::Tracks);
+    m_selectModeButton->setVisible(isTracks);
+    if (!isTracks) {
+        m_selectModeButton->setChecked(false); // forza anche onSelectModeToggled(false)
+    }
+}
+
+void MainWindow::onSelectModeToggled() {
+    const bool enabled = m_selectModeButton->isChecked();
+    m_itemTable->setSelectionModeEnabled(enabled);
+    m_selectModeButton->setText(enabled ? "Termina selezione" : "Seleziona");
+    m_selectAllButton->setVisible(enabled);
+    m_deselectAllButton->setVisible(enabled);
+    m_batchEditButton->setVisible(enabled);
+    if (!enabled) m_batchEditButton->setEnabled(false);
+}
+
+void MainWindow::onSelectAllClicked() {
+    m_itemTable->selectAllVisible();
+}
+
+void MainWindow::onDeselectAllClicked() {
+    m_itemTable->deselectAllVisible();
+}
+
+void MainWindow::onSelectionChanged(int count) {
+    m_batchEditButton->setText(QString("Modifica selezione (%1)").arg(count));
+    m_batchEditButton->setEnabled(count > 0);
+}
+
+void MainWindow::onBatchEditClicked() {
+    const QList<int> ids = m_itemTable->selectedTrackIds();
+    if (ids.isEmpty()) return;
+
+    QList<Track> tracks;
+    QList<QString> relativePaths;
+    for (int id : ids) {
+        auto opt = m_appController->library()->getTrackById(id);
+        if (!opt) continue;
+        tracks.append(*opt);
+        relativePaths.append(opt->relativePath());
+    }
+    if (tracks.isEmpty()) return;
+
+    BatchTrackEditModel model(tracks, m_appController->library());
+    EditMetadataDialog dialog(&model, m_appController->metadata(), this);
+
+    if (dialog.exec() == QDialog::Accepted) {
+        if (dialog.cleanTags()) {
+            // m_appController->requestCleanTagsBatch(relativePaths);
+        } else {
+            // m_appController->applyMetadataToTracks(tracks, dialog.changedValues());
+
+            if (!dialog.stagedArtworkPath().isEmpty()) {
+                m_appController->requestSetCoverBatch(relativePaths, dialog.stagedArtworkPath());
+            } else if (dialog.artworkRemoved()) {
+                // m_appController->requestRemoveCoverBatch(relativePaths);
+            }
+        }
+    }
+
+    // Uscita automatica dalla modalita' selezione dopo l'edit
+    m_selectModeButton->setChecked(false);
 }
