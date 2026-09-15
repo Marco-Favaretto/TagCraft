@@ -21,9 +21,12 @@ public:
 
     QHash<QString, QVariant> buildResult(const QHash<QString, QVariant>& changedValues) const;
 
+    QList<Track> tracks() const;
+
     static const QString KeyTitle;
     static const QString KeyArtist;
     static const QString KeyGenre;
+    static const QString KeyTrackNumbers;
 
 private:
     Album m_album;

@@ -5,6 +5,8 @@
 #include <QHBoxLayout>
 
 #include "dto/constants.h"
+#include "ui/editmodels/albumeditmodel.h"
+#include "model/track.h"
 
 EditMetadataDialog::EditMetadataDialog(AbstractEditModel* model,
                                        MetadataController* metadata,
@@ -17,10 +19,12 @@ EditMetadataDialog::EditMetadataDialog(AbstractEditModel* model,
     , m_removeArtworkButton(new QPushButton(tr("Elimina artwork"), this))
     , m_cleanTagsButton(new QPushButton(tr("Elimina tutti i metadati"), this))
     , m_formLayout(new QFormLayout())
+    , m_tracksLayout(new QGridLayout())
     , m_buttonBox(new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel, this))
 {
     setupUi();
     showArtwork();
+    buildTrackNumberGrid();
     buildForm();
 
     setWindowTitle(m_model->windowTitle());
@@ -58,6 +62,8 @@ void EditMetadataDialog::setupUi() {
  
     connect(m_changeArtworkButton, &QPushButton::clicked, this, &EditMetadataDialog::onChangeArtworkClicked);
     connect(m_removeArtworkButton, &QPushButton::clicked, this, &EditMetadataDialog::onRemoveArtworkClicked);
+
+    if(m_tracksLayout) mainLayout->addLayout(m_tracksLayout);
 
     m_formLayout->setSpacing(8);
     m_formLayout->setLabelAlignment(Qt::AlignRight | Qt::AlignVCenter);
@@ -296,3 +302,54 @@ QHash<QString, QVariant> EditMetadataDialog::collectCleanTags() const {
 
     return cleaned;
 }
+
+void EditMetadataDialog::buildTrackNumberGrid() {
+    auto* albumModel = dynamic_cast<AlbumEditModel*>(m_model);
+    if (!albumModel)
+        return;
+
+    const QList<Track> tracks = albumModel->tracks();
+    if (tracks.isEmpty())
+        return;
+
+    constexpr int columnCount = 3;
+
+    m_tracksLayout->setHorizontalSpacing(20);
+    m_tracksLayout->setVerticalSpacing(4);
+
+    for (int i = 0; i < tracks.size(); ++i) {
+        const Track& track = tracks.at(i);
+
+        const int column = i / ((tracks.size() + columnCount - 1) / columnCount);
+        const int row = i % ((tracks.size() + columnCount - 1) / columnCount);
+
+        const int titleColumn = column * 2;
+        const int numberColumn = titleColumn + 1;
+
+        auto* titleLabel = new QLabel(track.title(), this);
+        titleLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
+
+        auto* numberEditor = new QSpinBox(this);
+        numberEditor->setRange(0, 9999);
+        numberEditor->setSpecialValueText("-");
+        numberEditor->setValue(track.trackNumber().value_or(0));
+
+        numberEditor->setProperty(
+            "originalValue",
+            track.trackNumber().value_or(0)
+        );
+
+        m_trackNumberEditors.insert(track.id(), numberEditor);
+
+        m_tracksLayout->addWidget(titleLabel, row, titleColumn);
+        m_tracksLayout->addWidget(numberEditor, row, numberColumn);
+
+        connect(numberEditor, QOverload<int>::of(&QSpinBox::valueChanged), this, &EditMetadataDialog::onAnyFieldChanged);
+    }
+
+    // Permette ai titoli di occupare lo spazio disponibile
+    m_tracksLayout->setColumnStretch(0, 1);
+    m_tracksLayout->setColumnStretch(2, 1);
+    m_tracksLayout->setColumnStretch(4, 1);
+}
+

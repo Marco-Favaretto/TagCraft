@@ -42,6 +42,7 @@ private:
     void setupUi();
     void buildForm();
     void showArtwork();
+    void buildTrackNumberGrid();
     bool hasChanges() const;
     QHash<QString, QVariant> collectChangedValues() const;
     QHash<QString, QVariant> collectCleanTags() const;
@@ -65,6 +66,9 @@ private:
     QString m_stagedArtworkPath;
     bool m_artworkRemoved = false;
     bool m_cleanTags = false;
+
+    QGridLayout* m_tracksLayout;
+    QHash<int, QSpinBox*> m_trackNumberEditors;
 };
 
 #endif // EDITMETADATADIALOG_H

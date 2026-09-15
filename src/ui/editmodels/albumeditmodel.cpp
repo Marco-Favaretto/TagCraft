@@ -5,6 +5,7 @@
 const QString AlbumEditModel::KeyTitle = "title";
 const QString AlbumEditModel::KeyArtist = "artistName";
 const QString AlbumEditModel::KeyGenre = "genreName";
+const QString AlbumEditModel::KeyTrackNumbers = "trackNumbers";
 
 AlbumEditModel::AlbumEditModel(const Album& album, LibraryController* library, QObject* parent)
     : AbstractEditModel(parent)
@@ -88,4 +89,9 @@ QHash<QString, QVariant> AlbumEditModel::buildResult(const QHash<QString, QVaria
     }
 
     return result;
+}
+
+QList<Track> AlbumEditModel::tracks() const {
+    if (!m_library) return {};
+    return m_library->getTracksByAlbum(m_album.id());
 }
