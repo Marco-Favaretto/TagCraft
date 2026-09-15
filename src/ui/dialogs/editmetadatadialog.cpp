@@ -251,6 +251,20 @@ void EditMetadataDialog::onSaveClicked() {
  
         lines << QString("%1 %2 -> %3").arg(field.label, oldDisplay, newDisplay);
     }
+
+    for (auto it = m_trackNumberEditors.constBegin(); it != m_trackNumberEditors.constEnd(); ++it) {
+        const int trackId = it.key();
+        const QSpinBox* editor = it.value();
+        const int originalValue = editor->property("originalValue").toInt();
+
+        if (editor->value() == originalValue) continue;
+
+        const QString title = m_trackTitles.value(trackId);
+        const QString oldDisplay = originalValue == 0 ? "-" : QString::number(originalValue);
+        const QString newDisplay = editor->value() == 0 ? "-" : QString::number(editor->value());
+
+        lines << QString("%1: %2 -> %3").arg(title, oldDisplay, newDisplay);
+    }
  
     if (!m_stagedArtworkPath.isEmpty()) {
         lines << tr("Artwork: modificata");
@@ -366,6 +380,7 @@ void EditMetadataDialog::buildTrackNumberGrid() {
         numberEditor->setProperty("originalValue", track.trackNumber().value_or(0));
 
         m_trackNumberEditors.insert(track.id(), numberEditor);
+        m_trackTitles.insert(track.id(), track.title());
 
         m_tracksLayout->addWidget(titleLabel, row, titleColumn);
         m_tracksLayout->addWidget(numberEditor, row, numberColumn);

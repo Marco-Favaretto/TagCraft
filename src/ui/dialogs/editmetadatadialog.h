@@ -69,6 +69,7 @@ private:
 
     QGridLayout* m_tracksLayout;
     QHash<int, QSpinBox*> m_trackNumberEditors;
+    QHash<int, QString> m_trackTitles;
 };
 
 #endif // EDITMETADATADIALOG_H
