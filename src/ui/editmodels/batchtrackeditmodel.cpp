@@ -28,6 +28,10 @@ QString BatchTrackEditModel::resolvedGenreName(const Track& t) const {
     return genreOpt ? genreOpt->name() : QString("Unknown Genre");
 }
 
+QString BatchTrackEditModel::resolvedYear(const Track& t) const {
+    return t.year() ? QString::number(*(t.year())) : QString("Unknown Year");
+}
+
 QString BatchTrackEditModel::commonValue(std::function<QString(const Track&)> resolver) const {
     if (m_tracks.isEmpty()) return QString();
 
@@ -75,6 +79,14 @@ QList<EditField> BatchTrackEditModel::fields() const {
     genre.editable = true;
     genre.type = EditField::Type::Text;
     result.append(genre);
+
+    EditField year;
+    year.key = TrackEditModel::KeyYear;
+    year.label = "Year:";
+    year.value = commonValue([this](const Track& t) { return resolvedYear(t); });
+    year.editable = true;
+    year.type = EditField::Type::Int;
+    result.append(year);
 
     return result;
 }
