@@ -32,7 +32,7 @@ void EditMetadataDialog::setupUi() {
             setMinimumSize(QSize(500, 700));
             break;
         case ViewMode::Albums:
-            setMinimumSize(QSize(500, 500));
+            setMinimumSize(QSize(500, 700));
             break;
         case ViewMode::Artists:
             setMinimumSize(QSize(500, 500));
@@ -115,9 +115,10 @@ void EditMetadataDialog::buildForm() {
 
     for (const EditField& field : fields) {
         if (!field.editable) {
-            auto* valueLabel = new QLabel(field.value.toString(), this);
-            valueLabel->setWordWrap(true);
-            m_formLayout->addRow(field.label, valueLabel);
+            auto* readOnlyEditor = new QLineEdit(field.value.toString(), this);
+            readOnlyEditor->setReadOnly(true);
+            readOnlyEditor->setFocusPolicy(Qt::ClickFocus);
+            m_formLayout->addRow(field.label, readOnlyEditor);
             continue;
         }
 
