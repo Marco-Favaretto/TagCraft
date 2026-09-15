@@ -31,9 +31,12 @@ The library updates automatically after these changes are done.
 ### version 0.4
 The User can now edit album's artist, genre, title and artwork, artist's name and genre's name. These new values updates files' metadata and db.
 
-### version [0.5](../../releases)
-
+### version 0.5
 User can now select multiple tracks (shift-range enabled) and apply the same artist, genre, album, year and artwork to all selected tracks
+
+### version [0.6](../../releases)
+
+User can now change order of an Album's Tracks directly in the Album Edit Dialog.
 
 
 ---
