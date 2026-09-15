@@ -147,3 +147,7 @@ void TrackTableModel::deselectAll() {
         emit dataChanged(index(0, ColumnCount), index(m_rows.size() - 1, ColumnCount), {Qt::CheckStateRole});
     }
 }
+
+int TrackTableModel::checkboxColumn() const { 
+    return ColumnCount; 
+} 

@@ -209,6 +209,14 @@ void ItemTableView::setSelectionModeEnabled(bool enabled) {
     if (m_currentMode != ViewMode::Tracks) return;
     m_trackModel->setSelectionModeEnabled(enabled);
     m_selectionAnchorRow = -1;
+
+    QHeaderView* header = m_tableView->horizontalHeader();
+    const int checkboxColumn = m_trackModel->checkboxColumn();
+    if (enabled) {
+        header->moveSection(header->visualIndex(checkboxColumn), 0);
+        header->setSectionResizeMode(checkboxColumn, QHeaderView::ResizeToContents);
+    }
+
     emit selectionChanged(m_trackModel->selectedIds().size());
 }
 
