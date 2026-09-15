@@ -36,7 +36,7 @@ void EditMetadataDialog::setupUi() {
             setMinimumSize(QSize(500, 700));
             break;
         case ViewMode::Albums:
-            setMinimumSize(QSize(500, 700));
+            setMinimumSize(QSize(800, 700));
             break;
         case ViewMode::Artists:
             setMinimumSize(QSize(500, 500));
@@ -156,15 +156,22 @@ void EditMetadataDialog::buildForm() {
 bool EditMetadataDialog::hasChanges() const {
     if(cleanTags()) return true;
 
-    if (!m_stagedArtworkPath.isEmpty() || m_artworkRemoved) return true;
+    if(!m_stagedArtworkPath.isEmpty() || m_artworkRemoved) return true;
 
-    for (auto it = m_textEditors.constBegin(); it != m_textEditors.constEnd(); ++it) {
+    for(auto it = m_textEditors.constBegin(); it != m_textEditors.constEnd(); ++it) {
         if (!it.value()->text().isEmpty()) return true;
     }
-    for (auto it = m_intEditors.constBegin(); it != m_intEditors.constEnd(); ++it) {
+
+    for(auto it = m_intEditors.constBegin(); it != m_intEditors.constEnd(); ++it) {
         const int original = it.value()->property("originalValue").toInt();
-        if (it.value()->value() != original) return true;
+        if(it.value()->value() != original) return true;
     }
+
+    for(auto it = m_trackNumberEditors.constBegin(); it != m_trackNumberEditors.constEnd(); ++it) {
+        const int original = it.value()->property("originalValue").toInt();
+        if(it.value()->value() != original) return true;
+    }
+
     return false;
 }
 
@@ -371,4 +378,3 @@ void EditMetadataDialog::buildTrackNumberGrid() {
     m_tracksLayout->setColumnStretch(2, 1);
     m_tracksLayout->setColumnStretch(4, 1);
 }
-
