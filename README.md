@@ -28,8 +28,14 @@ UI displays artwork and three buttons on the Tracks view:
 
 The library updates automatically after these changes are done.
 
-### version [0.4](../../releases)
+### version 0.4
 The User can now edit album's artist, genre, title and artwork, artist's name and genre's name. These new values updates files' metadata and db.
+
+### version [0.5](../../releases)
+
+User can now select multiple tracks (shift-range enabled) and apply the same artist, genre, album, year and artwork to all selected tracks
+
+
 ---
 
 # Installation Guide (Linux only right now)
@@ -73,3 +79,9 @@ cmake --build build --config Release
 * Assistance with problem-solving, reasoning, and identifying potential issues.
 * Documentation, planning, and workflow organization.
 * UI implementation and visual refinement, based on the baseline defined in `docs/requirements.md`. — because even the most confusing Picasso painting looks more organized than my best UI.
+
+### Classes/functionalities implemented with AI
+- `void AppController::resolveArtworkFor(const QList<TrackFileSystemDto>& tracks):` with `Qt::Concurrent`
+- Core of `ItemViewTable` and models
+- Core of `EditMetadataDialog` and models
+- `BatchTrackEditModel`
