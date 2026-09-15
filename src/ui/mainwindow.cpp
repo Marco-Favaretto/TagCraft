@@ -399,14 +399,14 @@ void MainWindow::onBatchEditClicked() {
 
     if (dialog.exec() == QDialog::Accepted) {
         if (dialog.cleanTags()) {
-            // m_appController->requestCleanTagsBatch(relativePaths);
+            m_appController->requestCleanTagsBatch(relativePaths);
         } else {
-            // m_appController->applyMetadataToTracks(tracks, dialog.changedValues());
+            m_appController->requestSaveMetadataBatch(tracks, dialog.changedValues());
 
             if (!dialog.stagedArtworkPath().isEmpty()) {
                 m_appController->requestSetCoverBatch(relativePaths, dialog.stagedArtworkPath());
             } else if (dialog.artworkRemoved()) {
-                // m_appController->requestRemoveCoverBatch(relativePaths);
+                m_appController->requestRemoveCoverBatch(relativePaths);
             }
         }
     }

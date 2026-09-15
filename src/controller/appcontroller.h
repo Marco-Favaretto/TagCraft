@@ -25,10 +25,12 @@ public slots:
     void requestScan(const QString& path);
 
     void requestSaveMetadata(const QString& relativePath, const TrackDto& newValues);
-    void requestSaveMetadataBatch(const QList<QString>& relativePaths, const TrackDto& newValues);
+    void requestSaveMetadataBatch(const QList<Track>& tracks, const QHash<QString, QVariant>& changedValues);
     void requestSetCover(const QString& relativePath, const QString& imagePath);
     void requestCleanTags(const QString& relativePath);
+    void requestCleanTagsBatch(const QList<QString>& relativePaths);
     void requestRemoveCover(const QString& relativePath);
+    void requestRemoveCoverBatch(const QList<QString>& relativePaths);
     void requestSetCoverBatch(const QList<QString>& relativePaths, const QString& imagePath);
     void requestSaveAlbumMetadata(const QHash<QString, QVariant>& albumChanges);
     void requestSetAlbumCover(int id, const QString& imagePath);
@@ -71,7 +73,6 @@ private slots:
 private:
     void setupConnections();
     void resolveArtworkFor(const QList<TrackFileSystemDto>& tracks);
-    void applyMetadataToTracks(const QList<Track>& tracks, const QHash<QString, QVariant>& changedValues);
 
     StorageController* m_storageController;
     MetadataController* m_metadataController;
