@@ -31,6 +31,7 @@ ItemTableView::ItemTableView(LibraryController* library, QWidget* parent)
 
     m_tableView->verticalHeader()->setVisible(false);
     m_tableView->installEventFilter(this);
+    m_tableView->viewport()->installEventFilter(this);
 
     auto* layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -178,7 +179,7 @@ void ItemTableView::onDoubleClicked(const QModelIndex& index) {
 }
 
 bool ItemTableView::eventFilter(QObject* watched, QEvent* event) {
-    if (watched == m_tableView && selectionModeEnabled() && event->type() == QEvent::MouseButtonPress) {
+    if (watched == m_tableView->viewport() && selectionModeEnabled() && event->type() == QEvent::MouseButtonPress) {
         auto* mouseEvent = static_cast<QMouseEvent*>(event);
         const QModelIndex proxyIndex = m_tableView->indexAt(mouseEvent->pos());
         if (proxyIndex.isValid()) {
