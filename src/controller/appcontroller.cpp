@@ -220,9 +220,11 @@ void AppController::requestSaveAlbumMetadata(const QHash<QString, QVariant>& alb
     }
     
     // update tracce
-    const QHash<int, int> newTrackNumbers = albumChanges.value(AlbumEditModel::KeyTrackNumbers).value<QHash<int, int>>();
+    const QVariantMap newTrackNumbers = albumChanges.value(AlbumEditModel::KeyTrackNumbers).toMap();
     QHash<QString, QVariant> newNumbers;
-    for(auto [trackId, newNumber] : newTrackNumbers.asKeyValueRange()) {
+    for (auto it = newTrackNumbers.constBegin(); it != newTrackNumbers.constEnd(); ++it) {
+        const int trackId = it.key().toInt();
+        const int newNumber = it.value().toInt();
         auto trackOpt = m_libraryController->getTrackById(trackId);
         if(!trackOpt) continue;
         const Track t = *trackOpt;
