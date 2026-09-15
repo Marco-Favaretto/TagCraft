@@ -169,22 +169,47 @@ bool EditMetadataDialog::hasChanges() const {
 }
 
 QHash<QString, QVariant> EditMetadataDialog::collectChangedValues() const {
-    QHash<QString, QVariant> changed;
+    QHash<QString, QVariant> result;
 
     for (auto it = m_textEditors.constBegin(); it != m_textEditors.constEnd(); ++it) {
-        if (!it.value()->text().isEmpty()) {
-            changed.insert(it.key(), it.value()->text());
-        }
+        const QString& key = it.key();
+        const QLineEdit* editor = it.value();
+        const QString value = editor->text();
+
+        if (!value.isEmpty()) result.insert(key, value);
     }
 
     for (auto it = m_intEditors.constBegin(); it != m_intEditors.constEnd(); ++it) {
-        const int original = it.value()->property("originalValue").toInt();
-        if (it.value()->value() != original) {
-            changed.insert(it.key(), it.value()->value());
+        const QString& key = it.key();
+        const QSpinBox* editor = it.value();
+        const int originalValue = editor->property("originalValue").toInt();
+
+        if (editor->value() != originalValue) result.insert(key, editor->value());
+    }
+
+    QVariantMap changedTrackNumbers;
+
+    for (auto it = m_trackNumberEditors.constBegin(); it != m_trackNumberEditors.constEnd(); ++it) {
+        const int trackId = it.key();
+        const QSpinBox* editor = it.value();
+        const int originalValue = editor->property("originalValue").toInt();
+
+        if (editor->value() != originalValue) {
+            changedTrackNumbers.insert(
+                QString::number(trackId),
+                editor->value()
+            );
         }
     }
 
-    return changed;
+    if (!changedTrackNumbers.isEmpty()) {
+        result.insert(
+            AlbumEditModel::KeyTrackNumbers,
+            changedTrackNumbers
+        );
+    }
+
+    return result;
 }
 
 void EditMetadataDialog::onAnyFieldChanged() {
@@ -305,12 +330,10 @@ QHash<QString, QVariant> EditMetadataDialog::collectCleanTags() const {
 
 void EditMetadataDialog::buildTrackNumberGrid() {
     auto* albumModel = dynamic_cast<AlbumEditModel*>(m_model);
-    if (!albumModel)
-        return;
+    if (!albumModel) return;
 
     const QList<Track> tracks = albumModel->tracks();
-    if (tracks.isEmpty())
-        return;
+    if (tracks.isEmpty()) return;
 
     constexpr int columnCount = 3;
 
@@ -333,11 +356,7 @@ void EditMetadataDialog::buildTrackNumberGrid() {
         numberEditor->setRange(0, 9999);
         numberEditor->setSpecialValueText("-");
         numberEditor->setValue(track.trackNumber().value_or(0));
-
-        numberEditor->setProperty(
-            "originalValue",
-            track.trackNumber().value_or(0)
-        );
+        numberEditor->setProperty("originalValue", track.trackNumber().value_or(0));
 
         m_trackNumberEditors.insert(track.id(), numberEditor);
 

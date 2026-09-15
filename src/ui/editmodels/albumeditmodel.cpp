@@ -73,7 +73,7 @@ QHash<QString, QVariant> AlbumEditModel::buildResult(const QHash<QString, QVaria
 
     result.insert("id", m_album.id());
     result.insert(KeyTitle, changedValues.contains(KeyTitle) ? changedValues.value(KeyTitle) : QVariant(m_album.title()));
-    
+
     if (changedValues.contains(KeyArtist)) {
         result.insert(KeyArtist, changedValues.value(KeyArtist));
     } else {
@@ -87,6 +87,8 @@ QHash<QString, QVariant> AlbumEditModel::buildResult(const QHash<QString, QVaria
         auto genreOpt = m_library ? m_library->getGenreById(m_album.genreId()) : std::nullopt;
         result.insert(KeyGenre, genreOpt ? genreOpt->name() : QString("Unknown Genre"));
     }
+
+    if (changedValues.contains(KeyTrackNumbers)) result.insert(KeyTrackNumbers, changedValues.value(KeyTrackNumbers));
 
     return result;
 }

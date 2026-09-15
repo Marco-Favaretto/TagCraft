@@ -10,6 +10,7 @@
 #include "utils/imageutils.h"
 #include "dto/constants.h"
 #include "ui/editmodels/trackeditmodel.h"
+#include "ui/editmodels/albumeditmodel.h"
 
 #include <QImage>
 #include <QMutex>
@@ -196,26 +197,40 @@ void AppController::requestRemoveAlbumCover(int id) {
     for(auto t : m_libraryController->getTracksByAlbum(id)) this->requestRemoveCover(t.relativePath());
 }
 
-// result["id"], result["title"], result["artistName"], result["genreName"]
+// result["id"], result["title"], result["artistName"], result["genreName"], result["trackNumbers"]
 void AppController::requestSaveAlbumMetadata(const QHash<QString, QVariant>& albumChanges) {
     const int albumId = albumChanges.value("id").toInt();
-    const QString newTitle = albumChanges.value("title").toString();
-    const QString newArtistName = albumChanges.value("artistName").toString();
-    const QString newGenreName = albumChanges.value("genreName").toString();
-
+    const QString newTitle = albumChanges.value(AlbumEditModel::KeyTitle).toString();
+    const QString newArtistName = albumChanges.value(AlbumEditModel::KeyArtist).toString();
+    const QString newGenreName = albumChanges.value(AlbumEditModel::KeyGenre).toString();
+    
     QHash<QString, QVariant> changed;
     changed.insert(TrackEditModel::KeyAlbum, newTitle);
     changed.insert(TrackEditModel::KeyArtist, newArtistName);
     changed.insert(TrackEditModel::KeyGenre, newGenreName);
-
+    
     requestSaveMetadataBatch(m_libraryController->getTracksByAlbum(albumId), changed);
-
+    
     const int artistId = m_databaseController->resolveArtistId(newArtistName);
     const int genreId = m_databaseController->resolveGenreId(newGenreName);
-
+    
     if (!AlbumDao::updateMetadata(albumId, newTitle, artistId, genreId)) {
         emit errorOccurred("errore nell'aggiornamento dell'album a db");
         return;
+    }
+    
+    // update tracce
+    const QHash<int, int> newTrackNumbers = albumChanges.value(AlbumEditModel::KeyTrackNumbers).value<QHash<int, int>>();
+    QHash<QString, QVariant> newNumbers;
+    for(auto [trackId, newNumber] : newTrackNumbers.asKeyValueRange()) {
+        auto trackOpt = m_libraryController->getTrackById(trackId);
+        if(!trackOpt) continue;
+        const Track t = *trackOpt;
+        TrackEditModel model(t, m_libraryController);
+        QHash<QString, QVariant> qvarianthash;
+        qvarianthash.insert(TrackEditModel::KeyTrackNumber, newNumber);
+        const TrackDto dto = model.buildDto(qvarianthash);
+        requestSaveMetadata(t.relativePath(), dto);
     }
 
     emit libraryUpdated();
