@@ -4,6 +4,7 @@
 #include "model/track.h"
 #include "dto/trackfilesystemdto.h"
 #include "dto/firsttrackcovers.h"
+#include "dto/trackdto.h"
 
 #include <optional>
 #include <QList>
@@ -23,6 +24,7 @@ public:
     static QList<Track> getTracksByAlbumRPath(const QString& albumRelativePath);
     static QList<QString> getRPathTracksFromAlbumRPath(const QString& albumRelativePath);
     static QList<Track> getAll();
+    static QList<TrackDto> getAllResolved();
     static QList<Track> getByAlbumId(int albumId);
     static QList<Track> getByArtistId(int artistId);
     static QList<Track> getByGenreId(int genreId);

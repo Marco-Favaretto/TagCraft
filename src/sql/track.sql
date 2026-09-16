@@ -181,3 +181,12 @@ SET
     track_number = NULL,
     track_cover_hash = NULL
 where id = :id;
+
+-- name: getAllResolved
+SELECT track.id, track.title, artist.name, album.title, genre.name, track.track_number, track.year,
+    track.duration_seconds, track.relative_path, track.file_mtime, track.file_size, track.track_cover_hash
+FROM track
+JOIN artist ON track.artist_id = artist.id
+JOIN album ON track.album_id = album.id
+JOIN genre ON track.genre_id = genre.id
+ORDER BY track.title;

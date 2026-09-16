@@ -145,6 +145,8 @@ QList<EditField> TrackEditModel::fields() const {
 TrackDto TrackEditModel::buildDto(const QHash<QString, QVariant>& changedValues) const {
     TrackDto dto;
 
+    dto.id = m_track.id();
+
     auto artistOpt = library->getArtistById(m_track.artistId());
     QString artistName = artistOpt.has_value() ? artistOpt->name() : Constants::DefaultValues::Artist;
 

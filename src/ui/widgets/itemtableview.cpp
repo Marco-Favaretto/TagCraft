@@ -91,6 +91,26 @@ void ItemTableView::setTracks(const QList<Track>& tracks) {
     activateModel(m_trackModel, ViewMode::Tracks);
 }
 
+void ItemTableView::setTracks(const QList<TrackDto>& trackDtos) {
+    QList<TrackTableModel::Row> rows;
+    rows.reserve(trackDtos.size());
+
+    for (const TrackDto& t : trackDtos) {
+        TrackTableModel::Row row;
+        row.id = t.id;
+        row.title = t.title;
+        row.artistName = t.artistName;
+        row.albumName = t.albumName;
+        row.trackNumber = t.trackNumber;
+        row.year = t.year;
+        rows.append(row);
+    }
+
+    m_trackModel->setRows(rows);
+    m_tableView->sortByColumn(0, Qt::AscendingOrder);
+    activateModel(m_trackModel, ViewMode::Tracks);
+}
+
 void ItemTableView::setAlbums(const QList<Album>& albums) {
     QList<AlbumTableModel::Row> rows;
     rows.reserve(albums.size());

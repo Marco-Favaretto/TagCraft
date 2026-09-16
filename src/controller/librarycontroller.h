@@ -10,6 +10,7 @@
 #include "model/track.h"
 #include "model/genre.h"
 #include "dto/searchresultdto.h"
+#include "dto/trackdto.h"
 
 class LibraryController : public QObject{
     Q_OBJECT
@@ -31,6 +32,7 @@ public:
     QList<Track> getUnknownAlbumOfArtist(int artistId) const;
 
     QList<Track> getAllTracks() const;
+    QList<TrackDto> getAllTracksResolved() const;
     std::optional<Track> getTrackById(int trackId) const;
     std::optional<Track> getTrackByRelativePath(const QString& relativePath) const;
     

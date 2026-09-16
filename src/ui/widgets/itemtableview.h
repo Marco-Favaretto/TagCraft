@@ -21,6 +21,7 @@ public:
     explicit ItemTableView(LibraryController* library, QWidget* parent = nullptr);
 
     void setTracks(const QList<Track>& tracks);
+    void setTracks(const QList<TrackDto>& trackDtos);
     void setAlbums(const QList<Album>& albums);
     void setArtists(const QList<Artist>& artists);
     void setGenres(const QList<Genre>& genres);

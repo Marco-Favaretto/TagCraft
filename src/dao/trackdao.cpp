@@ -176,6 +176,30 @@ QList<Track> TrackDao::getAll() {
     return tracks;
 }
 
+QList<TrackDto> TrackDao::getAllResolved() {
+    QList<TrackDto> trackDtos;
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Track);
+    const QString queryString = queries.value("getAllResolved");
+
+    if (queryString.isEmpty()) {
+        qCritical() << "Query 'getAll' non trovata in track.sql";
+        return trackDtos;
+    }
+
+    QSqlQuery query;
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return trackDtos;
+    }
+
+    if(SqlExecutor::execute(query, {})) {
+        while (query.next()) {
+            trackDtos.append(EntityMapper::toTrackDto(query));
+        }
+    }
+    return trackDtos;
+}
+
 QHash<QString, TrackFileSystemDto> TrackDao::getAllFileStates() {
     QHash<QString, TrackFileSystemDto> states;
     static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Track);

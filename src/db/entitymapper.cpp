@@ -83,3 +83,28 @@ FirstTrackCovers EntityMapper::toDtoFirstTrackCover(const QSqlQuery& query) {
 
     return ftc;
 }
+
+TrackDto EntityMapper::toTrackDto(const QSqlQuery& query) {
+    TrackDto dto;
+
+    dto.id = query.value("track.id").toInt();;
+    dto.relativePath = query.value("track.relative_path").toString();
+    dto.title = query.value("track.title").toString();
+    dto.artistName = query.value("artist.name").toString();
+    dto.albumName = query.value("album.title").toString();
+    dto.genreName = query.value("genre.name").toString();
+    
+    std::optional<int> tmpOpt = DbUtils::variantToOptional<int>(query.value("track.track_number"));
+    if(tmpOpt) dto.trackNumber = *tmpOpt;
+    
+    tmpOpt = DbUtils::variantToOptional<int>(query.value("track.year"));
+    if(tmpOpt) dto.year = *tmpOpt;
+    
+    dto.durationSeconds = query.value("track.file_mtime").toLongLong();
+    dto.fileSize = query.value("track.file_size").toLongLong();
+    
+    std::optional<QString> tmpOptHash = DbUtils::variantToOptional<QString>(query.value("track.track_cover_hash"));
+    if(tmpOptHash) dto.coverHash = *tmpOptHash; 
+    
+    return dto;
+}

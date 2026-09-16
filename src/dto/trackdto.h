@@ -5,6 +5,7 @@
 #include <QDateTime>
 
 struct TrackDto {
+    int id;
     QString relativePath;
     QString title;
     QString artistName;
@@ -23,10 +24,11 @@ struct TrackDto {
                 .toString(Qt::ISODate);
 
         return QString(
-            "TrackDto{title='%1', artist='%2', album='%3', genre='%4', "
-            "track=%5, year=%6, duration=%7s, size=%8B, "
-            "modified='%9', path='%10', coverHash='%11'}"
+            "TrackDto{id='%1', title='%2', artist='%3', album='%4', genre='%5', "
+            "track=%6, year=%7, duration=%8s, size=%9B, "
+            "modified='%10', path='%11', coverHash='%12'}"
         )
+        .arg(id)
         .arg(title)
         .arg(artistName)
         .arg(albumName)

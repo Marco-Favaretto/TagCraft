@@ -118,7 +118,7 @@ void MainWindow::onSectionSelected(NavigationSection section) {
 void MainWindow::loadCurrentSection() {
     switch (m_currentSection) {
         case NavigationSection::AllTracks:
-            m_itemTable->setTracks(m_appController->library()->getAllTracks());
+            m_itemTable->setTracks(m_appController->library()->getAllTracksResolved());
             break;
         case NavigationSection::Albums:
             m_itemTable->setAlbums(m_appController->library()->getAllAlbums());

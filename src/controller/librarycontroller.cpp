@@ -97,6 +97,10 @@ QList<Track> LibraryController::getAllTracks() const {
     return TrackDao::getAll();
 }
 
+QList<TrackDto> LibraryController::getAllTracksResolved() const {
+    return TrackDao::getAllResolved();
+}
+
 std::optional<Track> LibraryController::getTrackById(int trackId) const {
     return TrackDao::findById(trackId);
 }

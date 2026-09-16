@@ -22,6 +22,7 @@ public:
     static TrackFileSystemDto trackToTFSDto(const Track& track);
     static TrackFileSystemDto trackDtoToTFSDto(const TrackDto& trackDto);
     static FirstTrackCovers toDtoFirstTrackCover(const QSqlQuery&);
+    static TrackDto toTrackDto(const QSqlQuery&);
 };
 
 #endif // ENTITYMAPPER_H
