@@ -33,31 +33,24 @@ void Logger::shutdown() {
     qInstallMessageHandler(nullptr);
 }
 
-void Logger::messageHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg)
-{
-    Q_UNUSED(context);
+void Logger::messageHandler(QtMsgType type, const QMessageLogContext& context, const QString& msg) {
     QString level;
 
     switch (type) {
-        case QtDebugMsg:
-            level = "DEBUG";
-            break;
-        case QtInfoMsg:
-            level = "INFO";
-            break;
-        case QtWarningMsg:
-            level = "WARNING";
-            break;
-        case QtCriticalMsg:
-            level = "CRITICAL";
-            break;
-        case QtFatalMsg:
-            level = "FATAL";
-            break;
+        case QtDebugMsg:    level = "DEBUG";    break;
+        case QtInfoMsg:     level = "INFO";     break;
+        case QtWarningMsg:  level = "WARNING";  break;
+        case QtCriticalMsg: level = "CRITICAL"; break;
+        case QtFatalMsg:    level = "FATAL";    break;
     }
 
     const QString timestamp = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss.zzz");
-    const QString line = QString("[%1] [%2] %3").arg(timestamp, level, msg);
+    const QString function = context.function ? QString::fromUtf8(context.function) : QString();
+    const QString line = QString("[%1] [%2] %3:\t%4")
+        .arg(timestamp)
+        .arg(level)
+        .arg(function)
+        .arg(msg);
 
     QTextStream stream(&logFile);
     stream << line << '\n';

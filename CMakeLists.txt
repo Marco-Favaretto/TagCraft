@@ -134,7 +134,6 @@ qt_add_executable(TagCraft
     src/controller/librarycontroller.h
     src/controller/librarycontroller.cpp
 
-
 )
 
 target_include_directories(TagCraft
