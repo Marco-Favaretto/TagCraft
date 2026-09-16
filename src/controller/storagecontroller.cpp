@@ -11,16 +11,12 @@ StorageController::StorageController(QObject* parent)
     setupConnections();
 }
 
-// ScanResultDto StorageController::runScan(const QString& path) {
-//     if (!validateMusicDirectory(path)) {
-//         emit errorOccurred("Percorso libreria non valido o non accessibile: " + path);
-//         return ScanResultDto{};
-//     }
-
-//     ScanResultDto result = LibraryScanner::smartScan(path);
-//     emit scanFinished(result);
-//     return result;
-// }
+bool StorageController::scanForStorage() {
+    if(storage.scanForStorage()) {
+        emit storageMounted(storage.mountPoint());
+        return true;
+    } else return false;
+}
 
 ScanResultDto StorageController::runScan(const QString& path) {
     if (!validateMusicDirectory(path)) {

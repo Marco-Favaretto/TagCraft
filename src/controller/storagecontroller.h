@@ -25,6 +25,7 @@ public:
 
     ScanResultDto runScan(const QString& path);
     QList<TrackFileSystemDto> runFullScan(const QString& path);
+    bool scanForStorage();
 
 signals:
     void storageMounted(const QString& mountPoint);

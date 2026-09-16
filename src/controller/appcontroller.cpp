@@ -24,27 +24,34 @@
 AppController::AppController(QObject* parent) : QObject(parent) {}
 
 bool AppController::initialize() {
-    if (!StorageManager::instance().scanForStorage()) {
-        emit errorOccurred("Storage esterno non trovato");
+    m_storageController = new StorageController(this);
+    m_metadataController = new MetadataController(this);
+    m_databaseController = new DatabaseController(this);
+    setupConnections();
+
+    if (!tryMountAndOpenDatabase()) {
+        emit errorOccurred("Storage esterno non trovato. Collega un dispositivo e usa 'Scan For Devices'.");
+        return true;
     }
 
-    QString dbPath = StorageManager::instance().musicAppPoint() + "/" + Constants::Paths::DatabaseFileName;
+    emit appReady();
+    return true;
+}
+
+bool AppController::tryMountAndOpenDatabase() {
+    if (!m_storageController->isStorageMounted()) {
+        if (!m_storageController->scanForStorage()) return false;
+    }
+
+    const QString dbPath = StorageManager::instance().musicAppPoint() + "/" + Constants::Paths::DatabaseFileName;
     if (!DatabaseManager::instance().openDatabase(dbPath)) {
         emit errorOccurred("Impossibile aprire il database");
         return false;
     }
-    if(!DatabaseManager::instance().initSchema()) {
+    if (!DatabaseManager::instance().initSchema()) {
         emit errorOccurred("Impossibile inizializzare il database, errore nella creazione dello schema o dei valori di default.");
         return false;
     }
-
-    m_storageController = new StorageController(this);
-    m_metadataController = new MetadataController(this);
-    m_databaseController = new DatabaseController(this);
-
-    setupConnections();
-
-    emit appReady();
     return true;
 }
 
@@ -57,10 +64,10 @@ void AppController::setupConnections() {
             this, &AppController::scanProgress);
     connect(m_storageController, &StorageController::errorOccurred,
             this, &AppController::errorOccurred);
-    connect(m_storageController, &StorageController::storageMounted,
-            this, &AppController::onStorageMounted);
+    // connect(m_storageController, &StorageController::storageMounted,
+    //         this, &AppController::storageMounted);
     connect(m_storageController, &StorageController::storageUnmounted,
-            this, &AppController::onStorageUnmounted);
+            this, &AppController::storageUnmounted);
     connect(m_metadataController, &MetadataController::metadataSaved,
             this, &AppController::metadataSaved);
     connect(m_metadataController, &MetadataController::metadataSaveFailed,
@@ -80,6 +87,20 @@ MetadataController* AppController::metadata() const { return m_metadataControlle
 
 void AppController::requestScan(const QString& path) {
     m_storageController->runScan(path);
+}
+
+void AppController::requestScanForDevices() {
+    if (m_storageController->isStorageMounted()) {
+        emit errorOccurred("Storage already mounted at " + m_storageController->currentMountPoint());
+        return;
+    }
+
+    if (!tryMountAndOpenDatabase()) {
+        emit errorOccurred("Errore nella scan degli storage");
+        return;
+    }
+
+    emit storageMounted(StorageManager::instance().mountPoint());
 }
 
 void AppController::requestSaveMetadata(const QString& relativePath, const TrackDto& newValues) {
@@ -289,13 +310,6 @@ void AppController::onScanFinished(const ScanResultDto& result) {
         emit errorOccurred("Sincronizzazione cover album fallita");
 
     emit libraryUpdated();
-}
-
-void AppController::onStorageMounted(const QString& mountPoint) {
-    emit storageMounted(mountPoint);
-}
-void AppController::onStorageUnmounted() {
-    emit storageUnmounted();
 }
 
 void AppController::requestResetDb() {

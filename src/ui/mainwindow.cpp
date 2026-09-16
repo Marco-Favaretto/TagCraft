@@ -53,6 +53,7 @@ void MainWindow::setupUi() {
     m_smartScanButton = new QPushButton("Smart Scan", this);
     m_fullScanButton = new QPushButton("Full Rescan", this);
     m_resetAndRebuildDb = new QPushButton("Rebuild DB", this);
+    m_scanForDevices = new QPushButton("Scan For Devices", this);
 
     m_selectModeButton = new QPushButton("Seleziona", this);
     m_selectModeButton->setCheckable(true);
@@ -80,6 +81,7 @@ void MainWindow::setupUi() {
     statusBar()->addPermanentWidget(m_smartScanButton);
     statusBar()->addPermanentWidget(m_fullScanButton);
     statusBar()->addPermanentWidget(m_resetAndRebuildDb);
+    statusBar()->addPermanentWidget(m_scanForDevices);
 }
 
 void MainWindow::setupConnections() {
@@ -91,10 +93,12 @@ void MainWindow::setupConnections() {
     connect(m_appController, &AppController::libraryUpdated, this, &MainWindow::onLibraryUpdated);
     connect(m_appController, &AppController::errorOccurred, this, &MainWindow::onErrorOccurred);
     connect(m_appController, &AppController::scanProgress, this, &MainWindow::onScanProgress);
+    connect(m_appController, &AppController::storageMounted, this, &MainWindow::onStorageMounted);
 
     connect(m_smartScanButton, &QPushButton::clicked, this, &MainWindow::onSmartScanClicked);
     connect(m_fullScanButton, &QPushButton::clicked,this, &MainWindow::onFullScanClicked);
     connect(m_resetAndRebuildDb, &QPushButton::clicked, this, &MainWindow::onResetDbClicked);
+    connect(m_scanForDevices, &QPushButton::clicked, this, &MainWindow::scanDevices);
 
     connect(m_details, &DetailsPanel::openFS, this, &MainWindow::openFS);
     connect(m_details, &DetailsPanel::deleteFromFS, this, &MainWindow::deleteFromFS);
@@ -208,6 +212,11 @@ void MainWindow::onScanProgress(int percentage) {
     m_scanProgressBar->setValue(percentage);
 }
 
+void MainWindow::onStorageMounted() {
+    loadCurrentSection();
+    statusBar()->showMessage("Storage collegato, libreria caricata", 3000);
+}
+
 void MainWindow::onSmartScanClicked() {
     m_appController->requestScan(StorageManager::instance().musicPoint());
 }
@@ -218,6 +227,10 @@ void MainWindow::onFullScanClicked() {
 
 void MainWindow::onResetDbClicked() {
     m_appController->requestResetAndRebuildDb();
+}
+
+void MainWindow::scanDevices() {
+    m_appController->requestScanForDevices();
 }
 
 bool MainWindow::eventFilter(QObject* watched, QEvent* event) {

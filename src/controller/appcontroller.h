@@ -40,6 +40,7 @@ public slots:
 
     void requestResetDb();
     void requestResetAndRebuildDb();
+    void requestScanForDevices();
 
     void openFS(const QString& relativePath, bool isAlbum);
     void deleteFromFS(const QString& relativePath, bool isAlbum);
@@ -67,12 +68,11 @@ signals:
 private slots:
     void onScanFinished(const ScanResultDto& result);
     void onFullScanFinished(const QList<TrackFileSystemDto>& list);
-    void onStorageMounted(const QString& mountPoint);
-    void onStorageUnmounted();
 
 private:
     void setupConnections();
     void resolveArtworkFor(const QList<TrackFileSystemDto>& tracks);
+    bool tryMountAndOpenDatabase();
 
     StorageController* m_storageController;
     MetadataController* m_metadataController;
