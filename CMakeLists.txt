@@ -62,6 +62,8 @@ qt_add_executable(TagCraft
     src/ui/widgets/navigationsidebar.cpp
     src/ui/widgets/detailspanel.h
     src/ui/widgets/detailspanel.cpp
+    src/ui/widgets/itemtableview.h
+    src/ui/widgets/itemtableview.cpp
     src/ui/tablemodels/abstractlibrarytablemodel.h
     src/ui/tablemodels/tracktablemodel.h
     src/ui/tablemodels/tracktablemodel.cpp
@@ -71,8 +73,6 @@ qt_add_executable(TagCraft
     src/ui/tablemodels/artisttablemodel.cpp
     src/ui/tablemodels/genretablemodel.h
     src/ui/tablemodels/genretablemodel.cpp
-    src/ui/widgets/itemtableview.h
-    src/ui/widgets/itemtableview.cpp
     src/ui/editmodels/abstracteditmodel.h
     src/ui/editmodels/trackeditmodel.h
     src/ui/editmodels/trackeditmodel.cpp
@@ -103,6 +103,10 @@ qt_add_executable(TagCraft
     src/utils/tagmapper.cpp
     src/utils/imageutils.h
     src/utils/imageutils.cpp
+    src/utils/formatter.h
+    src/utils/formatter.cpp
+    src/utils/logger.h
+    src/utils/logger.cpp
 
     src/storage/storagemanager.h
     src/storage/storagemanager.cpp
@@ -116,6 +120,8 @@ qt_add_executable(TagCraft
     src/dto/navigationsection.h
     src/dto/viewmode.h
     src/dto/editfield.h
+    src/dto/constants.h
+    src/dto/firsttrackcovers.h
 
     src/controller/appcontroller.h
     src/controller/appcontroller.cpp
@@ -127,10 +133,8 @@ qt_add_executable(TagCraft
     src/controller/metadatacontroller.cpp
     src/controller/librarycontroller.h
     src/controller/librarycontroller.cpp
-    src/dto/constants.h
-    src/dto/firsttrackcovers.h
-    src/utils/formatter.h
-    src/utils/formatter.cpp
+
+
 )
 
 target_include_directories(TagCraft
