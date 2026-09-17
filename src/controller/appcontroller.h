@@ -5,6 +5,7 @@
 #include <QString>
 
 #include "dto/scanresultdto.h"
+#include "dto/undoaction.h"
 #include "controller/databasecontroller.h"
 #include "controller/storagecontroller.h"
 #include "controller/metadatacontroller.h"
@@ -42,6 +43,10 @@ public slots:
     void requestResetAndRebuildDb();
     void requestScanForDevices();
 
+    void requestUndoLastChange();
+    bool hasUndoableChange() const;
+    QString undoDescription() const;
+
     void openFS(const QString& relativePath, bool isAlbum);
     void deleteFromFS(const QString& relativePath, bool isAlbum);
 
@@ -51,12 +56,13 @@ signals:
     void appReady();
     void errorOccurred(const QString& message);
     void libraryUpdated();
-
     void storageMounted(const QString& mountPoint);
     void storageUnmounted();
     void scanProgress(int percentage);
     void scanStarted();
     void scanFinished();
+
+    void undoAvailabilityChanged(bool available, const QString& description);
 
     void metadataSaved(const QString& relativePath);
     void metadataSaveFailed(const QString& relativePath, const QString& reason);
@@ -82,11 +88,17 @@ private:
     void resolveArtworkFor(const QList<TrackFileSystemDto>& tracks);
     bool tryMountAndOpenDatabase();
 
+    QList<QPair<QString, TrackDto>> snapshotTracks(const QList<Track>& tracks) const;
+    void restoreTrackSnapshots(const QList<QPair<QString, TrackDto>>& snapshots);
+    void setLastAction(const QString& description, const QSet<QString>& affectedPaths, std::function<void()> undo);
+
     StorageController* m_storageController;
     MetadataController* m_metadataController;
     DatabaseController* m_databaseController;
     LibraryController* m_libraryController;
     // DownloaderController* m_downloaderController = nullptr; // futuro
+
+    std::optional<UndoAction> m_lastAction;
 };
 
 #endif // APPCONTROLLER_H
