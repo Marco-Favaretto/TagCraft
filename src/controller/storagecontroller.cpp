@@ -64,6 +64,18 @@ QString StorageController::currentMountPoint() const {
     return storage.mountPoint();
 }
 
+QString StorageController::musicPoint() const {
+    return storage.musicPoint();
+}
+
+QString StorageController::musicAppPoint() const {
+    return storage.musicAppPoint();
+}
+
+QString StorageController::artworkCacheDirectory() const {
+    return storage.artworkCacheDirectory();
+}
+
 QString StorageController::resolveToAbsolutePath(const QString& relativePath) const {
     return storage.toAbsolutePath(relativePath);
 }

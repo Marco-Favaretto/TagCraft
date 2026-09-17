@@ -15,13 +15,12 @@ public:
     bool isMounted() const;
 
     QString mountPoint() const; // es. "/run/media/user/externalDevice"
-    
-    QString toAbsolutePath(const QString&) const;
-    QString toRelativePath(const QString&) const;
-
     QString musicPoint() const;
     QString musicAppPoint() const;
     QString artworkCacheDirectory() const;
+    
+    QString toAbsolutePath(const QString&) const;
+    QString toRelativePath(const QString&) const;
 
 signals:
     void storageMounted(const QString& mountPoint);

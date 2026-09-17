@@ -19,6 +19,9 @@ public:
 
     bool isStorageMounted() const;
     QString currentMountPoint() const;
+    QString musicPoint() const;
+    QString musicAppPoint() const;
+    QString artworkCacheDirectory() const;
     QString resolveToAbsolutePath(const QString& relativePath) const;
     QString resolveToRelativePath(const QString& absolutePath) const;
     bool validateMusicDirectory(const QString& path) const;
