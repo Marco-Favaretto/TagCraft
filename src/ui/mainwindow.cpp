@@ -197,6 +197,7 @@ void MainWindow::onItemActivated(int id) {
 }
 
 void MainWindow::onLibraryUpdated() {
+    m_scanForDevices->setEnabled(true);
     m_scanProgressBar->setVisible(false);
     loadCurrentSection();
     statusBar()->showMessage("Libreria aggiornata", 3000);
@@ -213,23 +214,32 @@ void MainWindow::onScanProgress(int percentage) {
 }
 
 void MainWindow::onStorageMounted() {
+    m_fullScanButton->setEnabled(true);
+    m_smartScanButton->setEnabled(true);
+    m_resetAndRebuildDb->setEnabled(true);
     loadCurrentSection();
     statusBar()->showMessage("Storage collegato, libreria caricata", 3000);
 }
 
 void MainWindow::onSmartScanClicked() {
+    m_scanForDevices->setEnabled(false);
     m_appController->requestScan(StorageManager::instance().musicPoint());
 }
 
 void MainWindow::onFullScanClicked() {
+    m_scanForDevices->setEnabled(false);
     m_appController->requestResetAndRebuildDb();
 }
 
 void MainWindow::onResetDbClicked() {
+    m_scanForDevices->setEnabled(false);
     m_appController->requestResetAndRebuildDb();
 }
 
 void MainWindow::scanDevices() {
+    m_fullScanButton->setEnabled(false);
+    m_smartScanButton->setEnabled(false);
+    m_resetAndRebuildDb->setEnabled(false);
     m_appController->requestScanForDevices();
 }
 
