@@ -37,7 +37,7 @@ MainWindow::MainWindow(QWidget* parent)
 
 void MainWindow::setupUi() {
     setWindowTitle("TagCraft");
-    resize(1100, 700);
+    resize(1200, 800);
 
     auto* splitter = new QSplitter(Qt::Horizontal, this);
     splitter->addWidget(m_sidebar);
