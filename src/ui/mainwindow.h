@@ -35,6 +35,7 @@ private slots:
     void onFullScanClicked();
     void onResetDbClicked();
     void scanDevices();
+    void onUndoAvailabilityChanged(bool available, const QString& description);
     
     void openFS(const QString& relativePath, bool isAlbum);
     void deleteFromFS(const QString& relativePath, bool isAlbum);
@@ -71,6 +72,7 @@ private:
     QPushButton* m_selectAllButton;
     QPushButton* m_deselectAllButton;
     QPushButton* m_batchEditButton;
+    QPushButton* m_undoButton;
 
     QProgressBar* m_scanProgressBar;
 

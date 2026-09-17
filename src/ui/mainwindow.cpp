@@ -62,15 +62,18 @@ void MainWindow::setupUi() {
     m_selectAllButton = new QPushButton("Seleziona tutto", this);
     m_deselectAllButton = new QPushButton("Deseleziona tutto", this);
     m_batchEditButton = new QPushButton("Modifica selezione", this);
+    m_undoButton = new QPushButton("Annulla modifica", this);
     m_selectAllButton->setVisible(false);
     m_deselectAllButton->setVisible(false);
     m_batchEditButton->setVisible(false);
     m_batchEditButton->setEnabled(false);
+    m_undoButton->setVisible(false);
 
     statusBar()->addPermanentWidget(m_selectModeButton);
     statusBar()->addPermanentWidget(m_selectAllButton);
     statusBar()->addPermanentWidget(m_deselectAllButton);
     statusBar()->addPermanentWidget(m_batchEditButton);
+    statusBar()->addPermanentWidget(m_undoButton);
 
     m_scanProgressBar = new QProgressBar(this);
     m_scanProgressBar->setRange(0, 100);
@@ -95,6 +98,8 @@ void MainWindow::setupConnections() {
     connect(m_appController, &AppController::scanProgress, this, &MainWindow::onScanProgress);
     connect(m_appController, &AppController::storageMounted, this, &MainWindow::onStorageMounted);
     connect(m_appController, &AppController::batchOperationFinished, this, &MainWindow::onBatchOperationFinished);
+    connect(m_appController, &AppController::undoAvailabilityChanged, this, &MainWindow::onUndoAvailabilityChanged);
+    connect(m_undoButton, &QPushButton::clicked, m_appController, &AppController::requestUndoLastChange);
 
     connect(m_smartScanButton, &QPushButton::clicked, this, &MainWindow::onSmartScanClicked);
     connect(m_fullScanButton, &QPushButton::clicked,this, &MainWindow::onFullScanClicked);
@@ -451,4 +456,9 @@ void MainWindow::onBatchEditClicked() {
 
     // Uscita automatica dalla modalita' selezione dopo l'edit
     m_selectModeButton->setChecked(false);
+}
+
+void MainWindow::onUndoAvailabilityChanged(bool available, const QString& description) {
+    m_undoButton->setVisible(available);
+    m_undoButton->setText(available ? description : "Annulla");
 }
