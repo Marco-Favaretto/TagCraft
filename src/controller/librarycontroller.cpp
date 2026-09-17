@@ -114,6 +114,15 @@ std::optional<Track> LibraryController::getTrackByRelativePath(
     return TrackDao::findByRelativePath(relativePath);
 }
 
+QList<Track> LibraryController::getTracksFromRelativePaths(const QList<QString>& paths) const {
+    QList<Track> tracks;
+    for(QString s : paths) {
+        auto trackOpt = getTrackByRelativePath(s);
+        if(trackOpt) tracks.append(*trackOpt);
+    }
+    return tracks;
+}
+
 QList<Track> LibraryController::getTracksByAlbum(int albumId) const {
     return TrackDao::getByAlbumId(albumId);
 }

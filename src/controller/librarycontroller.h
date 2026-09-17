@@ -37,6 +37,7 @@ public:
     QList<TrackDto> getAllTracksResolved() const;
     std::optional<Track> getTrackById(int trackId) const;
     std::optional<Track> getTrackByRelativePath(const QString& relativePath) const;
+    QList<Track> getTracksFromRelativePaths(const QList<QString>& paths) const;
     
     QList<Track> getTracksByAlbum(int albumId) const;
     QList<Track> getTracksByAlbumRPath(const QString& albumRelativePath) const;
