@@ -6,7 +6,7 @@
 DetailsPanel::DetailsPanel(LibraryController* library, MetadataController* metadata, QWidget* parent)
     : QWidget(parent)
     , m_mainLayout(new QVBoxLayout(this))
-    , m_formLayout(new QFormLayout(this))
+    , m_formLayout(new QFormLayout())
     , m_artworkLabel(new QLabel(this))
     , deleteButton(new QPushButton(this))
     , openFileSystemButton(new QPushButton(this))
