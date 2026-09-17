@@ -26,6 +26,7 @@ private slots:
     void onItemActivated(int id); // doppio clic / invio -> naviga giu' un livello
 
     void onLibraryUpdated();
+    void onBatchOperationFinished(const QString& operationName, int succeeded, int failed);
     void onErrorOccurred(const QString& message);
     void onScanProgress(int percentage);
     void onStorageMounted();
@@ -77,6 +78,7 @@ private:
 
     std::optional<int> m_drilldownArtistId;
     std::optional<int> m_drilldownAlbumId;
+    bool m_suppressNextLibraryUpdatedMessage = false;
 };
 
 #endif // MAINWINDOW_H

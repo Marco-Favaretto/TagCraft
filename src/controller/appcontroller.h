@@ -61,6 +61,8 @@ signals:
     void metadataSaved(const QString& relativePath);
     void metadataSaveFailed(const QString& relativePath, const QString& reason);
 
+    void batchOperationFinished(const QString& operationName, int succeeded, int failed);
+
     // void downloadProgress(const QString& url, int percentage);
     // void downloadFinished(const QString& relativePath);
     // void downloadFailed(const QString& url, const QString& reason);
@@ -70,6 +72,12 @@ private slots:
     void onFullScanFinished(const QList<TrackFileSystemDto>& list);
 
 private:
+    QString saveMetadataFileCore(const QString& relativePath, const TrackDto& dto);
+    QPair<int, int> saveMetadataBatchCore(const QList<Track>& tracks, const QHash<QString, QVariant>& changedValues, QList<TrackFileSystemDto>& updatedFilesOut);
+    QString setCoverCore(const QString& relativePath, const QString& imagePath);
+    QString removeCoverCore(const QString& relativePath);
+    QString cleanTagsCore(const QString& relativePath);
+
     void setupConnections();
     void resolveArtworkFor(const QList<TrackFileSystemDto>& tracks);
     bool tryMountAndOpenDatabase();

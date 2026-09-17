@@ -94,6 +94,7 @@ void MainWindow::setupConnections() {
     connect(m_appController, &AppController::errorOccurred, this, &MainWindow::onErrorOccurred);
     connect(m_appController, &AppController::scanProgress, this, &MainWindow::onScanProgress);
     connect(m_appController, &AppController::storageMounted, this, &MainWindow::onStorageMounted);
+    connect(m_appController, &AppController::batchOperationFinished, this, &MainWindow::onBatchOperationFinished);
 
     connect(m_smartScanButton, &QPushButton::clicked, this, &MainWindow::onSmartScanClicked);
     connect(m_fullScanButton, &QPushButton::clicked,this, &MainWindow::onFullScanClicked);
@@ -196,11 +197,25 @@ void MainWindow::onItemActivated(int id) {
     }
 }
 
+void MainWindow::onBatchOperationFinished(const QString& operationName, int succeeded, int failed) {
+    m_suppressNextLibraryUpdatedMessage = true;
+
+    if (failed == 0) {
+        statusBar()->showMessage(QString("%1: %2 completate").arg(operationName).arg(succeeded), 4000);
+    } else {
+        statusBar()->showMessage(QString("%1: %2 completate, %3 fallite").arg(operationName).arg(succeeded).arg(failed), 6000);
+    }
+}
+
 void MainWindow::onLibraryUpdated() {
-    m_scanForDevices->setEnabled(true);
     m_scanProgressBar->setVisible(false);
     loadCurrentSection();
-    statusBar()->showMessage("Libreria aggiornata", 3000);
+
+    if (m_suppressNextLibraryUpdatedMessage) {
+        m_suppressNextLibraryUpdatedMessage = false;
+    } else {
+        statusBar()->showMessage("Libreria aggiornata", 3000);
+    }
 }
 
 void MainWindow::onErrorOccurred(const QString& message) {

@@ -104,118 +104,91 @@ void AppController::requestScanForDevices() {
 }
 
 void AppController::requestSaveMetadata(const QString& relativePath, const TrackDto& newValues) {
-    if (m_metadataController->saveMetadata(relativePath, newValues)) {
-        QFileInfo info(StorageManager::instance().toAbsolutePath(relativePath));
-        QList<TrackFileSystemDto> list;
-        list.append({relativePath, info.size(), info.lastModified().toSecsSinceEpoch()});
-        if(m_databaseController->updateNewTracks(list)) emit libraryUpdated();
-        else emit errorOccurred("errore nell'aggiornamento della traccia");
+    const QString error = saveMetadataFileCore(relativePath, newValues);
+    if (!error.isEmpty()) {
+        emit batchOperationFinished("Modifica metadati", 0, 1);
+        emit errorOccurred(error);
+        return;
+    }
+
+    QFileInfo info(StorageManager::instance().toAbsolutePath(relativePath));
+    QList<TrackFileSystemDto> list;
+    list.append({relativePath, info.size(), info.lastModified().toSecsSinceEpoch()});
+
+    if (m_databaseController->updateNewTracks(list)) {
+        emit batchOperationFinished("Modifica metadati", 1, 0);
+        emit libraryUpdated();
+    } else {
+        emit batchOperationFinished("Modifica metadati", 0, 1);
+        emit errorOccurred("errore nell'aggiornamento della traccia nel db");
     }
 }
 
 void AppController::requestSaveMetadataBatch(const QList<Track>& tracks, const QHash<QString, QVariant>& changedValues) {
     QList<TrackFileSystemDto> updatedFiles;
+    auto [succeeded, failed] = saveMetadataBatchCore(tracks, changedValues, updatedFiles);
 
-    for (const Track& t : tracks) {
-        TrackEditModel model(t, m_libraryController);
-        const TrackDto dto = model.buildDto(changedValues);
-
-        if (!m_metadataController->saveMetadata(t.relativePath(), dto)) {
-            emit errorOccurred("Errore nel salvataggio di " + t.relativePath());
-            continue;
-        }
-
-        QFileInfo info(StorageManager::instance().toAbsolutePath(t.relativePath()));
-        updatedFiles.append({t.relativePath(), info.size(), info.lastModified().toSecsSinceEpoch()});
-    }
+    emit batchOperationFinished("Modifica metadati", succeeded, failed);
 
     if (updatedFiles.isEmpty()) return;
 
     if (m_databaseController->updateNewTracks(updatedFiles)) emit libraryUpdated();
-    else emit errorOccurred("errore nell'aggiornamento delle tracce");
+    else emit errorOccurred("errore nell'aggiornamento delle tracce nel db");
 }
 
 void AppController::requestSetCover(const QString& relativePath, const QString& imagePath) {
-    QImage image(imagePath);
-    if (image.isNull()) {
-        emit errorOccurred("L'immagine è null");
+    const QString error = setCoverCore(relativePath, imagePath);
+    if (!error.isEmpty()) {
+        emit batchOperationFinished("Imposta artwork", 0, 1);
+        emit errorOccurred(error);
         return;
     }
-
-    const QString artworkHash = ImageUtils::contentHash(image);
-    if (artworkHash.isEmpty()) {
-        emit errorOccurred("Hash è empty");
-        return;
-    }
-
-    const QString cachedPath = ImageUtils::cacheArtwork(image, StorageManager::instance().artworkCacheDirectory());
-    if (cachedPath.isEmpty()) {
-        emit errorOccurred("cachedPath è empty");
-        return;
-    }
-
-    if(!m_metadataController->setCover(relativePath, imagePath)) {
-        emit errorOccurred("errore nel set della cover nei metadata");
-        return;
-    }
-
-    std::optional<Track> t = TrackDao::findByRelativePath(relativePath);
-    if(!t) {
-        emit errorOccurred("Errore nel recupero della traccia " + relativePath);
-        return;
-    }
-
-    if(!TrackDao::updateCover(t->id(), cachedPath)) {
-        emit errorOccurred("errore nell'update della cover a db");
-        return;
-    }
+    emit batchOperationFinished("Imposta artwork", 1, 0);
+    emit libraryUpdated();
 }
 
 void AppController::requestRemoveCover(const QString& relativePath) {
-    std::optional<Track> t = TrackDao::findByRelativePath(relativePath);
-    if(!t) {
-        emit errorOccurred("Errore nel recupero della traccia " + relativePath);
+    const QString error = removeCoverCore(relativePath);
+    if (!error.isEmpty()) {
+        emit batchOperationFinished("Rimuovi artwork", 0, 1);
+        emit errorOccurred(error);
         return;
     }
-    if(m_metadataController->removeCover(relativePath)) {
-        if(!TrackDao::updateCover(t->id(), "NULL")) {
-            emit errorOccurred("errore nell'update della cover a db");
-            return;
-        }
-    } else emit errorOccurred("Errore nell'eliminazione della traccia");
-
+    emit batchOperationFinished("Rimuovi artwork", 1, 0);
     emit libraryUpdated();
 }
 
 void AppController::requestCleanTags(const QString& relativePath) {
-    std::optional<Track> t = TrackDao::findByRelativePath(relativePath);
-    if(!t) {
-        emit errorOccurred("Errore nel recupero della traccia " + relativePath);
+    const QString error = cleanTagsCore(relativePath);
+    if (!error.isEmpty()) {
+        emit batchOperationFinished("Clean Tags", 0, 1);
+        emit errorOccurred(error);
         return;
     }
-    if(m_metadataController->cleanTags(relativePath)) {
-        if(!TrackDao::cleanTags(t->id())) {
-            emit errorOccurred("errore nell'update della cover a db");
-            return;
-        }
-    } else emit errorOccurred("Errore nell'eliminazione della traccia");
-
+    emit batchOperationFinished("Clean Tags", 1, 0);
     emit libraryUpdated();
 }
 
 void AppController::requestSetCoverBatch(const QList<QString>& relativePaths, const QString& imagePath) {
-    for(auto path : relativePaths) this->requestSetCover(path, imagePath);
+    int succeeded = 0, failed = 0;
+    for (const QString& path : relativePaths) {
+        if (setCoverCore(path, imagePath).isEmpty()) ++succeeded; 
+        else ++failed;
+    }
+    emit batchOperationFinished("Imposta artwork", succeeded, failed);
+    if (succeeded > 0) emit libraryUpdated();
 }
 
 void AppController::requestSetAlbumCover(int id, const QString& imagePath) {
     QList<QString> trackPaths;
-    for(auto t : m_libraryController->getTracksByAlbum(id)) trackPaths.append(t.relativePath());
-
-    this->requestSetCoverBatch(trackPaths, imagePath);
+    for (auto t : m_libraryController->getTracksByAlbum(id)) trackPaths.append(t.relativePath());
+    requestSetCoverBatch(trackPaths, imagePath);
 }
 
 void AppController::requestRemoveAlbumCover(int id) {
-    for(auto t : m_libraryController->getTracksByAlbum(id)) this->requestRemoveCover(t.relativePath());
+    QList<QString> trackPaths;
+    for (auto t : m_libraryController->getTracksByAlbum(id)) trackPaths.append(t.relativePath());
+    requestRemoveCoverBatch(trackPaths);
 }
 
 // result["id"], result["title"], result["artistName"], result["genreName"], result["trackNumbers"]
@@ -224,37 +197,46 @@ void AppController::requestSaveAlbumMetadata(const QHash<QString, QVariant>& alb
     const QString newTitle = albumChanges.value(AlbumEditModel::KeyTitle).toString();
     const QString newArtistName = albumChanges.value(AlbumEditModel::KeyArtist).toString();
     const QString newGenreName = albumChanges.value(AlbumEditModel::KeyGenre).toString();
-    
+
     QHash<QString, QVariant> changed;
     changed.insert(TrackEditModel::KeyAlbum, newTitle);
     changed.insert(TrackEditModel::KeyArtist, newArtistName);
     changed.insert(TrackEditModel::KeyGenre, newGenreName);
-    
-    requestSaveMetadataBatch(m_libraryController->getTracksByAlbum(albumId), changed);
-    
+
+    QList<TrackFileSystemDto> updatedFiles;
+    auto [succeeded, failed] = saveMetadataBatchCore(m_libraryController->getTracksByAlbum(albumId), changed, updatedFiles);
+
     const int artistId = m_databaseController->resolveArtistId(newArtistName);
     const int genreId = m_databaseController->resolveGenreId(newGenreName);
-    
+
     if (!AlbumDao::updateMetadata(albumId, newTitle, artistId, genreId)) {
-        emit errorOccurred("errore nell'aggiornamento dell'album a db");
+        emit batchOperationFinished("Modifica album", succeeded, failed + 1);
+        emit errorOccurred("errore nell'aggiornamento dell'album nel db");
         return;
     }
-    
-    // update tracce
+
     const QVariantMap newTrackNumbers = albumChanges.value(AlbumEditModel::KeyTrackNumbers).toMap();
-    QHash<QString, QVariant> newNumbers;
     for (auto it = newTrackNumbers.constBegin(); it != newTrackNumbers.constEnd(); ++it) {
         const int trackId = it.key().toInt();
         const int newNumber = it.value().toInt();
         auto trackOpt = m_libraryController->getTrackById(trackId);
-        if(!trackOpt) continue;
-        const Track t = *trackOpt;
-        TrackEditModel model(t, m_libraryController);
-        QHash<QString, QVariant> qvarianthash;
-        qvarianthash.insert(TrackEditModel::KeyTrackNumber, newNumber);
-        const TrackDto dto = model.buildDto(qvarianthash);
-        requestSaveMetadata(t.relativePath(), dto);
+        if (!trackOpt) { ++failed; continue; }
+
+        TrackEditModel model(*trackOpt, m_libraryController);
+        QHash<QString, QVariant> numberChange;
+        numberChange.insert(TrackEditModel::KeyTrackNumber, newNumber);
+        const TrackDto dto = model.buildDto(numberChange);
+
+        if (saveMetadataFileCore(trackOpt->relativePath(), dto).isEmpty()) {
+            QFileInfo info(StorageManager::instance().toAbsolutePath(trackOpt->relativePath()));
+            updatedFiles.append({trackOpt->relativePath(), info.size(), info.lastModified().toSecsSinceEpoch()});
+            ++succeeded;
+        } else ++failed;
     }
+
+    emit batchOperationFinished("Modifica album", succeeded, failed);
+
+    if (!updatedFiles.isEmpty() && !m_databaseController->updateNewTracks(updatedFiles)) emit errorOccurred("errore nell'aggiornamento delle tracce nel db");
 
     emit libraryUpdated();
 }
@@ -262,10 +244,19 @@ void AppController::requestSaveAlbumMetadata(const QHash<QString, QVariant>& alb
 void AppController::requestRenameArtist(int id, const QString& newName) {
     QHash<QString, QVariant> changed;
     changed.insert(TrackEditModel::KeyArtist, newName);
-    requestSaveMetadataBatch(m_libraryController->getTracksByArtist(id), changed);
+    QList<TrackFileSystemDto> updatedFiles;
+    auto [succeeded, failed] = saveMetadataBatchCore(m_libraryController->getTracksByArtist(id), changed, updatedFiles);
+
     if (!ArtistDao::rename(id, newName)) {
-        emit errorOccurred("errore nell'aggiornamento dell'artista a db");
+        emit batchOperationFinished("Rinomina artista", succeeded, failed + 1);
+        emit errorOccurred("errore nell'aggiornamento dell'artista nel db");
         return;
+    }
+
+    emit batchOperationFinished("Rinomina artista", succeeded, failed);
+
+    if (!updatedFiles.isEmpty() && !m_databaseController->updateNewTracks(updatedFiles)) {
+        emit errorOccurred("errore nell'aggiornamento delle tracce nel db");
     }
 
     emit libraryUpdated();
@@ -274,10 +265,20 @@ void AppController::requestRenameArtist(int id, const QString& newName) {
 void AppController::requestRenameGenre(int id, const QString& newName) {
     QHash<QString, QVariant> changed;
     changed.insert(TrackEditModel::KeyGenre, newName);
-    requestSaveMetadataBatch(m_libraryController->getTracksByGenre(id), changed);
+
+    QList<TrackFileSystemDto> updatedFiles;
+    auto [succeeded, failed] = saveMetadataBatchCore(m_libraryController->getTracksByGenre(id), changed, updatedFiles);
+
     if (!GenreDao::rename(id, newName)) {
-        emit errorOccurred("errore nell'aggiornamento del genere a db");
+        emit batchOperationFinished("Rinomina genere", succeeded, failed + 1);
+        emit errorOccurred("errore nell'aggiornamento del genere nel db");
         return;
+    }
+
+    emit batchOperationFinished("Rinomina genere", succeeded, failed);
+
+    if (!updatedFiles.isEmpty() && !m_databaseController->updateNewTracks(updatedFiles)) {
+        emit errorOccurred("errore nell'aggiornamento delle tracce nel db");
     }
 
     emit libraryUpdated();
@@ -446,10 +447,83 @@ void AppController::deleteFromFS(const QString& relativePath, bool isAlbum) {
 }
 
 void AppController::requestCleanTagsBatch(const QList<QString>& relativePaths) {
-    for(auto path : relativePaths) requestCleanTags(path);
+    int succeeded = 0, failed = 0;
+    for (const QString& path : relativePaths) {
+        if (cleanTagsCore(path).isEmpty()) ++succeeded; 
+        else ++failed;
+    }
+    emit batchOperationFinished("Clean Tags", succeeded, failed);
+    if (succeeded > 0) emit libraryUpdated();
 }
 
 void AppController::requestRemoveCoverBatch(const QList<QString>& relativePaths) {
-    for(auto path : relativePaths) requestRemoveCover(path);
+    int succeeded = 0, failed = 0;
+    for (const QString& path : relativePaths) {
+        if (removeCoverCore(path).isEmpty()) ++succeeded; 
+        else ++failed;
+    }
+    emit batchOperationFinished("Rimuovi artwork", succeeded, failed);
+    if (succeeded > 0) emit libraryUpdated();
 }
 
+QString AppController::saveMetadataFileCore(const QString& relativePath, const TrackDto& dto) {
+    if (!m_metadataController->saveMetadata(relativePath, dto)) return "Errore nel salvataggio dei metadati di " + relativePath;
+    return QString();
+}
+
+QPair<int, int> AppController::saveMetadataBatchCore(const QList<Track>& tracks, const QHash<QString, QVariant>& changedValues, QList<TrackFileSystemDto>& updatedFilesOut) {
+    int succeeded = 0, failed = 0;
+
+    for (const Track& t : tracks) {
+        TrackEditModel model(t, m_libraryController);
+        const TrackDto dto = model.buildDto(changedValues);
+
+        if (saveMetadataFileCore(t.relativePath(), dto).isEmpty()) {
+            QFileInfo info(StorageManager::instance().toAbsolutePath(t.relativePath()));
+            updatedFilesOut.append({t.relativePath(), info.size(), info.lastModified().toSecsSinceEpoch()});
+            ++succeeded;
+        } else ++failed;
+    }
+
+    return {succeeded, failed};
+}
+
+QString AppController::setCoverCore(const QString& relativePath, const QString& imagePath) {
+    QImage image(imagePath);
+    if (image.isNull()) return "L'immagine è null";
+
+    const QString artworkHash = ImageUtils::contentHash(image);
+    if (artworkHash.isEmpty()) return "Hash è empty";
+
+    const QString cachedPath = ImageUtils::cacheArtwork(image, StorageManager::instance().artworkCacheDirectory());
+    if (cachedPath.isEmpty()) return "cachedPath è empty";
+
+    if (!m_metadataController->setCover(relativePath, imagePath)) return "errore nel set della cover nei metadata";
+
+    std::optional<Track> t = TrackDao::findByRelativePath(relativePath);
+    if (!t) return "Errore nel recupero della traccia " + relativePath;
+
+    if (!TrackDao::updateCover(t->id(), cachedPath)) return "errore nell'update della cover nel db";
+
+    return QString();
+}
+
+QString AppController::removeCoverCore(const QString& relativePath) {
+    std::optional<Track> t = TrackDao::findByRelativePath(relativePath);
+    if (!t) return "Errore nel recupero della traccia " + relativePath;
+
+    if (!m_metadataController->removeCover(relativePath)) return "Errore nell'eliminazione della cover";
+    if (!TrackDao::updateCover(t->id(), "NULL")) return "errore nell'update della cover nel db";
+
+    return QString();
+}
+
+QString AppController::cleanTagsCore(const QString& relativePath) {
+    std::optional<Track> t = TrackDao::findByRelativePath(relativePath);
+    if (!t) return "Errore nel recupero della traccia " + relativePath;
+
+    if (!m_metadataController->cleanTags(relativePath)) return "Errore nella pulizia dei tag del file";
+    if (!TrackDao::cleanTags(t->id())) return "errore nell'update dei tag nel db";
+
+    return QString();
+}
