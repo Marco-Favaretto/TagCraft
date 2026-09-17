@@ -122,6 +122,8 @@ qt_add_executable(TagCraft
     src/dto/editfield.h
     src/dto/constants.h
     src/dto/firsttrackcovers.h
+    src/dto/albumdto.h
+    src/dto/undoaction.h
 
     src/controller/appcontroller.h
     src/controller/appcontroller.cpp
@@ -133,7 +135,6 @@ qt_add_executable(TagCraft
     src/controller/metadatacontroller.cpp
     src/controller/librarycontroller.h
     src/controller/librarycontroller.cpp
-    src/dto/albumdto.h
 
 )
 
