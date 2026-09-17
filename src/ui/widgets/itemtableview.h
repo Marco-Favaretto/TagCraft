@@ -13,6 +13,8 @@
 #include "ui/tablemodels/artisttablemodel.h"
 #include "ui/tablemodels/genretablemodel.h"
 #include "dto/viewmode.h"
+#include "dto/albumdto.h"
+#include "dto/trackdto.h"
 
 // per ora sola lettura
 class ItemTableView : public QWidget {
@@ -23,6 +25,7 @@ public:
     void setTracks(const QList<Track>& tracks);
     void setTracks(const QList<TrackDto>& trackDtos);
     void setAlbums(const QList<Album>& albums);
+    void setAlbums(const QList<AlbumDto>& albums);
     void setArtists(const QList<Artist>& artists);
     void setGenres(const QList<Genre>& genres);
     void sortByColumn(int column, Qt::SortOrder order);

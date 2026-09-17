@@ -108,3 +108,22 @@ TrackDto EntityMapper::toTrackDto(const QSqlQuery& query) {
     
     return dto;
 }
+
+AlbumDto EntityMapper::toAlbumDto(const QSqlQuery& query) {
+    AlbumDto dto;
+
+    dto.id = query.value("album.id").toInt();;
+    dto.title = query.value("album.title").toString();
+    dto.artistName = query.value("artist.name").toString();
+    dto.genreName = query.value("genre.name").toString();
+    
+    std::optional<int> tmpOpt = DbUtils::variantToOptional<int>(query.value("album.year"));
+    if(tmpOpt) dto.year = *tmpOpt;
+
+    dto.relativePath = query.value("album.relative_path").toString();
+    
+    std::optional<QString> tmpOptHash = DbUtils::variantToOptional<QString>(query.value("album.cover_cache_hash"));
+    if(tmpOptHash) dto.coverHash = *tmpOptHash; 
+    
+    return dto;
+}

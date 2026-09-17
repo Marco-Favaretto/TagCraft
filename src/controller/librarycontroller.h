@@ -11,6 +11,7 @@
 #include "model/genre.h"
 #include "dto/searchresultdto.h"
 #include "dto/trackdto.h"
+#include "dto/albumdto.h"
 
 class LibraryController : public QObject{
     Q_OBJECT
@@ -22,6 +23,7 @@ public:
     QList<Artist> searchArtists(const QString& keyword) const;
 
     QList<Album> getAllAlbums() const;
+    QList<AlbumDto> getAllAlbumsResolved() const;
     std::optional<Album> getAlbumById(int albumId) const;
     std::optional<Album> getAlbumByPath(const QString& relativePath) const;
     QList<Album> getAlbumsByArtist(int artistId) const;

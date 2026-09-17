@@ -124,6 +124,30 @@ QList<Album> AlbumDao::getAll() {
     return albums;
 }
 
+QList<AlbumDto> AlbumDao::getAllResolved() {
+    QList<AlbumDto> albumDtos;
+    static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Album);
+    const QString queryString = queries.value("getAllResolved");
+
+    if (queryString.isEmpty()) {
+        qCritical() << "Query 'getAll' non trovata in album.sql";
+        return albumDtos;
+    }
+
+    QSqlQuery query;
+    if (!query.prepare(queryString)) {
+        qCritical().noquote() << "[SQL PREPARE ERROR]:" << query.lastError().text();
+        return albumDtos;
+    }
+
+    if(SqlExecutor::execute(query, {})) {
+        while (query.next()) {
+            albumDtos.append(EntityMapper::toAlbumDto(query));
+        }
+    }
+    return albumDtos;
+}
+
 bool AlbumDao::deleteById(int id) {
     static const auto queries = SqlParser::parseNamedQueries(Constants::Sql::Album);
     const QString queryString = queries.value("deleteById");

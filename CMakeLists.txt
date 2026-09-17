@@ -133,6 +133,7 @@ qt_add_executable(TagCraft
     src/controller/metadatacontroller.cpp
     src/controller/librarycontroller.h
     src/controller/librarycontroller.cpp
+    src/dto/albumdto.h
 
 )
 

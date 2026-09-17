@@ -2,6 +2,7 @@
 #define ALBUMDAO_H
 
 #include "model/album.h"
+#include "dto/albumdto.h"
 
 #include <QString>
 #include <optional>
@@ -21,6 +22,7 @@ public:
     static std::optional<Album> getByTitleAndRelativePath(const QString& title, const QString& relativePath);
     static std::optional<Album> getOrCreate(const QString& title, const QString& trackRelativePath, int artistId, std::optional<int> year, int genreId);
     static QList<Album> getAll();
+    static QList<AlbumDto> getAllResolved();
     static QList<Album> getByArtistId(int);
     QList<Album> getByGenreId(int genreId);
     static QList<Album> searchByKeyword(const QString&);

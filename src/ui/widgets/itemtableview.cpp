@@ -133,6 +133,25 @@ void ItemTableView::setAlbums(const QList<Album>& albums) {
     activateModel(m_albumModel, ViewMode::Albums);
 }
 
+void ItemTableView::setAlbums(const QList<AlbumDto>& albumDtos) {
+    QList<AlbumTableModel::Row> rows;
+    rows.reserve(albumDtos.size());
+
+    for (const AlbumDto& a : albumDtos) {
+        AlbumTableModel::Row row;
+        row.id = a.id;
+        row.title = a.title;
+        row.artistName = a.artistName;
+        row.year = a.year;
+        row.genreName = a.genreName;
+        rows.append(row);
+    }
+
+    m_albumModel->setRows(rows);
+    m_tableView->sortByColumn(0, Qt::AscendingOrder);
+    activateModel(m_albumModel, ViewMode::Albums);
+}
+
 void ItemTableView::setArtists(const QList<Artist>& artists) {
     QList<ArtistTableModel::Row> rows;
     rows.reserve(artists.size());

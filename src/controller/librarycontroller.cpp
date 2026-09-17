@@ -30,6 +30,10 @@ QList<Album> LibraryController::getAllAlbums() const {
     return AlbumDao::getAll();
 }
 
+QList<AlbumDto> LibraryController::getAllAlbumsResolved() const {
+    return AlbumDao::getAllResolved();
+}
+
 std::optional<Album> LibraryController::getAlbumById(int albumId) const {
     return AlbumDao::findById(albumId);
 }

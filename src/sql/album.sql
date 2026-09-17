@@ -95,3 +95,10 @@ SET title = :title,
     artist_id = :artist_id,
     genre_id = :genre_id
 WHERE id = :id;
+
+-- name: getAllResolved
+SELECT album.id, album.title, artist.name, genre.name, album.year, album.relative_path, album.cover_cache_hash
+FROM album
+JOIN artist ON album.artist_id = artist.id
+JOIN genre ON album.genre_id = genre.id
+ORDER BY album.title;

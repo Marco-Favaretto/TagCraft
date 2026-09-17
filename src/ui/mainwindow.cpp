@@ -125,7 +125,7 @@ void MainWindow::loadCurrentSection() {
             m_itemTable->setTracks(m_appController->library()->getAllTracksResolved());
             break;
         case NavigationSection::Albums:
-            m_itemTable->setAlbums(m_appController->library()->getAllAlbums());
+            m_itemTable->setAlbums(m_appController->library()->getAllAlbumsResolved());
             break;
         case NavigationSection::Artists:
             m_itemTable->setArtists(m_appController->library()->getAllArtists());
