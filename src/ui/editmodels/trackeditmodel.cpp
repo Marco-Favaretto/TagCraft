@@ -193,6 +193,6 @@ TrackDto TrackEditModel::buildDto(const QHash<QString, QVariant>& changedValues)
     dto.fileSize = m_track.fileSize();
     dto.lastModified = m_track.fileMtimeSecs();
     dto.coverHash = m_track.trackCoverHash() ? *m_track.trackCoverHash() : "NULL";
-
+    
     return dto;
 }

@@ -623,7 +623,7 @@ QString AppController::setCoverCore(const QString& relativePath, const QString& 
     const QString artworkHash = ImageUtils::contentHash(image);
     if (artworkHash.isEmpty()) return "Hash è empty";
 
-    const QString cachedPath = ImageUtils::cacheArtwork(image, StorageManager::instance().artworkCacheDirectory());
+    const QString cachedPath = ImageUtils::cacheArtwork(image, m_storageController->artworkCacheDirectory());
     if (cachedPath.isEmpty()) return "cachedPath è empty";
 
     if (!m_metadataController->setCover(relativePath, imagePath)) return "errore nel set della cover nei metadata";
@@ -675,9 +675,11 @@ void AppController::restoreTrackSnapshots(const QList<QPair<QString, TrackDto>>&
         saveMetadataFileCore(path, dto);
 
         if (!dto.coverHash.isEmpty() && dto.coverHash != "NULL") {
-            const QString cachedImagePath = m_storageController->artworkCacheDirectory() + "/" + dto.coverHash + ".jpg";
-            setCoverCore(path, cachedImagePath);
-        } else removeCoverCore(path);
+            auto t = TrackDao::findByRelativePath(path);
+            if(t) TrackDao::updateCover(t->id(), dto.coverHash); // hash nudo, nessun ricalcolo/ricache
+        } else {
+            removeCoverCore(path);
+        }
 
         QFileInfo info(m_storageController->resolveToAbsolutePath(path));
         updatedFiles.append({path, info.size(), info.lastModified().toSecsSinceEpoch()});
