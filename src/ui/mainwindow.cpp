@@ -280,7 +280,7 @@ void MainWindow::navigateUp() {
             if (m_drilldownAlbumId) {
                 m_drilldownAlbumId.reset();
                 if (m_drilldownArtistId) {
-                    m_itemTable->setAlbums(m_appController->library()->getAlbumsByArtist(*m_drilldownArtistId));
+                    m_itemTable->setAlbums(m_appController->library()->getAlbumsForArtist(*m_drilldownArtistId));
                 } else {
                     m_itemTable->setAlbums(m_appController->library()->getAllAlbums());
                 }
