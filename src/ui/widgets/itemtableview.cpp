@@ -18,6 +18,7 @@ ItemTableView::ItemTableView(LibraryController* library, QWidget* parent)
 
     m_proxyModel->setSortRole(Qt::EditRole);
     m_proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
+    m_proxyModel->setSortCaseSensitivity(Qt::CaseInsensitive);
     // Filtra su tutte le colonne, non solo la prima
     m_proxyModel->setFilterKeyColumn(-1);
 
