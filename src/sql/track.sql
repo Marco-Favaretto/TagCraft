@@ -106,7 +106,12 @@ SELECT
     file_size, 
     track_cover_hash 
 FROM track
-where album_id = 1 AND artist_id = :artist_id;
+WHERE artist_id = :artist_id
+AND album_id NOT IN (
+    SELECT id
+    FROM album
+    WHERE artist_id = :artist_id
+);
 
 -- name: filesState
 SELECT 
