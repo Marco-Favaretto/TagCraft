@@ -41,7 +41,11 @@ User can now change order of an Album's Tracks directly in the Album Edit Dialog
 
 ### version [1.0](../../releases)
 
-First major release with new features: undo-action and file-logging, also performance improvements and some bug and UI fixing. 
+First major release: 
+1. undo-action
+2. file-logging
+3. performance improvements 
+4. some bug and UI fixing
 ---
 
 # Installation Guide (Linux only right now)
