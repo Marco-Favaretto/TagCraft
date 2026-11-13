@@ -14,12 +14,14 @@ Core application functionalities implemented:
 - read tags
 - edit single track and multiple tracks
 - edit and read artwork
+
 ### version 0.2
 The application runs and starts the UI. At the moment, the UI allows the user to navigate the music library following its hierarchy:
 
 Artist → Album → Track
 Genre → Track
 The user can navigate back through the hierarchy by pressing Backspace. A search function is also available, allowing the user to quickly find tracks, albums, artists, or genres.
+
 ### version 0.3 - MVP
 UI displays artwork and three buttons on the Tracks view:
 1. Edit dialog (single track only): opens a dialog that allow user to edit: title, album name, artist name, genre, track number, year and artwork, or remove all tags
@@ -34,11 +36,12 @@ The User can now edit album's artist, genre, title and artwork, artist's name an
 ### version 0.5
 User can now select multiple tracks (shift-range enabled) and apply the same artist, genre, album, year and artwork to all selected tracks
 
-### version [0.6](../../releases)
-
+### version 0.6
 User can now change order of an Album's Tracks directly in the Album Edit Dialog.
 
+### version [1.0](../../releases)
 
+First major release with new features: undo-action and file-logging, also performance improvements and some bug and UI fixing. 
 ---
 
 # Installation Guide (Linux only right now)
